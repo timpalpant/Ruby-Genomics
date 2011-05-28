@@ -1,0 +1,20 @@
+<tool id="BedGraphToWig" name="BedGraph-to-Wig" version="1.0.0">
+  <description>converter</description>
+  <command interpreter="ruby1.9">bedGraphToWig.rb -i $input -g $dbkey -o $output</command>
+  <inputs>
+      <param name="input" type="data" format="bedgraph" label="Input BedGraph file" />
+  </inputs>
+  <outputs>
+      <data name="output" format="wig" metadata_source="input" />
+  </outputs>
+	
+<help>
+.. class:: warningmark
+	
+This tool requires BedGraph formatted data. If you have tabular data that was not correctly autodetected as Bed, change the metadata by clicking on the pencil icon for the dataset.
+	
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

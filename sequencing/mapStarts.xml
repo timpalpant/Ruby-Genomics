@@ -1,0 +1,20 @@
+<tool id="MapStarts" name="Map starts" version="1.0.0">
+  <description>of sequencing reads</description>
+  <command interpreter="ruby1.9">mapStarts.rb -i $input -g $dbkey -o $output</command>
+  <inputs>
+      <param name="input" type="data" format="sam" label="Sequencing reads" />
+  </inputs>
+  <outputs>
+      <data name="output" format="wig" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires sequencing reads in SAM format.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

@@ -1,0 +1,20 @@
+<tool id="ConditionalPositioning" name="Compute conditional positioning" version="1.0.0">
+  <description>for an MNase experiment</description>
+  <command interpreter="ruby1.9">conditionalPositioning.rb -i $input -o $output</command>
+  <inputs>
+      <param name="input" type="data" format="wig" label="Dyad counts" />
+  </inputs>
+  <outputs>
+      <data name="output" format="input" metadata_source="input" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires dyad counts in Wiggle format.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

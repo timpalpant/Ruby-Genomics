@@ -1,0 +1,22 @@
+<tool id="CallNukes" name="Call Nucleosomes" version="1.0.0">
+  <description>in an MNase experiment</description>
+  <command interpreter="ruby1.9">callNukes.rb -a $dyads -c $smoothed -n $N -o $output</command>
+  <inputs>
+      <param name="dyads" type="data" format="wig" label="Dyad counts" />
+      <param name="smoothed" type="data" format="wig" label="Smoothed dyad counts" />
+      <param name="N" type="integer" value="147" optional="true" label="Assumed nucleosome size" />
+  </inputs>
+  <outputs>
+      <data name="output" format="nukes" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires dyad counts and smoothed dyad counts.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

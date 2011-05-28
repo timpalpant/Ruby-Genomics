@@ -1,0 +1,22 @@
+<tool id="MatrixAligner" name="Align values in a matrix" version="1.0.0">
+  <description>for a heatmap</description>
+  <command interpreter="ruby1.9">matrixAligner.rb -i $input -l $loci -m $M -o $output</command>
+  <inputs>
+      <param format="wig" name="input" type="data" label="Sequencing data" />
+      <param format="bed" name="loci" type="data" label="List of intervals (with alignment points)" />
+      <param type="integer" name="M" value="4000" label="Maximum row length" />
+  </inputs>
+  <outputs>
+      <data format="tabular" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+Large heatmap matrices may require a long time to generate. To reduce the size of an MxN matrix with large M, rows (N) can be truncated using the maximum row length parameter. Rows are truncated from the alignment point (symmetrically) if possible, or as nearly symmetrically as possible.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

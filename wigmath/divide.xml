@@ -1,0 +1,21 @@
+<tool id="Divide" name="Divide" version="1.0.0">
+  <description>two Wiggle files</description>
+  <command interpreter="ruby1.9">divide.rb -1 $dividend -2 $divisor -o $output</command>
+  <inputs>
+		<param format="wig" name="dividend" type="data" label="File 1 (dividend)" />
+		<param format="wig" name="divisor" type="data" label="File 2 (divisor)" />
+  </inputs>
+  <outputs>
+		<data format="input" name="output" metadata_source="dividend" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool requires Wiggle formatted data.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>

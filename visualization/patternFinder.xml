@@ -1,0 +1,28 @@
+<tool id="PatternFinder" name="Find patterns" version="1.0.0">
+  <description>in Wig files</description>
+  <command interpreter="ruby1.9">
+		patternFinder.rb -l $loci -o $output
+			#for $input in $inputs
+				${input.file}
+			#end for
+	</command>
+  <inputs>
+			<param name="loci" type="data" format="bed" label="Loci to align to" />
+			<repeat name="inputs" title="Wig file">
+				<param name="file" type="data" format="wig" />
+			</repeat>
+  </inputs>
+  <outputs>
+      <data format="tabular" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires Wiggle formatted data. Wig data will be aligned to the coordinates specified, and averaged.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>
