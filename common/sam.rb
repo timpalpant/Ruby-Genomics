@@ -195,7 +195,7 @@ class BAMFile
 	def fetch(chr, start, stop)
 		entries = Array.new
 
-		@sam.foreach(chr, start, stop).each do |line|
+		@sam.foreach(chr, start, stop) do |line|
 			entries << SAMEntry.parse(line)
 		end
 		
