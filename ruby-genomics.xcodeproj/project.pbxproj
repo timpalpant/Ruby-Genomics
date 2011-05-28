@@ -6,11 +6,506 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXFileReference section */
+		1FD61DB413909D530013355B /* affy.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = affy.rb; sourceTree = "<group>"; };
+		1FD61DB513909D530013355B /* assembly.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = assembly.rb; sourceTree = "<group>"; };
+		1FD61DB613909D530013355B /* bed.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bed.rb; sourceTree = "<group>"; };
+		1FD61DB713909D530013355B /* bedgraph.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bedgraph.rb; sourceTree = "<group>"; };
+		1FD61DB813909D530013355B /* bowtie_hits.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bowtie_hits.rb; sourceTree = "<group>"; };
+		1FD61DB913909D530013355B /* chemistry.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = chemistry.rb; sourceTree = "<group>"; };
+		1FD61DBA13909D530013355B /* chromosome.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = chromosome.rb; sourceTree = "<group>"; };
+		1FD61DBB13909D530013355B /* fft.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fft.rb; sourceTree = "<group>"; };
+		1FD61DBC13909D530013355B /* fixed_precision.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fixed_precision.rb; sourceTree = "<group>"; };
+		1FD61DBD13909D530013355B /* genome.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genome.rb; sourceTree = "<group>"; };
+		1FD61DBE13909D530013355B /* genomic_data.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomic_data.rb; sourceTree = "<group>"; };
+		1FD61DBF13909D530013355B /* genomic_index_error.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomic_index_error.rb; sourceTree = "<group>"; };
+		1FD61DC013909D530013355B /* genomic_interval.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomic_interval.rb; sourceTree = "<group>"; };
+		1FD61DC113909D530013355B /* gff.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gff.rb; sourceTree = "<group>"; };
+		1FD61DC213909D530013355B /* macs.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = macs.rb; sourceTree = "<group>"; };
+		1FD61DC313909D530013355B /* master_annotations.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = master_annotations.rb; sourceTree = "<group>"; };
+		1FD61DC413909D530013355B /* math_utils.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = math_utils.rb; sourceTree = "<group>"; };
+		1FD61DC513909D530013355B /* ndf.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = ndf.rb; sourceTree = "<group>"; };
+		1FD61DC613909D530013355B /* nucleosome.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = nucleosome.rb; sourceTree = "<group>"; };
+		1FD61DC713909D530013355B /* orchid.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = orchid.rb; sourceTree = "<group>"; };
+		1FD61DC813909D530013355B /* perl.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = perl.rb; sourceTree = "<group>"; };
+		1FD61DCA13909D530013355B /* gnuplot_tools.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gnuplot_tools.rb; sourceTree = "<group>"; };
+		1FD61DCB13909D530013355B /* pos.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = pos.rb; sourceTree = "<group>"; };
+		1FD61DCC13909D530013355B /* pwm.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = pwm.rb; sourceTree = "<group>"; };
+		1FD61DCD13909D530013355B /* roman_numerals.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = roman_numerals.rb; sourceTree = "<group>"; };
+		1FD61DCE13909D530013355B /* sam.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sam.rb; sourceTree = "<group>"; };
+		1FD61DCF13909D530013355B /* sgd_features.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sgd_features.rb; sourceTree = "<group>"; };
+		1FD61DD013909D530013355B /* single_bp_data.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = single_bp_data.rb; sourceTree = "<group>"; };
+		1FD61DD113909D530013355B /* single_bp_math.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = single_bp_math.rb; sourceTree = "<group>"; };
+		1FD61DD213909D530013355B /* spot.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spot.rb; sourceTree = "<group>"; };
+		1FD61DD313909D530013355B /* spot_array.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spot_array.rb; sourceTree = "<group>"; };
+		1FD61DD513909D530013355B /* gsl_stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gsl_stats.rb; sourceTree = "<group>"; };
+		1FD61DD613909D530013355B /* narray_stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = narray_stats.rb; sourceTree = "<group>"; };
+		1FD61DD713909D530013355B /* native_stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = native_stats.rb; sourceTree = "<group>"; };
+		1FD61DD813909D530013355B /* r_stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = r_stats.rb; sourceTree = "<group>"; };
+		1FD61DD913909D530013355B /* stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = stats.rb; sourceTree = "<group>"; };
+		1FD61DDB13909D530013355B /* dna_property.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = dna_property.rb; sourceTree = "<group>"; };
+		1FD61DDC13909D530013355B /* genome_atlas_api.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genome_atlas_api.rb; sourceTree = "<group>"; };
+		1FD61DDD13909D530013355B /* ucsc_tools.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = ucsc_tools.rb; sourceTree = "<group>"; };
+		1FD61DDE13909D530013355B /* unix_file_utils.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = unix_file_utils.rb; sourceTree = "<group>"; };
+		1FD61DDF13909D530013355B /* wig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wig.rb; sourceTree = "<group>"; };
+		1FD61DE113909D530013355B /* affyToBedGraph.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = affyToBedGraph.rb; sourceTree = "<group>"; };
+		1FD61DE213909D530013355B /* affyToBedGraph.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = affyToBedGraph.xml; sourceTree = "<group>"; };
+		1FD61DE313909D530013355B /* bedGraphToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bedGraphToWig.rb; sourceTree = "<group>"; };
+		1FD61DE413909D530013355B /* bedGraphToWig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = bedGraphToWig.xml; sourceTree = "<group>"; };
+		1FD61DE513909D530013355B /* bedToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bedToWig.rb; sourceTree = "<group>"; };
+		1FD61DE613909D530013355B /* bedToWig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = bedToWig.xml; sourceTree = "<group>"; };
+		1FD61DE713909D530013355B /* gffToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gffToWig.rb; sourceTree = "<group>"; };
+		1FD61DE813909D530013355B /* gffToWig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gffToWig.xml; sourceTree = "<group>"; };
+		1FD61DE913909D530013355B /* sacCer1to2.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sacCer1to2.rb; sourceTree = "<group>"; };
+		1FD61DEA13909D530013355B /* sacCer1to2.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sacCer1to2.xml; sourceTree = "<group>"; };
+		1FD61DEB13909D530013355B /* Gemfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile; sourceTree = "<group>"; };
+		1FD61DEC13909D530013355B /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = "<group>"; };
+		1FD61DEE13909D530013355B /* gffToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gffToWig.rb; sourceTree = "<group>"; };
+		1FD61DEF13909D530013355B /* subtract.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = subtract.rb; sourceTree = "<group>"; };
+		1FD61DF013909D530013355B /* zscorer.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = zscorer.rb; sourceTree = "<group>"; };
+		1FD61DF213909D530013355B /* callNukes.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = callNukes.rb; sourceTree = "<group>"; };
+		1FD61DF313909D530013355B /* callNukes.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = callNukes.xml; sourceTree = "<group>"; };
+		1FD61DF413909D530013355B /* conditionalPositioning.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = conditionalPositioning.rb; sourceTree = "<group>"; };
+		1FD61DF513909D530013355B /* conditionalPositioning.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = conditionalPositioning.xml; sourceTree = "<group>"; };
+		1FD61DF613909D530013355B /* findExtrema.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findExtrema.rb; sourceTree = "<group>"; };
+		1FD61DF713909D530013355B /* findExtrema.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = findExtrema.xml; sourceTree = "<group>"; };
+		1FD61DF813909D530013355B /* findNuke.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findNuke.rb; sourceTree = "<group>"; };
+		1FD61DF913909D530013355B /* findNuke.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = findNuke.xml; sourceTree = "<group>"; };
+		1FD61DFA13909D530013355B /* mapDyads.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = mapDyads.rb; sourceTree = "<group>"; };
+		1FD61DFB13909D530013355B /* mapDyads.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mapDyads.xml; sourceTree = "<group>"; };
+		1FD61DFC13909D530013355B /* nukeDistances.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = nukeDistances.rb; sourceTree = "<group>"; };
+		1FD61DFD13909D530013355B /* occupancyVsChange.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = occupancyVsChange.rb; sourceTree = "<group>"; };
+		1FD61DFE13909D530013355B /* overlapFinder.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = overlapFinder.rb; sourceTree = "<group>"; };
+		1FD61DFF13909D530013355B /* positionChange.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = positionChange.rb; sourceTree = "<group>"; };
+		1FD61E0013909D530013355B /* powerSpectrum.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = powerSpectrum.rb; sourceTree = "<group>"; };
+		1FD61E0113909D530013355B /* powerSpectrum.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = powerSpectrum.xml; sourceTree = "<group>"; };
+		1FD61E0313909D530013355B /* fastqDumpWrapper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fastqDumpWrapper.rb; sourceTree = "<group>"; };
+		1FD61E0413909D530013355B /* matrix2png.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = matrix2png.xml; sourceTree = "<group>"; };
+		1FD61E0513909D530013355B /* memeMarkov.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = memeMarkov.xml; sourceTree = "<group>"; };
+		1FD61E0613909D530013355B /* memeMarkovWrapper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = memeMarkovWrapper.rb; sourceTree = "<group>"; };
+		1FD61E0713909D530013355B /* sra-fastq-dump.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "sra-fastq-dump.xml"; sourceTree = "<group>"; };
+		1FD61E0813909D530013355B /* Rakefile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Rakefile; sourceTree = "<group>"; };
+		1FD61E0913909D530013355B /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		1FD61E0C13909D530013355B /* ce2.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce2.len; sourceTree = "<group>"; };
+		1FD61E0D13909D530013355B /* ce3.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce3.len; sourceTree = "<group>"; };
+		1FD61E0E13909D530013355B /* ce4.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce4.len; sourceTree = "<group>"; };
+		1FD61E0F13909D530013355B /* ce5.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce5.len; sourceTree = "<group>"; };
+		1FD61E1013909D530013355B /* ce6.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce6.len; sourceTree = "<group>"; };
+		1FD61E1113909D530013355B /* ce7.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce7.len; sourceTree = "<group>"; };
+		1FD61E1213909D530013355B /* ce8.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce8.len; sourceTree = "<group>"; };
+		1FD61E1313909D530013355B /* ce9.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = ce9.len; sourceTree = "<group>"; };
+		1FD61E1413909D530013355B /* dm1.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = dm1.len; sourceTree = "<group>"; };
+		1FD61E1513909D530013355B /* dm2.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = dm2.len; sourceTree = "<group>"; };
+		1FD61E1613909D530013355B /* dm3.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = dm3.len; sourceTree = "<group>"; };
+		1FD61E1713909D530013355B /* hg15.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg15.len; sourceTree = "<group>"; };
+		1FD61E1813909D530013355B /* hg16.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg16.len; sourceTree = "<group>"; };
+		1FD61E1913909D530013355B /* hg17.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg17.len; sourceTree = "<group>"; };
+		1FD61E1A13909D530013355B /* hg18.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg18.len; sourceTree = "<group>"; };
+		1FD61E1B13909D530013355B /* hg19.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg19.len; sourceTree = "<group>"; };
+		1FD61E1C13909D530013355B /* hg19Haps.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg19Haps.len; sourceTree = "<group>"; };
+		1FD61E1D13909D530013355B /* hg19Patch2.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = hg19Patch2.len; sourceTree = "<group>"; };
+		1FD61E1E13909D530013355B /* sacCer1.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = sacCer1.len; sourceTree = "<group>"; };
+		1FD61E1F13909D530013355B /* sacCer2.len */ = {isa = PBXFileReference; lastKnownFileType = text; path = sacCer2.len; sourceTree = "<group>"; };
+		1FD61E2113909D530013355B /* orchid.pl */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = orchid.pl; sourceTree = "<group>"; };
+		1FD61E2213909D530013355B /* orchid_fasta.pl */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = orchid_fasta.pl; sourceTree = "<group>"; };
+		1FD61E2313909D530013355B /* PredictCleavagePatterns.pm */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = PredictCleavagePatterns.pm; sourceTree = "<group>"; };
+		1FD61E2513909D530013355B /* baseAlignCounts.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = baseAlignCounts.rb; sourceTree = "<group>"; };
+		1FD61E2613909D530013355B /* baseAlignCounts.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = baseAlignCounts.xml; sourceTree = "<group>"; };
+		1FD61E2713909D530013355B /* extractRegions.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = extractRegions.rb; sourceTree = "<group>"; };
+		1FD61E2813909D530013355B /* extractRegions.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = extractRegions.xml; sourceTree = "<group>"; };
+		1FD61E2913909D530013355B /* findAbsoluteMaxima.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findAbsoluteMaxima.rb; sourceTree = "<group>"; };
+		1FD61E2A13909D530013355B /* findAbsoluteMaxima.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = findAbsoluteMaxima.xml; sourceTree = "<group>"; };
+		1FD61E2B13909D530013355B /* findMyFeatures.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findMyFeatures.rb; sourceTree = "<group>"; };
+		1FD61E2C13909D530013355B /* macs14.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = macs14.xml; sourceTree = "<group>"; };
+		1FD61E2D13909D530013355B /* macsWrapper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = macsWrapper.rb; sourceTree = "<group>"; };
+		1FD61E2E13909D530013355B /* mapStarts.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = mapStarts.rb; sourceTree = "<group>"; };
+		1FD61E2F13909D530013355B /* mapStarts.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mapStarts.xml; sourceTree = "<group>"; };
+		1FD61E3013909D530013355B /* markBindingSites.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = markBindingSites.rb; sourceTree = "<group>"; };
+		1FD61E3113909D530013355B /* markBindingSites.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = markBindingSites.xml; sourceTree = "<group>"; };
+		1FD61E3213909D530013355B /* readSelector.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = readSelector.rb; sourceTree = "<group>"; };
+		1FD61E3313909D530013355B /* readSelector.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = readSelector.xml; sourceTree = "<group>"; };
+		1FD61E3413909D530013355B /* rollingReadLength.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = rollingReadLength.rb; sourceTree = "<group>"; };
+		1FD61E3513909D530013355B /* rollingReadLength.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = rollingReadLength.xml; sourceTree = "<group>"; };
+		1FD61E3613909D530013355B /* spectralDensity.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spectralDensity.rb; sourceTree = "<group>"; };
+		1FD61E3713909D530013355B /* spectralDensity.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = spectralDensity.xml; sourceTree = "<group>"; };
+		1FD61E3813909D530013355B /* windowStats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = windowStats.rb; sourceTree = "<group>"; };
+		1FD61E3913909D530013355B /* windowStats.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = windowStats.xml; sourceTree = "<group>"; };
+		1FD61E3B13909D530013355B /* bed_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bed_spec.rb; sourceTree = "<group>"; };
+		1FD61E3C13909D530013355B /* bedgraph_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bedgraph_spec.rb; sourceTree = "<group>"; };
+		1FD61E3D13909D530013355B /* chromosome_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = chromosome_spec.rb; sourceTree = "<group>"; };
+		1FD61E3E13909D530013355B /* fixed_precision_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fixed_precision_spec.rb; sourceTree = "<group>"; };
+		1FD61E4013909D530013355B /* test-chr.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "test-chr.txt"; sourceTree = "<group>"; };
+		1FD61E4113909D530013355B /* test.sam */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.sam; sourceTree = "<group>"; };
+		1FD61E4213909D530013355B /* test.wig */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.wig; sourceTree = "<group>"; };
+		1FD61E4313909D530013355B /* genome_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genome_spec.rb; sourceTree = "<group>"; };
+		1FD61E4413909D530013355B /* genomic_data_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomic_data_spec.rb; sourceTree = "<group>"; };
+		1FD61E4513909D530013355B /* genomic_interval_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomic_interval_spec.rb; sourceTree = "<group>"; };
+		1FD61E4613909D530013355B /* math_utils_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = math_utils_spec.rb; sourceTree = "<group>"; };
+		1FD61E4713909D530013355B /* roman_numerals_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = roman_numerals_spec.rb; sourceTree = "<group>"; };
+		1FD61E4813909D530013355B /* sam_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sam_spec.rb; sourceTree = "<group>"; };
+		1FD61E4913909D530013355B /* single_bp_data_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = single_bp_data_spec.rb; sourceTree = "<group>"; };
+		1FD61E4A13909D530013355B /* spec_helper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spec_helper.rb; sourceTree = "<group>"; };
+		1FD61E4B13909D530013355B /* unix_file_utils_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = unix_file_utils_spec.rb; sourceTree = "<group>"; };
+		1FD61E4C13909D530013355B /* wig_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wig_spec.rb; sourceTree = "<group>"; };
+		1FD61E4E13909D530013355B /* bindingSiteStructure.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bindingSiteStructure.rb; sourceTree = "<group>"; };
+		1FD61E4F13909D530013355B /* genomicStructure.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomicStructure.rb; sourceTree = "<group>"; };
+		1FD61E5013909D530013355B /* getSequences.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = getSequences.rb; sourceTree = "<group>"; };
+		1FD61E5113909D530013355B /* sequenceDistribution.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sequenceDistribution.rb; sourceTree = "<group>"; };
+		1FD61E5313909D530013355B /* testGNUPlot.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = testGNUPlot.rb; sourceTree = "<group>"; };
+		1FD61E5513909D530013355B /* wigCorrelate.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wigCorrelate.rb; sourceTree = "<group>"; };
+		1FD61E5613909D530013355B /* wigCorrelate.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = wigCorrelate.xml; sourceTree = "<group>"; };
+		1FD61E5813909D530013355B /* boundVsUnbound.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = boundVsUnbound.rb; sourceTree = "<group>"; };
+		1FD61E5913909D530013355B /* matrixAligner.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = matrixAligner.rb; sourceTree = "<group>"; };
+		1FD61E5A13909D530013355B /* matrixAligner.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = matrixAligner.xml; sourceTree = "<group>"; };
+		1FD61E5B13909D530013355B /* patternFinder.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = patternFinder.rb; sourceTree = "<group>"; };
+		1FD61E5C13909D530013355B /* patternFinder.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = patternFinder.xml; sourceTree = "<group>"; };
+		1FD61E5D13909D530013355B /* stripMatrix.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = stripMatrix.rb; sourceTree = "<group>"; };
+		1FD61E5E13909D530013355B /* stripMatrix.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = stripMatrix.xml; sourceTree = "<group>"; };
+		1FD61E6013909D530013355B /* averager.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = averager.rb; sourceTree = "<group>"; };
+		1FD61E6113909D530013355B /* averager.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = averager.xml; sourceTree = "<group>"; };
+		1FD61E6213909D530013355B /* difference.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = difference.rb; sourceTree = "<group>"; };
+		1FD61E6313909D530013355B /* difference.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = difference.xml; sourceTree = "<group>"; };
+		1FD61E6413909D530013355B /* divide.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = divide.rb; sourceTree = "<group>"; };
+		1FD61E6513909D530013355B /* divide.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = divide.xml; sourceTree = "<group>"; };
+		1FD61E6613909D530013355B /* logger.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = logger.rb; sourceTree = "<group>"; };
+		1FD61E6713909D530013355B /* logger.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = logger.xml; sourceTree = "<group>"; };
+		1FD61E6813909D530013355B /* percenter.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = percenter.rb; sourceTree = "<group>"; };
+		1FD61E6913909D530013355B /* percenter.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = percenter.xml; sourceTree = "<group>"; };
+		1FD61E6A13909D530013355B /* smoother.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = smoother.rb; sourceTree = "<group>"; };
+		1FD61E6B13909D530013355B /* smoother.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = smoother.xml; sourceTree = "<group>"; };
+		1FD61E6C13909D530013355B /* sum.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sum.rb; sourceTree = "<group>"; };
+		1FD61E6D13909D530013355B /* sum.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sum.xml; sourceTree = "<group>"; };
+		1FD61E6E13909D530013355B /* zscorer.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = zscorer.rb; sourceTree = "<group>"; };
+		1FD61E6F13909D530013355B /* zscorer.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = zscorer.xml; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
 /* Begin PBXGroup section */
 		1FBCE04513909CCC002347A0 = {
 			isa = PBXGroup;
 			children = (
+				1FD61DB313909D530013355B /* common */,
+				1FD61DE013909D530013355B /* dataprocessing */,
+				1FD61DEB13909D530013355B /* Gemfile */,
+				1FD61DEC13909D530013355B /* Gemfile.lock */,
+				1FD61DED13909D530013355B /* microarrays */,
+				1FD61DF113909D530013355B /* nucleosome */,
+				1FD61E0213909D530013355B /* other-tools */,
+				1FD61E0813909D530013355B /* Rakefile */,
+				1FD61E0913909D530013355B /* README */,
+				1FD61E0A13909D530013355B /* resources */,
+				1FD61E2413909D530013355B /* sequencing */,
+				1FD61E3A13909D530013355B /* spec */,
+				1FD61E4D13909D530013355B /* structure */,
+				1FD61E5213909D530013355B /* test */,
+				1FD61E5413909D530013355B /* ucsc-tools */,
+				1FD61E5713909D530013355B /* visualization */,
+				1FD61E5F13909D530013355B /* wigmath */,
 			);
+			sourceTree = "<group>";
+		};
+		1FD61DB313909D530013355B /* common */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DB413909D530013355B /* affy.rb */,
+				1FD61DB513909D530013355B /* assembly.rb */,
+				1FD61DB613909D530013355B /* bed.rb */,
+				1FD61DB713909D530013355B /* bedgraph.rb */,
+				1FD61DB813909D530013355B /* bowtie_hits.rb */,
+				1FD61DB913909D530013355B /* chemistry.rb */,
+				1FD61DBA13909D530013355B /* chromosome.rb */,
+				1FD61DBB13909D530013355B /* fft.rb */,
+				1FD61DBC13909D530013355B /* fixed_precision.rb */,
+				1FD61DBD13909D530013355B /* genome.rb */,
+				1FD61DBE13909D530013355B /* genomic_data.rb */,
+				1FD61DBF13909D530013355B /* genomic_index_error.rb */,
+				1FD61DC013909D530013355B /* genomic_interval.rb */,
+				1FD61DC113909D530013355B /* gff.rb */,
+				1FD61DC213909D530013355B /* macs.rb */,
+				1FD61DC313909D530013355B /* master_annotations.rb */,
+				1FD61DC413909D530013355B /* math_utils.rb */,
+				1FD61DC513909D530013355B /* ndf.rb */,
+				1FD61DC613909D530013355B /* nucleosome.rb */,
+				1FD61DC713909D530013355B /* orchid.rb */,
+				1FD61DC813909D530013355B /* perl.rb */,
+				1FD61DC913909D530013355B /* plot */,
+				1FD61DCB13909D530013355B /* pos.rb */,
+				1FD61DCC13909D530013355B /* pwm.rb */,
+				1FD61DCD13909D530013355B /* roman_numerals.rb */,
+				1FD61DCE13909D530013355B /* sam.rb */,
+				1FD61DCF13909D530013355B /* sgd_features.rb */,
+				1FD61DD013909D530013355B /* single_bp_data.rb */,
+				1FD61DD113909D530013355B /* single_bp_math.rb */,
+				1FD61DD213909D530013355B /* spot.rb */,
+				1FD61DD313909D530013355B /* spot_array.rb */,
+				1FD61DD413909D530013355B /* stats */,
+				1FD61DD913909D530013355B /* stats.rb */,
+				1FD61DDA13909D530013355B /* structure */,
+				1FD61DDD13909D530013355B /* ucsc_tools.rb */,
+				1FD61DDE13909D530013355B /* unix_file_utils.rb */,
+				1FD61DDF13909D530013355B /* wig.rb */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		1FD61DC913909D530013355B /* plot */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DCA13909D530013355B /* gnuplot_tools.rb */,
+			);
+			path = plot;
+			sourceTree = "<group>";
+		};
+		1FD61DD413909D530013355B /* stats */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DD513909D530013355B /* gsl_stats.rb */,
+				1FD61DD613909D530013355B /* narray_stats.rb */,
+				1FD61DD713909D530013355B /* native_stats.rb */,
+				1FD61DD813909D530013355B /* r_stats.rb */,
+			);
+			path = stats;
+			sourceTree = "<group>";
+		};
+		1FD61DDA13909D530013355B /* structure */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DDB13909D530013355B /* dna_property.rb */,
+				1FD61DDC13909D530013355B /* genome_atlas_api.rb */,
+			);
+			path = structure;
+			sourceTree = "<group>";
+		};
+		1FD61DE013909D530013355B /* dataprocessing */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DE113909D530013355B /* affyToBedGraph.rb */,
+				1FD61DE213909D530013355B /* affyToBedGraph.xml */,
+				1FD61DE313909D530013355B /* bedGraphToWig.rb */,
+				1FD61DE413909D530013355B /* bedGraphToWig.xml */,
+				1FD61DE513909D530013355B /* bedToWig.rb */,
+				1FD61DE613909D530013355B /* bedToWig.xml */,
+				1FD61DE713909D530013355B /* gffToWig.rb */,
+				1FD61DE813909D530013355B /* gffToWig.xml */,
+				1FD61DE913909D530013355B /* sacCer1to2.rb */,
+				1FD61DEA13909D530013355B /* sacCer1to2.xml */,
+			);
+			path = dataprocessing;
+			sourceTree = "<group>";
+		};
+		1FD61DED13909D530013355B /* microarrays */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DEE13909D530013355B /* gffToWig.rb */,
+				1FD61DEF13909D530013355B /* subtract.rb */,
+				1FD61DF013909D530013355B /* zscorer.rb */,
+			);
+			path = microarrays;
+			sourceTree = "<group>";
+		};
+		1FD61DF113909D530013355B /* nucleosome */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61DF213909D530013355B /* callNukes.rb */,
+				1FD61DF313909D530013355B /* callNukes.xml */,
+				1FD61DF413909D530013355B /* conditionalPositioning.rb */,
+				1FD61DF513909D530013355B /* conditionalPositioning.xml */,
+				1FD61DF613909D530013355B /* findExtrema.rb */,
+				1FD61DF713909D530013355B /* findExtrema.xml */,
+				1FD61DF813909D530013355B /* findNuke.rb */,
+				1FD61DF913909D530013355B /* findNuke.xml */,
+				1FD61DFA13909D530013355B /* mapDyads.rb */,
+				1FD61DFB13909D530013355B /* mapDyads.xml */,
+				1FD61DFC13909D530013355B /* nukeDistances.rb */,
+				1FD61DFD13909D530013355B /* occupancyVsChange.rb */,
+				1FD61DFE13909D530013355B /* overlapFinder.rb */,
+				1FD61DFF13909D530013355B /* positionChange.rb */,
+				1FD61E0013909D530013355B /* powerSpectrum.rb */,
+				1FD61E0113909D530013355B /* powerSpectrum.xml */,
+			);
+			path = nucleosome;
+			sourceTree = "<group>";
+		};
+		1FD61E0213909D530013355B /* other-tools */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E0313909D530013355B /* fastqDumpWrapper.rb */,
+				1FD61E0413909D530013355B /* matrix2png.xml */,
+				1FD61E0513909D530013355B /* memeMarkov.xml */,
+				1FD61E0613909D530013355B /* memeMarkovWrapper.rb */,
+				1FD61E0713909D530013355B /* sra-fastq-dump.xml */,
+			);
+			path = "other-tools";
+			sourceTree = "<group>";
+		};
+		1FD61E0A13909D530013355B /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E0B13909D530013355B /* assemblies */,
+				1FD61E2013909D530013355B /* perlscripts */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		1FD61E0B13909D530013355B /* assemblies */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E0C13909D530013355B /* ce2.len */,
+				1FD61E0D13909D530013355B /* ce3.len */,
+				1FD61E0E13909D530013355B /* ce4.len */,
+				1FD61E0F13909D530013355B /* ce5.len */,
+				1FD61E1013909D530013355B /* ce6.len */,
+				1FD61E1113909D530013355B /* ce7.len */,
+				1FD61E1213909D530013355B /* ce8.len */,
+				1FD61E1313909D530013355B /* ce9.len */,
+				1FD61E1413909D530013355B /* dm1.len */,
+				1FD61E1513909D530013355B /* dm2.len */,
+				1FD61E1613909D530013355B /* dm3.len */,
+				1FD61E1713909D530013355B /* hg15.len */,
+				1FD61E1813909D530013355B /* hg16.len */,
+				1FD61E1913909D530013355B /* hg17.len */,
+				1FD61E1A13909D530013355B /* hg18.len */,
+				1FD61E1B13909D530013355B /* hg19.len */,
+				1FD61E1C13909D530013355B /* hg19Haps.len */,
+				1FD61E1D13909D530013355B /* hg19Patch2.len */,
+				1FD61E1E13909D530013355B /* sacCer1.len */,
+				1FD61E1F13909D530013355B /* sacCer2.len */,
+			);
+			path = assemblies;
+			sourceTree = "<group>";
+		};
+		1FD61E2013909D530013355B /* perlscripts */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E2113909D530013355B /* orchid.pl */,
+				1FD61E2213909D530013355B /* orchid_fasta.pl */,
+				1FD61E2313909D530013355B /* PredictCleavagePatterns.pm */,
+			);
+			path = perlscripts;
+			sourceTree = "<group>";
+		};
+		1FD61E2413909D530013355B /* sequencing */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E2513909D530013355B /* baseAlignCounts.rb */,
+				1FD61E2613909D530013355B /* baseAlignCounts.xml */,
+				1FD61E2713909D530013355B /* extractRegions.rb */,
+				1FD61E2813909D530013355B /* extractRegions.xml */,
+				1FD61E2913909D530013355B /* findAbsoluteMaxima.rb */,
+				1FD61E2A13909D530013355B /* findAbsoluteMaxima.xml */,
+				1FD61E2B13909D530013355B /* findMyFeatures.rb */,
+				1FD61E2C13909D530013355B /* macs14.xml */,
+				1FD61E2D13909D530013355B /* macsWrapper.rb */,
+				1FD61E2E13909D530013355B /* mapStarts.rb */,
+				1FD61E2F13909D530013355B /* mapStarts.xml */,
+				1FD61E3013909D530013355B /* markBindingSites.rb */,
+				1FD61E3113909D530013355B /* markBindingSites.xml */,
+				1FD61E3213909D530013355B /* readSelector.rb */,
+				1FD61E3313909D530013355B /* readSelector.xml */,
+				1FD61E3413909D530013355B /* rollingReadLength.rb */,
+				1FD61E3513909D530013355B /* rollingReadLength.xml */,
+				1FD61E3613909D530013355B /* spectralDensity.rb */,
+				1FD61E3713909D530013355B /* spectralDensity.xml */,
+				1FD61E3813909D530013355B /* windowStats.rb */,
+				1FD61E3913909D530013355B /* windowStats.xml */,
+			);
+			path = sequencing;
+			sourceTree = "<group>";
+		};
+		1FD61E3A13909D530013355B /* spec */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E3B13909D530013355B /* bed_spec.rb */,
+				1FD61E3C13909D530013355B /* bedgraph_spec.rb */,
+				1FD61E3D13909D530013355B /* chromosome_spec.rb */,
+				1FD61E3E13909D530013355B /* fixed_precision_spec.rb */,
+				1FD61E3F13909D530013355B /* fixtures */,
+				1FD61E4313909D530013355B /* genome_spec.rb */,
+				1FD61E4413909D530013355B /* genomic_data_spec.rb */,
+				1FD61E4513909D530013355B /* genomic_interval_spec.rb */,
+				1FD61E4613909D530013355B /* math_utils_spec.rb */,
+				1FD61E4713909D530013355B /* roman_numerals_spec.rb */,
+				1FD61E4813909D530013355B /* sam_spec.rb */,
+				1FD61E4913909D530013355B /* single_bp_data_spec.rb */,
+				1FD61E4A13909D530013355B /* spec_helper.rb */,
+				1FD61E4B13909D530013355B /* unix_file_utils_spec.rb */,
+				1FD61E4C13909D530013355B /* wig_spec.rb */,
+			);
+			path = spec;
+			sourceTree = "<group>";
+		};
+		1FD61E3F13909D530013355B /* fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E4013909D530013355B /* test-chr.txt */,
+				1FD61E4113909D530013355B /* test.sam */,
+				1FD61E4213909D530013355B /* test.wig */,
+			);
+			path = fixtures;
+			sourceTree = "<group>";
+		};
+		1FD61E4D13909D530013355B /* structure */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E4E13909D530013355B /* bindingSiteStructure.rb */,
+				1FD61E4F13909D530013355B /* genomicStructure.rb */,
+				1FD61E5013909D530013355B /* getSequences.rb */,
+				1FD61E5113909D530013355B /* sequenceDistribution.rb */,
+			);
+			path = structure;
+			sourceTree = "<group>";
+		};
+		1FD61E5213909D530013355B /* test */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E5313909D530013355B /* testGNUPlot.rb */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		1FD61E5413909D530013355B /* ucsc-tools */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E5513909D530013355B /* wigCorrelate.rb */,
+				1FD61E5613909D530013355B /* wigCorrelate.xml */,
+			);
+			path = "ucsc-tools";
+			sourceTree = "<group>";
+		};
+		1FD61E5713909D530013355B /* visualization */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E5813909D530013355B /* boundVsUnbound.rb */,
+				1FD61E5913909D530013355B /* matrixAligner.rb */,
+				1FD61E5A13909D530013355B /* matrixAligner.xml */,
+				1FD61E5B13909D530013355B /* patternFinder.rb */,
+				1FD61E5C13909D530013355B /* patternFinder.xml */,
+				1FD61E5D13909D530013355B /* stripMatrix.rb */,
+				1FD61E5E13909D530013355B /* stripMatrix.xml */,
+			);
+			path = visualization;
+			sourceTree = "<group>";
+		};
+		1FD61E5F13909D530013355B /* wigmath */ = {
+			isa = PBXGroup;
+			children = (
+				1FD61E6013909D530013355B /* averager.rb */,
+				1FD61E6113909D530013355B /* averager.xml */,
+				1FD61E6213909D530013355B /* difference.rb */,
+				1FD61E6313909D530013355B /* difference.xml */,
+				1FD61E6413909D530013355B /* divide.rb */,
+				1FD61E6513909D530013355B /* divide.xml */,
+				1FD61E6613909D530013355B /* logger.rb */,
+				1FD61E6713909D530013355B /* logger.xml */,
+				1FD61E6813909D530013355B /* percenter.rb */,
+				1FD61E6913909D530013355B /* percenter.xml */,
+				1FD61E6A13909D530013355B /* smoother.rb */,
+				1FD61E6B13909D530013355B /* smoother.xml */,
+				1FD61E6C13909D530013355B /* sum.rb */,
+				1FD61E6D13909D530013355B /* sum.xml */,
+				1FD61E6E13909D530013355B /* zscorer.rb */,
+				1FD61E6F13909D530013355B /* zscorer.xml */,
+			);
+			path = wigmath;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

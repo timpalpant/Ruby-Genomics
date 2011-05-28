@@ -1,0 +1,21 @@
+<tool id="Percenter" name="Normalize" version="1.0.0">
+  <description>a Wiggle file</description>
+  <command interpreter="ruby1.9">percenter.rb -i $input -t $T -o $output</command>
+  <inputs>
+		<param format="wig" name="input" type="data" label="Normalize the data in" />
+		<param name="T" type="integer" value="0" label="Divide by (leave 0 to divide by total coverage)" />
+  </inputs>
+  <outputs>
+		<data format="input" name="output" metadata_source="input" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool requires Wiggle formatted data.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>

@@ -1,0 +1,2 @@
+class GenomicIndexError < StandardError
+end

@@ -1,0 +1,27 @@
+<tool id="WigCorrelate" name="Correlate" version="1.0.0">
+  <description>multiple Wiggle files</description>
+  <command interpreter="ruby1.9">
+		wigCorrelate.rb -o $output
+			#for $input in $inputs
+				${input.file}
+			#end for
+	</command>
+  <inputs>
+			<repeat name="inputs" title="Wig file">
+				<param name="file" type="data" format="wig" />
+			</repeat>
+  </inputs>
+  <outputs>
+      <data format="tabular" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires Wiggle formatted data. Correlations are performed on a base-pair basis. For more info, see UCSC Tools.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

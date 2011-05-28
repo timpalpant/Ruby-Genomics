@@ -1,0 +1,21 @@
+<tool id="Difference" name="Subtract" version="1.0.0">
+  <description>two Wiggle files</description>
+  <command interpreter="ruby1.9">difference.rb -m $minuend -s $subtrahend -o $output</command>
+  <inputs>
+		<param format="wig" name="minuend" type="data" label="File 1 (minuend)" />
+		<param format="wig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
+  </inputs>
+  <outputs>
+		<data format="input" name="output" metadata_source="minuend" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool requires Wiggle formatted data.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>

@@ -1,0 +1,16 @@
+<tool id="Fastq-dump" name="Fastq-dump" version="1.0.0">
+  <description>of SRA</description>
+  <command interpreter="ruby1.9">fastqDumpWrapper.rb -i $input -o $output</command>
+  <inputs>
+		<param name="input" type="data" format="sra" label="Short read archive" />
+  </inputs>
+  <outputs>
+		<data name="output" format="fastq" metadata="input" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>

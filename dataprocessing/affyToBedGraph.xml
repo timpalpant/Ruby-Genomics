@@ -1,0 +1,31 @@
+<tool id="AffyToBedGraph" name="Affy-to-BedGraph" version="1.0.0">
+  <description>converter</description>
+  <command interpreter="ruby1.9">affyToBedGraph.rb -i $input -o $output</command>
+  <inputs>
+      <param name="input" type="data" format="tabular" label="Input Affymetrix file" />
+  </inputs>
+  <outputs>
+      <data name="output" format="bedgraph" metadata_source="input" />
+  </outputs>
+	
+<help>
+.. class:: warningmark
+	
+This tool requires Affymetrix formatted data and will fail otherwise. For example:
+
+chr3	18133	0.009685
+chr3	18137	-0.038458
+chr3	18141	-0.016139
+chr3	18145	0.005643
+
+becomes
+
+chr3	18133	18136	0.009685
+chr3	18137	18140	-0.038458
+chr3	18141	18144	-0.016139
+	
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

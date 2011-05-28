@@ -1,0 +1,14 @@
+On OS X, all can be installed with MacPorts
+On Linux, use appropriate package management
+
+First install Ruby 1.9.2, Perl 5.12, GSL, and gnuplot with MacPorts / package management:
+
+sudo port install ruby19 perl5 gnuplot gsl
+
+Then install Bundler with Gem:
+
+sudo gem1.9 install bundler
+
+The use bundler to install the rest of the requirements:
+
+bundle install

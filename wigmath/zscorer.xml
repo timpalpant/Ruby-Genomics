@@ -1,0 +1,20 @@
+<tool id="ZScorer" name="Z-Score" version="1.0.0">
+  <description>a Wiggle file</description>
+  <command interpreter="ruby1.9">zscorer.rb -i $input -o $output</command>
+  <inputs>
+      <param format="wig" name="input" type="data" label="Z-score the data in" />
+  </inputs>
+  <outputs>
+      <data format="input" name="output" metadata_source="input" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires Wiggle formatted data.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

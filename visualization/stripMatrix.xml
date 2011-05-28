@@ -1,0 +1,20 @@
+<tool id="StripMatrix" name="Strip headers" version="1.0.0">
+  <description>from an aligned matrix</description>
+  <command interpreter="ruby1.9">stripMatrix.rb -i $input -o $output</command>
+  <inputs>
+		<param format="tabular" name="input" type="data" label="Aligned matrix" />
+  </inputs>
+  <outputs>
+		<data format="tabular" name="output" metadata="input" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool is intended to strip the column/row headers off of an aligned matrix for easy import into Matlab if only data values are required.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>

@@ -1,0 +1,20 @@
+<tool id="RollingReadLength" name="Compute read length" version="1.0.0">
+  <description>from paired-end sequencing reads</description>
+  <command interpreter="ruby1.9">rollingReadLength.rb -i $input -g $dbkey -o $output</command>
+  <inputs>
+      <param format="sam" name="input" type="data" label="Mapped reads" />
+  </inputs>
+  <outputs>
+      <data format="wig" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires paired-end Wiggle formatted data. Using single-end data will result in a constant read length across the genome since single-end reads are extended a specified amount *in silico*.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>
