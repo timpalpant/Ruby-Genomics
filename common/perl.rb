@@ -1,3 +1,5 @@
+require 'unix_file_utils'
+
 ##
 # Tools for calling Perl and Perl scripts from within Ruby code
 ##
@@ -18,6 +20,8 @@ module Perl
       script = PERLSCRIPTS + '/' + script
       raise "Cannot find Perl script: #{script}" unless File.exists?(script)
     end
+
+		raise "Cannot find Perl interpreter in $PATH" if File.which('perl').nil?
     
     # Execute the Perl script and return the results
     %x[ perl -I#{PERLSCRIPTS} #{script} #{args} ]

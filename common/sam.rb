@@ -42,37 +42,6 @@ class SAMEntry < GenomicInterval
 		return entry
 	end
 	
-	# Parse an Alignment object returned from bio-samtools into a SAMEntry
-	def self.parse_alignment(a)
-		entry = self.new
-		entry.qname = a.qname
-		entry.flag = a.flag
-		entry.rname = a.rname
-		entry.mapq = a.mapq
-		entry.cigar = a.cigar
-		entry.rnext = a.mrnm
-		entry.pnext = a.mpos
-		entry.tlen = a.isize
-		entry.seq = Bio::Sequence::NA.new(a.seq)
-		entry.qual = a.qual
-		
-		extend = (entry.tlen == 0) ? entry.seq.length : entry.tlen.abs
-		
-		# According to the SAM specification, POS is the leftmost base
-		# so 5' end for forward-mapping reads and
-		# 3' end for reverse-complement mapping reads
-		# Adjust start/stop appropriately
-		if entry.watson?
-			entry.start = a.pos
-			entry.stop = entry.start + extend - 1
-		else
-			entry.start = a.pos + entry.seq.length - 1
-			entry.stop = entry.start - extend + 1
-		end
-
-		return entry
-	end
-
 	def chr
 		@rname
 	end
@@ -204,10 +173,11 @@ class SAMFile < File
 	end
 end
 
-# Wrap bio-samtools functionality to integrate it
+# Wrap bio-samtools functionality to integrate it into this toolset
 class BAMFile
 	def initialize(filename, fasta = nil)
 		@sam = Bio::DB::Sam.new(:bam => File.expand_path(filename), :fasta => fasta)
+		
 		# Automatically open (also indexes)
 		open
 	end
@@ -224,22 +194,18 @@ class BAMFile
 	# and return them as an Array of SAMEntry objects
 	def fetch(chr, start, stop)
 		entries = Array.new
-		
-		callback = Proc.new do |alignment|
-			entries << SAMEntry.parse_alignment(alignment)
+
+		@sam.foreach(chr, start, stop).each do |line|
+			entries << SAMEntry.parse(line)
 		end
-		
-		@sam.fetch_with_function(chr, start, stop, callback)
 		
 		return entries
 	end
 	
 	# Iterate over alignments returned from a BAM query
 	def foreach(chr, start, stop)
-		callback = Proc.new do |alignment|
-			yield SAMEntry.parse_alignment(alignment)
+		@sam.foreach(chr, start, stop) do |line|
+			yield SAMEntry.parse(line)
 		end
-		
-		@sam.fetch_with_function(chr, start, stop, callback)
 	end
 end

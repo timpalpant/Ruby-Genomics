@@ -1,9 +1,15 @@
+GIT
+  remote: git://github.com/timpalpant/bioruby-samtools.git
+  revision: 5f6706f1bd7964469ad56ff86778c4ebaa3d299d
+  specs:
+    bio-samtools (0.2.1)
+      bio (>= 1.4.1)
+      ffi
+
 GEM
   remote: http://rubygems.org/
   specs:
     bio (1.4.1)
-    bio-samtools (0.2.0)
-      ffi
     diff-lcs (1.1.2)
     ffi (1.0.9)
     gnuplot (2.3.6)
@@ -11,30 +17,28 @@ GEM
       narray (>= 0.5.9)
     narray (0.5.9.9)
     pickled_optparse (0.1.1)
-    rake (0.8.7)
-    rspec (2.5.0)
-      rspec-core (~> 2.5.0)
-      rspec-expectations (~> 2.5.0)
-      rspec-mocks (~> 2.5.0)
-    rspec-core (2.5.2)
-    rspec-expectations (2.5.0)
+    rake (0.9.0)
+    rspec (2.6.0)
+      rspec-core (~> 2.6.0)
+      rspec-expectations (~> 2.6.0)
+      rspec-mocks (~> 2.6.0)
+    rspec-core (2.6.3)
+    rspec-expectations (2.6.0)
       diff-lcs (~> 1.1.2)
-    rspec-mocks (2.5.0)
+    rspec-mocks (2.6.0)
     simplecov (0.4.2)
       simplecov-html (~> 0.4.4)
-    simplecov-html (0.4.4)
-    sys-uname (0.8.5)
+    simplecov-html (0.4.5)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   bio (>= 1.4.0)
-  bio-samtools (>= 0.2.0)
+  bio-samtools!
   gnuplot (>= 2.3.6)
   gsl (>= 1.14.5)
   pickled_optparse (>= 0.1.1)
   rake (>= 0.8.7)
   rspec (>= 2.5.0)
   simplecov (>= 0.4.0)
-  sys-uname (>= 0.8.5)
