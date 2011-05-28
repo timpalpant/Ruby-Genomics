@@ -25,7 +25,7 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bed'
-require 'genome'
+require 'assembly'
 require 'pickled_optparse'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -57,10 +57,10 @@ ARGV.options do |opts|
 end
 
 # Load the genome to construct
-genome = Genome.load(options[:genome])
+a = Assembly.load(options[:genome])
 
 # Load the Bed data
 bed = Bed.load(options[:input])
 
 # Write the Wiggle format
-bed.to_wig(options[:output], genome)
+bed.to_wig(options[:output], a)

@@ -1,9 +1,8 @@
 require 'spot'
 require 'stats'
-require 'fixed_precision'
 require 'genomic_data'
-require 'genome'
-require 'single_bp_data'
+require 'assembly'
+require 'wig'
 
 ##
 # A GenomicData with values for each Spot, i.e. a micrarray dataset
