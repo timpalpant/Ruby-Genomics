@@ -90,7 +90,7 @@ pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data_structu
   begin
     total_unmapped += data_structure.to_i
   rescue
-    puts "Number of unampped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
+    puts "Number of unmapped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
   end
 end
 
