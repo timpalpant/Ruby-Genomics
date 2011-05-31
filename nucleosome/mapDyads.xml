@@ -7,7 +7,7 @@
 		#end if
 	</command>
   <inputs>
-      <param name="input" type="data" format="sam" label="Sequencing reads" />
+      <param name="input" type="data" format="bam" label="Sequencing reads" />
 			<conditional name="type">
 				<param name="read" type="select" label="Type of reads">
 					<option value="paired" selected="true">Paired-End</option>
@@ -28,7 +28,7 @@
 <help>
 .. class:: warningmark
 
-This tool requires sequencing reads in SAM format.
+  This tool requires sequencing reads in BAM format. If your reads are in SAM format, use the SAM-to-BAM tool under NGS: SAMTools.
 
 .. class:: warningmark
 
