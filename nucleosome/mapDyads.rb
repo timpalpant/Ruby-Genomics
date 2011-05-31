@@ -31,7 +31,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'assembly'
 require 'wig'
-require 'sam'
+require 'samtools'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -48,8 +48,8 @@ ARGV.options do |opts|
   opts.on( '-l', '--length N', "Mononucleosome length (default: read length)" ) { |n| options[:length] = n.to_i }
 	options[:genome] = 'sacCer2'
   opts.on( '-g', '--genome NAME', "Genome assembly (default: sacCer2)" ) { |name| options[:genome] = name }
-	options[:step] = 1_000_000
-  opts.on( '-s', '--step N', "Step size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
+	options[:step] = 100_000
+  opts.on( '-s', '--step N', "Initial step size to use in base pairs (default: 100,000)" ) { |n| options[:step] = n.to_i }
 	opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -72,9 +72,6 @@ end
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
-# Initialize the BAM file
-bam = BAMFile.new(options[:input])
-
 # Write the Wiggle track header
 File.open(options[:output], 'w') do |f|
 	name = "Mapped starts #{File.basename(options[:input])}"
@@ -84,7 +81,7 @@ end
 unmapped = 0
 # Process each chromosome in options[:step] bp chunks
 assembly.each do |chr, chr_length|
-	print "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
 
 	# Write the chromosome fixedStep header
 	File.open(options[:output], 'a') do |f|
@@ -92,28 +89,40 @@ assembly.each do |chr, chr_length|
 	end
 	
 	chunk_start = 0
-	while chunk_start < chr_length
-		# Some indication of progress
-		print '.' if ENV['DEBUG']
-		
+	while chunk_start < chr_length		
 		# Allocate memory for this chunk
 		chunk_size = [options[:step], chr_length-chunk_start].min
-		mapped_starts = Array.new(chunk_size, 0)
+		mapped_starts = Vector::Int[chunk_size] #Array.new(chunk_size, 0)
+    chunk_stop = chunk_start + chunk_size - 1
+    
+    # Count the number of reads for this chunk to make sure it's a reasonable number
+    # Adjust the step size to an optimal size
+    count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
+    puts "#{count} reads in block #{chunk_start}-#{chunk_stop}"
+    if count > 1_000_000
+      options[:step] =4*options[:step]/5
+      puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
+      redo
+    elsif count < 100_000 and 2*options[:step] < 10_000_000
+      options[:step] *= 2
+      puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
+      redo
+    end
 	
 		# Get all aligned reads for this chunk and map the dyads
-		bam.foreach(chr, chunk_start, chunk_start + options[:step] - 1) do |read|
-			begin
-				center = if options[:length]
-					if read.watson?
-						read.start + offset
-					else
-						read.start - offset
-					end
+		SAMTools.view(options[:input], chr, chunk_start, chunk_stop).each do |read|
+			center = if options[:length]
+				if read.watson?
+					read.start + offset
 				else
-					read.center
+					read.start - offset
 				end
+			else
+				read.center
+			end
 				
-				mapped_starts[center-start] += 1
+			begin
+				mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center < chunk_start+chunk_size
 			rescue
 				unmapped += 1
 			end
@@ -126,12 +135,6 @@ assembly.each do |chr, chr_length|
 		
 		chunk_start += options[:step]
 	end
-	
-	# Force GC after every chromosome (bio-samtools is leaky?)
-	10.times { GC.start }
 end
 
 puts "WARN: #{unmapped} unmapped reads" if unmapped > 0
-
-# Close the BAM file
-bam.close

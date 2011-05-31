@@ -10,6 +10,12 @@ class GenomicInterval
 		@stop = stop
 	end
 	
+  # Output this genomic interval as a string (the format is suitable
+  # for UCSC or samtools)
+  def to_s
+    "#{start}-#{stop}"
+  end
+  
 	def center
 		(@start + @stop) / 2 if @start and @stop
 	end
