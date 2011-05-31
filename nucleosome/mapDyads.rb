@@ -112,7 +112,7 @@ assembly.each do |chr, chr_length|
 	chunk_start = 1
 	while chunk_start < chr_length		
 		# Allocate memory for this chunk
-		chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
     chunk_size = chunk_stop - chunk_start
 		mapped_starts = Array.new(chunk_size, 0)
     
