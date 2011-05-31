@@ -58,8 +58,8 @@ ARGV.options do |opts|
 end
 
 
-# Load the Wig file
-wig = Wig.load(options[:input])
+# Initialize the Wig file
+wig = WigFile.new(options[:input])
 
 # Compute mean and standard deviation
 mean = wig.mean
@@ -69,8 +69,17 @@ stdev = wig.stdev(mean)
 puts "StDev: #{stdev.to_s(5)}"
 raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 
-wig.each do |chr,values|
-	values.data = (values-mean) / stdev
+File.open(options[:input], 'w') do |f|
+  name = "Z-Scored #{File.basename(options[:input])}"
+  desc = "Z-Scored #{File.basename(options[:input])}"
+  f.puts Wig.track_header(name, desc)  
+  
+  wig.each do |chr,values|
+    values.each do |value|
+      value = (value-mean) / stdev
+    end
+    
+    f.puts Wig.fixed_step(chr, values)
+    f.puts values
+  end
 end
-
-wig.to_wig(options[:output])

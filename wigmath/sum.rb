@@ -66,7 +66,10 @@ File.open(options[:output],'w') do |f|
   wigs.first.chromosomes.each do |chr|
     sum = wigs.first[chr]
     wigs[1..-1].each do |wig|
-      sum.data = sum + wig[chr]
+      data = wig[chr]
+      for bp in 0...sum.length
+        sum[bp] += data[bp]
+      end
     end
     
     f.puts Wig.fixed_step(chr, sum)

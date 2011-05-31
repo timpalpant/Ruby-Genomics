@@ -85,7 +85,9 @@ File.open(options[:output],'w') do |f|
     
     # Compute the ratio for all values in the chromosome
 		ratio = Chromosome.new(dividend_chr.length, dividend_chr.start, dividend_chr.step, dividend_chr.span)
-    ratio[0..-1] = (dividend_chr / divisor_chr)
+    for bp in 0...dividend_chr.length
+      ratio[bp] = dividend_chr[bp] / divisor_chr[bp] if divisor_chr[bp] != 0
+    end
     
     # Write to file
     f.puts Wig.fixed_step(chr_id, ratio)

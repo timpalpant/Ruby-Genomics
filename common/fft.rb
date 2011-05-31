@@ -1,7 +1,7 @@
 #
 #  fft.rb
 #  BioRuby
-#  Compute the DFT and related spectra of a GSL::Vector
+#  Compute the DFT and related spectra of an Array with GSL
 #
 #  Created by Timothy Palpant on 4/8/11.
 #  Copyright 2011 UNC. All rights reserved.
@@ -43,7 +43,7 @@
 require 'gsl'
 include GSL
 
-class Vector
+module FFT
 	
 	# Compute the power spectrum
 	def power_spectrum
@@ -51,12 +51,13 @@ class Vector
 		# and compute the power spectrum from the returned complex Fourier coefficients
 		# Subset the returned results to strip off the first (0 frequency) and last (N/2 frequency)
 		# because of how they are returned (see above)
-		return self.fft.subvector(1, self.length-2).to_complex2.abs2
+		return self.to_gslv.fft.subvector(1, self.length-2).to_complex2.abs2.to_a
 	end
 	
 	# Compute a spectrogram with window size w
 	# TODO: Ends?
 	def spectrogram(w)
+    v = self.to_gslv
 		half_window = w/2
 		output = Matrix[half_window, self.length]
 		
@@ -64,10 +65,18 @@ class Vector
 			low = i - half_window
 			high = i + half_window
 
-			output.set_col(i, self[low..high].power_spectrum)
+			output.set_col(i, v[low..high].power_spectrum)
 		end
 		
 		return output
 	end
 	
+end
+
+class Array
+  include FFT
+end
+
+class Vector
+  include FFT
 end

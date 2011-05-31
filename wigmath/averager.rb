@@ -70,14 +70,16 @@ File.open(options[:output],'w') do |f|
   	puts 'Loading chromosome data and adding' if ENV['DEBUG']
 		avg = wigs.first[chr]
     wigs[1..-1].each do |wig|
-      avg.data = avg + wig[chr]
+      data = wig[chr]
+      for bp in data.start...data.length+data.start
+        avg[bp] += data[bp]
+      end
     end
     
     puts 'Computing the average for each base pair' if ENV['DEBUG']
-    avg.data = avg / num_files
+    avg.map! { |value| value / num_files }
     
     puts 'Writing averaged chromosome to disk' if ENV['DEBUG']
-    start = Time.now
     f.puts Wig.fixed_step(chr, avg)
     f.puts avg
   end

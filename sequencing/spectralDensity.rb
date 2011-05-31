@@ -85,7 +85,7 @@ wig.each do |chr,values|
 		
 		# Pad with zeros
 		padded = Vector[(options[:padding]+1)*data.length]
-		padded[0..data.length-1] += data
+		padded[0..data.length-1] = data
 		
 		# Compute the power spectrum and normalize
 		p = padded.power_spectrum
