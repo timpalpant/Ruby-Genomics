@@ -1,6 +1,6 @@
 <tool id="MapStarts" name="Map starts" version="1.0.0">
   <description>of sequencing reads</description>
-  <command interpreter="ruby1.9">mapStarts.rb -i $input -g $dbkey -o $output</command>
+  <command interpreter="ruby1.9">mapStarts.rb -i $input -g $dbkey -p 4 -o $output</command>
   <inputs>
       <param name="input" type="data" format="sam" label="Sequencing reads" />
   </inputs>

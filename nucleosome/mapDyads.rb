@@ -14,7 +14,7 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input file with mapped reads (BAM)
-#   -l, --length	Mononucleosome length (for offset)
+#   -l, --length        Mononucleosome length (for offset)
 #   -o, --output        Output file with read center density (Wig)
 #   -g, --genome        Genome assembly to use (in common/assemblies/*)
 #
@@ -34,7 +34,6 @@ require 'unix_file_utils'
 require 'assembly'
 require 'wig'
 require 'samtools'
-include Parallel
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -82,7 +81,7 @@ SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 assembly = Assembly.load(options[:genome])
 
 # Initialize the process manager
-pm = ForkManager.new(options[:threads])
+pm = Parallel::ForkManager.new(options[:threads])
 
 # Callback to get the number of unmapped reads from each subprocess
 total_unmapped = 0

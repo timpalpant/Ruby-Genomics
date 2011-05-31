@@ -124,6 +124,17 @@ class WigFile
     return Chromosome.load(@data_file, start_line, end_line)
   end
   
+  # Get the length of a chromosome from the index
+  def chr_length(chr_id)
+    start_line = @index[chr_id]
+    # Read up to the next chromosome in the file, or the end if there are no more chromosomes
+    end_line = @index.values.sort.select { |num| num > start_line }.first
+    end_line -= 1 unless end_line.nil?
+    end_line = File.num_lines(@data_file) if end_line.nil?
+
+    return end_line - start_line
+  end
+  
   # Return single-bp data from the specified region
   def query(chr, start, stop)
     raise GenomicIndexError, "Chromosome #{chr} not found in Wig file #{@data_file}!" unless include?(chr)

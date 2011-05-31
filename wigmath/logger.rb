@@ -66,16 +66,16 @@ wig = WigFile.new(options[:input])
 
 # Iterate over each value and log transform, then write to disk
 File.open(options[:output], 'w') do |f|
-	name = "Log#{options[:base]} #{File.basename(options[:output])}"
-  desc = "Log#{options[:base]} #{File.basename(options[:output])}"
+	name = "Log#{options[:base]} #{File.basename(options[:input])}"
+  desc = "Log#{options[:base]} #{File.basename(options[:input])}"
 	f.puts Wig.track_header(name, desc)
 	
 	wig.each do |chr,values|
 		values.each do |value|
 			value = Math.log(value, options[:base])
 		end
-	end
 	
-	f.puts Wig.fixed_step(chr, values)		
-	f.puts values
+    f.puts Wig.fixed_step(chr, values)		
+    f.puts values
+  end
 end

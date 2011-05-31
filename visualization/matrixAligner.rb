@@ -136,13 +136,10 @@ loci.each do |chr,spots|
 		raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
 		
 		entry = Array.new(n, NA_PLACEHOLDER)
-		entry[n1..n2] = values.to_a
+		entry[n1..n2] = values
 		# Total length should be the matrix width to avoid irregular matrices
 		raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
 		output[spot.id] = entry[left_bound..right_bound]
-		
-		# Force GC
-		GC.start if i % 500 == 0
 	end
 end
 
