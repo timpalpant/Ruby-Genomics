@@ -14,7 +14,7 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input file with mapped reads (BAM)
-#		-l, --length				Mononucleosome length (for offset)
+#   -l, --length	Mononucleosome length (for offset)
 #   -o, --output        Output file with read center density (Wig)
 #   -g, --genome        Genome assembly to use (in common/assemblies/*)
 #
@@ -46,21 +46,21 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input file with reads (BAM)" ) { |f| options[:input] = f }
   opts.on( '-l', '--length N', "Mononucleosome length (default: read length)" ) { |n| options[:length] = n.to_i }
-	options[:genome] = 'sacCer2'
+  options[:genome] = 'sacCer2'
   opts.on( '-g', '--genome NAME', "Genome assembly (default: sacCer2)" ) { |name| options[:genome] = name }
-	options[:step] = 100_000
+  options[:step] = 100_000
   opts.on( '-s', '--step N', "Initial step size to use in base pairs (default: 100,000)" ) { |n| options[:step] = n.to_i }
-	opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
+  # Parse the command-line arguments
+  opts.parse!
 	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end	
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end	
 end
 
 # Warning if using manual offset
@@ -95,7 +95,7 @@ assembly.each do |chr, chr_length|
 	while chunk_start < chr_length		
 		# Allocate memory for this chunk
 		chunk_size = [options[:step], chr_length-chunk_start].min
-		mapped_starts = Vector::Int[chunk_size] #Array.new(chunk_size, 0)
+		mapped_starts = Array.new(chunk_size, 0)
     chunk_stop = chunk_start + chunk_size - 1
     
     # Count the number of reads for this chunk to make sure it's a reasonable number

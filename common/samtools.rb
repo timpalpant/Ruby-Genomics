@@ -22,8 +22,8 @@ module SAMTools
   # (region between 1,000,000 and 2,000,000bp including the end points). The coordinate is 1-based.
   def self.view(bam_file, chr, start = nil, stop = nil)
     index(bam_file) if not File.exist?(bam_file + '.bai')
-    alignments = %x[ samtools view #{bam_file} #{query_string(chr, start, stop)} ].split("\n").map { |line| SAMEntry.parse(line) }
-	end
+    %x[ samtools view #{bam_file} #{query_string(chr, start, stop)} ].split("\n").map { |line| SAMEntry.parse(line) }
+  end
 
   # Count the number of alignments overlapping the region
   def self.count(bam_file, chr, start = 1, stop = nil)
