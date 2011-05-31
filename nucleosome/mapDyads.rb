@@ -76,7 +76,7 @@ if options[:length]
 end
 
 # Index the BAM file for random lookup
-SAMTools.index(options[:input])
+SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
@@ -87,10 +87,9 @@ pm = ForkManager.new(options[:threads])
 # Callback to get the number of unmapped reads from each subprocess
 total_unmapped = 0
 pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data_structure|
-  # Retrieve the data structure from child
-  if defined? data_structure
-    total_unmapped += data_structure
-  else  # Problems occuring during storage or retrieval will throw a warning
+  begin
+    total_unmapped += data_structure.to_i
+  rescue
     puts "Number of unampped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
   end
 end
@@ -120,7 +119,7 @@ assembly.each do |chr, chr_length|
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
     count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
-    puts "#{count} reads in block #{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+    puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 1_000_000
       options[:step] =4*options[:step]/5
       puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
@@ -160,7 +159,7 @@ assembly.each do |chr, chr_length|
   
   # Send the number of unmapped reads on this chromosome back to the parent process
   puts "#{unmapped} unmapped dyads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
-  pm.finish(0, unmapped)
+  pm.finish(0, unmapped.to_s)
 end
 
 
