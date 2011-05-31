@@ -50,7 +50,7 @@ ARGV.options do |opts|
   options[:window_size] = 3
   opts.on( '-w', '--window NUM', "Number of standard deviations +/- to make a window (default 3)" ) { |num| options[:window_size] = num.to_i }
   options[:step] = 100_000
-  opts.on( '-s', '--step N', "Chunk size to use in base pairs (default: 100,000)" ) { |n| options[:step] = n.to_i }
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 100,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
@@ -105,8 +105,9 @@ wig.chromosomes.each do |chr|
     padding_right = query_stop - chunk_stop
     
 		chunk = wig.query(chr, query_start, query_stop)
-		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])[padding_left..-padding_right]
-    
+		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
+		smoothed = smoothed[padding_left...-padding_right]
+
 		# Write this chunk to disk
 		File.open(options[:output]+'.'+chr, 'a') do |f|
 			f.puts smoothed.map { |value| value.to_s(5) }.join("\n")
@@ -114,6 +115,8 @@ wig.chromosomes.each do |chr|
 		
 		chunk_start = chunk_stop + 1
 	end
+
+    pm.finish(0)
 end
 
 
