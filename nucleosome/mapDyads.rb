@@ -116,6 +116,12 @@ assembly.each do |chr, chr_length|
     chunk_size = chunk_stop - chunk_start + 1
 		mapped_starts = Array.new(chunk_size, 0)
     
+    # Pad the query because SAMTools only returns reads that physically overlap the given window
+    # It is likely that our 36bp reads may be physically outside the chunk window
+    # but the dyad will be within the chunk window (since the DNA strands are actually ~150bp)
+    query_start = [chunk_start-500, 1].max
+    query_stop = [chunk_stop+500, chr_length].min
+    
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
     count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
@@ -131,7 +137,7 @@ assembly.each do |chr, chr_length|
     end
 	
 		# Get all aligned reads for this chunk and map the dyads
-		SAMTools.view(options[:input], chr, chunk_start-500, chunk_stop+500).each do |read|
+		SAMTools.view(options[:input], chr, query_start, query_stop).each do |read|
 			center = if options[:length]
 				if read.watson?
 					read.start + offset
