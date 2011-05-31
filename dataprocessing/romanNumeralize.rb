@@ -5,9 +5,9 @@
 #
 # == Usage
 #   This command processes genomedata.bed:
-#      sacCer1to2.rb -i genomedata.bed -o genomedata.sacCer2.bed
+#      romanNumeralize.rb -i genomedata.bed -o genomedata.sacCer2.bed
 #
-#   For help use: sacCer1to2 -h
+#   For help use: romanNumeralize.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
@@ -38,8 +38,8 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input file (sacCer1)" ) { |f| options[:input] = f }
-  opts.on( '-o', '--output FILE', "Output file (sacCer2)" ) { |f| options[:output] = f }
+  opts.on( '-i', '--input FILE', :required, "Input file (Arabic integer chromosomes)" ) { |f| options[:input] = f }
+  opts.on( '-o', '--output FILE', "Output file (Roman numeral chromosomes)" ) { |f| options[:output] = f }
   
 	# Parse the command-line arguments
 	opts.parse!

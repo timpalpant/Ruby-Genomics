@@ -1,0 +1,20 @@
+<tool id="RomanNumeralize" name="Convert Arabic to Roman numerals" version="1.0.0">
+  <description>on any file</description>
+  <command interpreter="ruby1.9">romanNumeralize.rb -i $input -o $output</command>
+  <inputs>
+      <param name="input" type="data" label="Convert Arabic integer chromosome coordinates in" />
+  </inputs>
+  <outputs>
+      <data format="input" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool will work for any genomic data with chromosomal coordinates of the form "chr5" by replacing them with "chrV"
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>
