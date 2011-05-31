@@ -158,7 +158,7 @@ module NativeStats
     
     smooth = Array.new(self.length, 0)
     i = half_window
-    self.each_cons(half_window) do |window|
+    self.each_cons(window_size) do |window|
       sum = 0
       for j in 0...window.length
         sum += window[j] * gaussian[j]
