@@ -96,8 +96,8 @@ module SAMTools
 
   def self.query_string(chr, start = nil, stop = nil)
     query_string = chr.to_s
-    query_string << ':' + start.to_s if start
-    query_string << '-' + stop.to_s if stop
+    query_string += ':' + start.to_s if start
+    query_string += '-' + stop.to_s if stop
 
     return query_string
   end
