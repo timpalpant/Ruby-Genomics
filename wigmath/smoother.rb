@@ -93,6 +93,7 @@ wig.chromosomes.each do |chr|
   chr_length = wig.chr_length(chr)
 	while chunk_start < chr_length
     chunk_stop = chunk_start + options[:step] - 1
+    puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     
 		chunk = wig.query(chr, chunk_start-padding, chunk_stop+padding)
 		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])[padding..-padding]

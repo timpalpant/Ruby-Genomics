@@ -114,43 +114,49 @@ class WigFile
   # Load data from disk and return a Vector of values for a given chromosome
   def chr(chr_id)
     raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
-    start_line = @index[chr_id]
-    
-    # Read up to the next chromosome in the file
-    end_line = @index.values.sort.select { |num| num > start_line }.first
-    end_line -= 1 unless end_line.nil?
   
     # Call tail and head to get the appropriate lines from the Wig
-    return Chromosome.load(@data_file, start_line, end_line)
+    return Chromosome.load(@data_file, chr_start(chr_id), chr_stop(chr_id))
   end
   
-  # Get the length of a chromosome from the index
-  def chr_length(chr_id)
-    start_line = @index[chr_id]
+  # Get the starting line for a chromosome
+  def chr_start(chr_id)
+    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    @index[chr_id]
+  end
+  
+  # Get the stop line for a chromosome
+  def chr_stop(chr_id)
+    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    start_line = chr_start(chr_id)
+    
     # Read up to the next chromosome in the file, or the end if there are no more chromosomes
     end_line = @index.values.sort.select { |num| num > start_line }.first
     end_line -= 1 unless end_line.nil?
     end_line = File.num_lines(@data_file) if end_line.nil?
-
-    return end_line - start_line
+    
+    return end_line
+  end
+  
+  # Get the length of a chromosome from the index
+  def chr_length(chr_id)
+    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    chr_stop(chr_id) - chr_start(chr_id)
   end
   
   # Return single-bp data from the specified region
   def query(chr, start, stop)
     raise GenomicIndexError, "Chromosome #{chr} not found in Wig file #{@data_file}!" unless include?(chr)
-  
-    start_line = @index[chr_id]
-    # Read up to the next chromosome in the file
-    end_line = @index.values.sort.select { |num| num > start_line }.first
-    end_line -= 1 unless end_line.nil?
     
     # Parse the header of the desired chromosome
-    header = File.lines(@data_file, start_line, start_line).first
+    header = File.lines(@data_file, chr_start(chr), chr_start(chr)).first
     raise 'Random queries are only available for fixedStep-style Wig files' unless header.start_with?('fixedStep')
     parsed = Chromosome.parse_header(header)
+    
+    raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > chr_length(chr)
 
     # Calculate the lines needed
-    start_line += (start - parsed.start) / parsed.step
+    start_line = chr_start(chr_id) + (start - parsed.start)/parsed.step
     stop_line = start_line + stop / parsed.step
     
     # Call tail and head to get the appropriate lines from the Wig
@@ -161,7 +167,7 @@ class WigFile
   def to_s
     str = "WigFile: connected to file #{@data_file}\n"
     @index.each do |chr,line|
-      str += "\tChromosome #{chr} (starts at line: #{line})\n"
+      str += "\tChromosome #{chr} (lines: #{line}..#{chr_stop(chr)})\n"
     end
     
     return str
