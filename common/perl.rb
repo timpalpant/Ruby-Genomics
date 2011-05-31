@@ -3,10 +3,7 @@ require 'unix_file_utils'
 ##
 # Tools for calling Perl and Perl scripts from within Ruby code
 ##
-module Perl
-	# Hack to suppress insecure world writable dir warnings that upset Galaxy
-	$VERBOSE = nil
-  
+module Perl  
   # Absolute path of the PerlScripts folder
   PERLSCRIPTS = File.expand_path(File.dirname(__FILE__) + '/../resources/perlscripts')
     

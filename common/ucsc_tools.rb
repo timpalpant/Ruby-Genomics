@@ -4,9 +4,6 @@ require 'unix_file_utils'
 # Wrap UCSC tools programs for using them in Ruby scripts
 ##
 module UCSCTools
-	# Hack to suppress insecure world writable dir warnings that upset Galaxy
-	$VERBOSE = nil
-		
   # Run the specified executable and return the output
   def self.run(command)
     command_line = command.split(' ')
