@@ -131,7 +131,7 @@ assembly.each do |chr, chr_length|
     end
 	
 		# Get all aligned reads for this chunk and map the dyads
-		SAMTools.view(options[:input], chr, chunk_start, chunk_stop).each do |read|
+		SAMTools.view(options[:input], chr, chunk_start-500, chunk_stop+500).each do |read|
 			center = if options[:length]
 				if read.watson?
 					read.start + offset
