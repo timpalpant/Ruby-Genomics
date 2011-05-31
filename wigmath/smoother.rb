@@ -66,9 +66,10 @@ ARGV.options do |opts|
 	end
 end
 
+
 # Gaussian smoothing requires padding of half_window on either end
 padding = options[:sdev] * options[:window_size] / 2
-  
+
 # Initialize the wig files to smooth
 wig = WigFile.new(options[:input])
 
@@ -95,8 +96,16 @@ wig.chromosomes.each do |chr|
     chunk_stop = chunk_start + options[:step] - 1
     puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     
-		chunk = wig.query(chr, chunk_start-padding, chunk_stop+padding)
-		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])[padding..-padding]
+    # Don't pad off the end of the chromosome
+    query_start = [1, chunk_start-padding].max
+    query_stop = [chunk_stop+padding, chr_length].min
+    
+    # Actual padding
+    padding_left = chunk_start - query_start
+    padding_right = query_stop - chunk_stop
+    
+		chunk = wig.query(chr, query_start, query_stop)
+		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])[padding_left..-padding_right]
     
 		# Write this chunk to disk
 		File.open(options[:output]+'.'+chr, 'a') do |f|
