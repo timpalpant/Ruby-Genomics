@@ -113,7 +113,7 @@ assembly.each do |chr, chr_length|
 	while chunk_start < chr_length		
 		# Allocate memory for this chunk
 		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
-    chunk_size = chunk_stop - chunk_start
+    chunk_size = chunk_stop - chunk_start + 1
 		mapped_starts = Array.new(chunk_size, 0)
     
     # Count the number of reads for this chunk to make sure it's a reasonable number
@@ -154,7 +154,7 @@ assembly.each do |chr, chr_length|
 			f.puts mapped_starts.join("\n")
 		end
 		
-		chunk_start += options[:step]
+		chunk_start = chunk_stop + 1
 	end
   
   # Send the number of unmapped reads on this chromosome back to the parent process
