@@ -147,6 +147,27 @@ module NativeStats
   
   # Smooth the Array with a Gaussian filter
   def gaussian_smooth(sdev, window_size)
+    half_window = window_size*sdev
+    
+    # Generate the gaussian vector (of length window_size)
+    gaussian = Array.new
+    coeff = 1 / (sdev*Math.sqrt(2*Math::PI))
+    for x in -half_window..half_window
+      gaussian[x+half_window] = coeff * Math.exp(-((x**2)/(2*(sdev**2))))
+    end
+    
+    smooth = Array.new(self.length, 0)
+    i = half_window
+    self.each_cons(half_window) do |window|
+      sum = 0
+      for j in 0...window.length
+        sum += window[j] * gaussian[j]
+      end
+      
+      smooth[i] = sum
+      i += 1
+    end
   
+    return smooth
   end
 end

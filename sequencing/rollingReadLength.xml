@@ -1,6 +1,6 @@
 <tool id="RollingReadLength" name="Compute read length" version="1.0.0">
   <description>from paired-end sequencing reads</description>
-  <command interpreter="ruby1.9">rollingReadLength.rb -i $input -g $dbkey -o $output</command>
+  <command interpreter="ruby1.9">rollingReadLength.rb -i $input -g $dbkey -p 4 -o $output</command>
   <inputs>
       <param format="sam" name="input" type="data" label="Mapped reads" />
   </inputs>
