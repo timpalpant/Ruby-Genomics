@@ -3,7 +3,7 @@ require 'unix_file_utils'
 ##
 # Wrap UCSC tools programs for using them in Ruby scripts
 ##
-class UCSCTools
+module UCSCTools
 	# Hack to suppress insecure world writable dir warnings that upset Galaxy
 	$VERBOSE = nil
 		

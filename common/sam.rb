@@ -1,5 +1,4 @@
 require 'bio'
-require 'bio-samtools'
 require 'genomic_interval'
 require 'genomic_data'
 
@@ -169,43 +168,6 @@ class SAMFile < File
 			next if line.start_with?('@')
 			entry = SAMEntry.parse(line)
 			yield entry unless entry.paired? and entry.crick?
-		end
-	end
-end
-
-# Wrap bio-samtools functionality to integrate it into this toolset
-class BAMFile
-	def initialize(filename, fasta = nil)
-		@sam = Bio::DB::Sam.new(:bam => File.expand_path(filename), :fasta => fasta)
-		
-		# Automatically open (also indexes)
-		open
-	end
-	
-	def open
-		@sam.open
-	end
-	
-	def close
-		@sam.close
-	end
-	
-	# Fetch all alignments from a given interval
-	# and return them as an Array of SAMEntry objects
-	def fetch(chr, start, stop)
-		entries = Array.new
-
-		@sam.foreach(chr, start, stop) do |line|
-			entries << SAMEntry.parse(line)
-		end
-		
-		return entries
-	end
-	
-	# Iterate over alignments returned from a BAM query
-	def foreach(chr, start, stop)
-		@sam.foreach(chr, start, stop) do |line|
-			yield SAMEntry.parse(line)
 		end
 	end
 end

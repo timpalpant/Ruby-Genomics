@@ -1,17 +1,8 @@
-GIT
-  remote: git://github.com/timpalpant/bioruby-samtools.git
-  revision: 5f6706f1bd7964469ad56ff86778c4ebaa3d299d
-  specs:
-    bio-samtools (0.2.1)
-      bio (>= 1.4.1)
-      ffi
-
 GEM
   remote: http://rubygems.org/
   specs:
     bio (1.4.1)
     diff-lcs (1.1.2)
-    ffi (1.0.9)
     gnuplot (2.3.6)
     gsl (1.14.7)
       narray (>= 0.5.9)
@@ -35,7 +26,6 @@ PLATFORMS
 
 DEPENDENCIES
   bio (>= 1.4.0)
-  bio-samtools!
   gnuplot (>= 2.3.6)
   gsl (>= 1.14.5)
   pickled_optparse (>= 0.1.1)

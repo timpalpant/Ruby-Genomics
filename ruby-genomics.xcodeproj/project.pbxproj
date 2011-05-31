@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		1FD2388613948F3D00E666C2 /* samtools.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = samtools.rb; sourceTree = "<group>"; };
+		1FD2388813948F4400E666C2 /* tabix.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = tabix.rb; sourceTree = "<group>"; };
 		1FD61DB413909D530013355B /* affy.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = affy.rb; sourceTree = "<group>"; };
 		1FD61DB513909D530013355B /* assembly.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = assembly.rb; sourceTree = "<group>"; };
 		1FD61DB613909D530013355B /* bed.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bed.rb; sourceTree = "<group>"; };
@@ -60,7 +62,6 @@
 		1FD61DEA13909D530013355B /* sacCer1to2.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sacCer1to2.xml; sourceTree = "<group>"; };
 		1FD61DEB13909D530013355B /* Gemfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile; sourceTree = "<group>"; };
 		1FD61DEC13909D530013355B /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = "<group>"; };
-		1FD61DEE13909D530013355B /* gffToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gffToWig.rb; sourceTree = "<group>"; };
 		1FD61DEF13909D530013355B /* subtract.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = subtract.rb; sourceTree = "<group>"; };
 		1FD61DF013909D530013355B /* zscorer.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = zscorer.rb; sourceTree = "<group>"; };
 		1FD61DF213909D530013355B /* callNukes.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = callNukes.rb; sourceTree = "<group>"; };
@@ -243,6 +244,8 @@
 				1FD61DDD13909D530013355B /* ucsc_tools.rb */,
 				1FD61DDE13909D530013355B /* unix_file_utils.rb */,
 				1FD61DDF13909D530013355B /* wig.rb */,
+				1FD2388613948F3D00E666C2 /* samtools.rb */,
+				1FD2388813948F4400E666C2 /* tabix.rb */,
 			);
 			path = common;
 			sourceTree = "<group>";
@@ -295,7 +298,6 @@
 		1FD61DED13909D530013355B /* microarrays */ = {
 			isa = PBXGroup;
 			children = (
-				1FD61DEE13909D530013355B /* gffToWig.rb */,
 				1FD61DEF13909D530013355B /* subtract.rb */,
 				1FD61DF013909D530013355B /* zscorer.rb */,
 			);
