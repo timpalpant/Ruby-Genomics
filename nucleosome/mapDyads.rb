@@ -69,6 +69,9 @@ if options[:length]
 	puts "Using fixed offset of #{offset} from read starts (5' end)" if ENV['DEBUG']
 end
 
+# Index the BAM file for random lookup
+SAMTools.index(options[:input])
+
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
@@ -138,3 +141,6 @@ assembly.each do |chr, chr_length|
 end
 
 puts "WARN: #{unmapped} unmapped reads" if unmapped > 0
+
+# Delete the BAM index so that it is not orphaned within Galaxy
+File.delete(options[:input] + '.bai')
