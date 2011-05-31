@@ -3,7 +3,7 @@ require 'chromosome'
 require 'single_bp_math'
 
 ##
-# Single-base pair resolution genomic data stored as GSL::Vectors
+# Single-base pair resolution genomic data stored as Arrays
 ##
 class SingleBPData < GenomicData
 	include SingleBPMath
@@ -41,7 +41,7 @@ class SingleBPData < GenomicData
           
       self.each do |chr_id,values|
         f.puts Wig.fixed_step(chr_id, values)
-        f.puts values.to_s(true)
+        f.puts values
       end
     end
   end
@@ -64,6 +64,7 @@ class Wig < SingleBPData
     cached_wig.each do |chr,values|
     	wig[chr] = values
     end
+    
     return wig
   end
   

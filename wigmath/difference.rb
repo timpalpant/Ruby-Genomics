@@ -56,8 +56,6 @@ ARGV.options do |opts|
 	end
 end
 
-global_start = Time.now
-
 # Initialize WigFile files
 minuend = WigFile.new(options[:minuend])
 subtrahend = WigFile.new(options[:subtrahend])
@@ -74,36 +72,23 @@ File.open(options[:output],'w') do |f|
   f.puts Wig.track_header(name, desc)
         
   minuend.chromosomes.each do |chr_id|
-    puts "Processing chromosome #{chr_id}"
-    times = []
+    puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
     
     # Load the chromosome from both files
-    start = Time.now
-    minuend_chr = minuend[chr_id]
-    subtrahend_chr = subtrahend[chr_id]
-    stop = Time.now
-    times << (stop-start)
+    minuend_chr = minuend.chr(chr_id)
+    subtrahend_chr = subtrahend.chr(chr_id)
     
     # Check that the chromosomes have the same number of values
-    raise("Chromosome #{chr_id} has different # of values! (#{minuend_chr.length} vs. #{subtrahend_chr.length}") if minuend_chr.length != subtrahend_chr.length
+    raise "Chromosome #{chr_id} has different number of values! (#{minuend_chr.length} vs. #{subtrahend_chr.length}" if minuend_chr.length != subtrahend_chr.length
     
     # Compute the difference for all values in the chromosome
-    start = Time.now
-    difference = Chromosome.new(minuend_chr.length)
-    difference.data = minuend_chr - subtrahend_chr
-    stop = Time.now
-    times << (stop-start)
+    difference = Chromosome.new(minuend_chr.length, minuend_chr.start, minuend_chr.stop, minuend_chr.span)
+    for bp in 0...minuend_chr.length
+      difference[bp] = minuend_chr[bp] - subtrahend_chr[bp]
+    end
     
     # Write to file
-    start = Time.now
     f.puts Wig.fixed_step(chr_id, difference)
     f.puts difference
-    stop = Time.now
-    times << (stop-start)
-    
-    puts times.join("\t")
   end
 end
-
-global_stop = Time.now
-puts "Time elapsed: #{global_stop-global_start}"

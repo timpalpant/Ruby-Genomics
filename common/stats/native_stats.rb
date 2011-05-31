@@ -3,7 +3,6 @@
 # using native Ruby implementations
 ##
 module NativeStats
-	
 	def sum
 		self.compact.inject { |sum, elem| sum + elem }
 	end
@@ -23,17 +22,14 @@ module NativeStats
   	Math.sqrt(variance)
   end	
   
-	# Struct to contain index-value pairs for index_sort
-	IndexValuePair = Struct.new(:index, :value)
-	
 	def median
 		sorted = self.compact.sort
 		if sorted.length == 0
 		  nil
-			elsif sorted.length.odd?
+		elsif sorted.length.odd?
 			# Median is the middle value
 			sorted[sorted.length/2]
-			else
+		else
 			# Median is the average of the middle two values
 			(sorted[sorted.length/2-1] + sorted[sorted.length/2]) / 2.0
 		end
@@ -56,6 +52,9 @@ module NativeStats
 		end
 		sorted[midpoint..-1].median
 	end
+  
+  # Struct to contain index-value pairs for index_sort
+	IndexValuePair = Struct.new(:index, :value)
 
 	# Sort an array and return the index (like in Matlab)
 	def index_sort
@@ -70,8 +69,8 @@ module NativeStats
 
 	def zscore
 		avg = self.mean     
-		standard_dev = self.stdev
-		self.map { |elem| (elem-avg)/standard_dev unless elem.nil? }
+		sdev = self.stdev
+		self.map { |elem| (elem-avg)/sdev unless elem.nil? }
 	end
 
 	# Returns a hash of objects and their frequencies within array.
@@ -113,7 +112,7 @@ module NativeStats
 		h.delete_if { |x,y| y < min }.keys.sort
 	end
 
-	# Smooth the array with a window (mean)
+	# Smooth the array with a moving average window (mean)
 	def window_smooth(window_size)
 		return self if window_size == 1
 		
@@ -128,13 +127,13 @@ module NativeStats
 			
 			if self[lose].nil?
 				nil_values -= 1
-				elsif lose != -1
+			elsif lose != -1
 				moving_sum -= self[lose]
 			end
 			
 			if self[gain].nil?
 				nil_values += 1
-				elsif gain != self.length
+			elsif gain != self.length
 				moving_sum += self[gain]
 			end
 			
@@ -145,4 +144,9 @@ module NativeStats
 		
 		return moving_average
 	end
+  
+  # Smooth the Array with a Gaussian filter
+  def gaussian_smooth(sdev, window_size)
+  
+  end
 end

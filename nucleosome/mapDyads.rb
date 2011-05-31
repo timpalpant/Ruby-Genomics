@@ -126,11 +126,11 @@ assembly.each do |chr, chr_length|
     # Adjust the step size to an optimal size
     count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
     puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-    if count > 1_000_000
-      options[:step] = 4*options[:step]/5
+    if count > 500_000
+      options[:step] = 3*options[:step]/5
       puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
       redo
-    elsif count < 100_000 and options[:step] < 5_000_000 and chunk_size == options[:step]
+    elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
       options[:step] *= 2
       puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
       redo

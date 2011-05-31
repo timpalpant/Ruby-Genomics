@@ -22,6 +22,7 @@ class WigFile
     # Load the track information from the first line
     File.open(File.expand_path(filename)) do |f|
       track_line = f.gets.chomp
+      break unless track_line.start_with?('track')
       track_line.split(' ').each do |opt|
         keypair = opt.split('=')
         key = keypair.first
@@ -88,11 +89,11 @@ class WigFile
 			
 			# Hack to enforce garbage collection of old chromosomes
 			# so that we don't exceed the available memory (hopefully)
-			10.times { GC.start }
+			GC.start
 		end
 		
-		# Final GC (doing it multiple times seems to help?)
-		10.times { GC.start }
+		# Final GC
+		GC.start
   end
 
   # Return an array of all chromosomes in this WigFile file
@@ -112,7 +113,6 @@ class WigFile
     
   # Load data from disk and return a Vector of values for a given chromosome
   def chr(chr_id)
-    # Call grep to find the chromosome within the Wig file
     raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     start_line = @index[chr_id]
     
@@ -122,6 +122,28 @@ class WigFile
   
     # Call tail and head to get the appropriate lines from the Wig
     return Chromosome.load(@data_file, start_line, end_line)
+  end
+  
+  # Return single-bp data from the specified region
+  def query(chr, start, stop)
+    raise GenomicIndexError, "Chromosome #{chr} not found in Wig file #{@data_file}!" unless include?(chr)
+  
+    start_line = @index[chr_id]
+    # Read up to the next chromosome in the file
+    end_line = @index.values.sort.select { |num| num > start_line }.first
+    end_line -= 1 unless end_line.nil?
+    
+    # Parse the header of the desired chromosome
+    header = File.lines(@data_file, start_line, start_line).first
+    raise 'Random queries are only available for fixedStep-style Wig files' unless header.start_with?('fixedStep')
+    parsed = Chromosome.parse_header(header)
+
+    # Calculate the lines needed
+    start_line += (start - parsed.start) / parsed.step
+    stop_line = start_line + stop / parsed.step
+    
+    # Call tail and head to get the appropriate lines from the Wig
+    File.lines(@data_file, start_line, stop_line).map { |line| line.to_f }
   end
   
 	# Output a summary about this Wig file

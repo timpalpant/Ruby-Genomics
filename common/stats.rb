@@ -1,14 +1,14 @@
-# Use GSL-based statistical methods for now
+# Use native implementations of statistical methods for now
 # Other implementations include:
 # - RStats: relying on rs-ruby gem / R
 # - NativeStats: all methods implemented in Ruby code
 # - GSLStats: relying on rb-gsl / GSL (GNU Scientific Library)
-# To employ these alternatives, change the include
 
-require 'stats/gsl_stats'
 require 'stats/native_stats'
 
-module Enumerable
+class Array
+  include NativeStats
+
 	# Return true if any elements are true
 	def any?
 		self.each { |e| return true if e }
@@ -20,8 +20,4 @@ module Enumerable
 		self.each { |e| return false unless e }
 		return true
 	end
-end
-
-class Array
-    include NativeStats
 end

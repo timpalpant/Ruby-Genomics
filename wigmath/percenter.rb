@@ -56,8 +56,8 @@ ARGV.options do |opts|
   end
 end
 
-# Load Wig file to percentize
-wig = Wig.load(options[:input])
+# Initialize Wig file to percentize
+wig = WigFile.new(options[:input])
 
 # Number to normalize (divide)
 sum = if not options[:total].nil? and options[:total] > 0
@@ -66,10 +66,18 @@ else
 	wig.total.to_f
 end
 
-wig.each do |chr,values|
-	for bp in 0...values.length
-    wig[chr][bp] /= sum
+# Iterate over the Wig file chromosome-by-chromosome
+File.open(options[:output],'w') do |f|
+  name = "Sum #{File.basename(options[:output])}"
+  desc = "Sum #{File.basename(options[:output])}"
+  f.puts Wig.track_header(name, desc) 
+  
+  wig.each do |chr,values|
+    for bp in 0...values.length
+      values[bp] /= sum
+    end
+    
+    f.puts Wig.fixed_step(chr, values)
+    f.puts values
   end
 end
-
-wig.to_wig(options[:output])
