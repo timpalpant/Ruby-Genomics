@@ -103,7 +103,7 @@ assembly.each do |chr, chr_length|
       options[:step] =4*options[:step]/5
       puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
       redo
-    elsif count < 100_000 and 2*options[:step] < 10_000_000
+    elsif count < 100_000 and options[:step] < 5_000_000 and chunk_size == options[:step]
       options[:step] *= 2
       puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
       redo
