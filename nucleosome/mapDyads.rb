@@ -109,19 +109,19 @@ assembly.each do |chr, chr_length|
 		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
 	end
 	
-	chunk_start = 0
+	chunk_start = 1
 	while chunk_start < chr_length		
 		# Allocate memory for this chunk
-		chunk_size = [options[:step], chr_length-chunk_start].min
+		chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+    chunk_size = chunk_stop - chunk_start
 		mapped_starts = Array.new(chunk_size, 0)
-    chunk_stop = chunk_start + chunk_size - 1
     
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
     count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
     puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 1_000_000
-      options[:step] =4*options[:step]/5
+      options[:step] = 4*options[:step]/5
       puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
       redo
     elsif count < 100_000 and options[:step] < 5_000_000 and chunk_size == options[:step]
@@ -143,7 +143,7 @@ assembly.each do |chr, chr_length|
 			end
 				
 			begin
-				mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center < chunk_start+chunk_size
+				mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center <= chunk_stop
 			rescue
 				unmapped += 1
 			end
@@ -170,7 +170,7 @@ puts "WARN: #{total_unmapped} unmapped dyads" if total_unmapped > 0
 # Write the Wiggle track header
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
-	name = "Mapped starts #{File.basename(options[:input])}"
+	name = "Mapped Dyads #{File.basename(options[:input])}"
 	f.puts Wig.track_header(name, name)
 end
 
