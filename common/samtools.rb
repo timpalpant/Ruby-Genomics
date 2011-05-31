@@ -21,9 +21,16 @@ module SAMTools
   # ‘chr2:1000000’ (region starting from 1,000,000bp) or ‘chr2:1,000,000-2,000,000’ 
   # (region between 1,000,000 and 2,000,000bp including the end points). The coordinate is 1-based.
   def self.view(bam_file, chr, start = nil, stop = nil)
-    index(bam_file) if not File.exist?(bam_file + '.bai')
+    if not File.exist?(bam_file + '.bai')
+			index(bam_file)
+			indexed = true
+		end
+		
     %x[ samtools view #{bam_file} #{query_string(chr, start, stop)} ].split("\n").map { |line| SAMEntry.parse(line) }
-  end
+  
+		# Remove the index if we created it so that files don't get orphaned within Galaxy
+		File.delete(bam_file + '.bai') if indexed
+	end
 
   # Count the number of alignments overlapping the region
   def self.count(bam_file, chr, start = 1, stop = nil)
