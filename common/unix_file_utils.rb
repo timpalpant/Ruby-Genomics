@@ -1,10 +1,7 @@
 # Encapsulate methods in the File class 
 # that call native Unix command-line utilities
 # such as wc, grep, head, tail...
-class File
-	# Hack to suppress insecure world writable dir warnings that upset Galaxy
-	$VERBOSE = nil
-	
+class File	
   # Get the number of lines in a file using wc -l
   def self.num_lines(filename)
 		if File.directory?(filename)
@@ -84,4 +81,9 @@ class File
 
 		return nil
 	end
+  
+  # Concatenate files
+  def self.cat(input_files, output_file)
+    %x[ cat #{input_files.join(' ')} > #{output_file} ]
+  end
 end

@@ -29,9 +29,12 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
+require 'forkmanager'
+require 'unix_file_utils'
 require 'assembly'
 require 'wig'
 require 'samtools'
+include Parallel
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -50,6 +53,8 @@ ARGV.options do |opts|
   opts.on( '-g', '--genome NAME', "Genome assembly (default: sacCer2)" ) { |name| options[:genome] = name }
   options[:step] = 100_000
   opts.on( '-s', '--step N', "Initial step size to use in base pairs (default: 100,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
       
   # Parse the command-line arguments
@@ -63,6 +68,7 @@ ARGV.options do |opts|
   end	
 end
 
+
 # Warning if using manual offset
 if options[:length]
 	offset = options[:length] / 2
@@ -75,19 +81,32 @@ SAMTools.index(options[:input])
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
-# Write the Wiggle track header
-File.open(options[:output], 'w') do |f|
-	name = "Mapped starts #{File.basename(options[:input])}"
-	f.puts Wig.track_header(name, name)
+# Initialize the process manager
+pm = ForkManager.new(options[:threads])
+
+# Callback to get the number of unmapped reads from each subprocess
+total_unmapped = 0
+pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data_structure|
+  # Retrieve the data structure from child
+  if defined? data_structure
+    total_unmapped += data_structure
+  else  # Problems occuring during storage or retrieval will throw a warning
+    puts "Number of unampped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
+  end
 end
 
-unmapped = 0
-# Process each chromosome in options[:step] bp chunks
+
+# Process each chromosome in chunks
+# Each chromosome in a different parallel process
 assembly.each do |chr, chr_length|
+  # Run in parallel processes managed by ForkManager
+  pm.start(chr) and next
+
 	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  unmapped = 0
 
 	# Write the chromosome fixedStep header
-	File.open(options[:output], 'a') do |f|
+	File.open(options[:output]+'.'+chr, 'w') do |f|
 		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
 	end
 	
@@ -132,15 +151,37 @@ assembly.each do |chr, chr_length|
 		end
 		
 		# Write this chunk to disk
-		File.open(options[:output], 'a') do |f|
+		File.open(options[:output]+'.'+chr, 'a') do |f|
 			f.puts mapped_starts.join("\n")
 		end
 		
 		chunk_start += options[:step]
 	end
+  
+  # Send the number of unmapped reads on this chromosome back to the parent process
+  puts "#{unmapped} unmapped dyads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
+  pm.finish(0, unmapped)
 end
 
-puts "WARN: #{unmapped} unmapped reads" if unmapped > 0
+
+# Wait for all of the child processes (each chromosome) to complete
+pm.wait_all_children
+puts "WARN: #{total_unmapped} unmapped dyads" if total_unmapped > 0
+
+# Write the Wiggle track header
+header_file = options[:output]+'.header'
+File.open(header_file, 'w') do |f|
+	name = "Mapped starts #{File.basename(options[:input])}"
+	f.puts Wig.track_header(name, name)
+end
+
+# Concatenate all of the individual chromosomes into the output file
+tmp_files = [header_file]
+assembly.chromosomes.each { |chr| tmp_files << (options[:output]+'.'+chr) }
+File.cat(tmp_files, options[:output])
+
+# Delete the individual chromosome files created by each process
+tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
 File.delete(options[:input] + '.bai')
