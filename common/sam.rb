@@ -10,7 +10,7 @@ class SAMEntry < GenomicInterval
 	attr_accessor :qname, :flag, :rname, :mapq, :cigar, :rnext, :pnext, :tlen, :seq, :qual
 	
 	def self.parse(line)
-		record = line.split("\t")
+		record = line.chomp.split("\t")
 	
 		entry = self.new
 		entry.qname = record[0]

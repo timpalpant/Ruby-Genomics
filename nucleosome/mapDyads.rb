@@ -98,7 +98,7 @@ assembly.each do |chr, chr_length|
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
     count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
-    puts "#{count} reads in block #{chunk_start}-#{chunk_stop}"
+    puts "#{count} reads in block #{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 1_000_000
       options[:step] =4*options[:step]/5
       puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
