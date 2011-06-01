@@ -143,10 +143,11 @@ class WigFile
     
     # Parse the header of the desired chromosome
     header = File.lines(@data_file, chr_start(chr), chr_start(chr)).first
-    raise 'Random queries are only available for fixedStep-style Wig files' unless header.start_with?('fixedStep')
+    raise GenomicIndexError, 'Random queries are only available for fixedStep-style chromosomes' unless header.start_with?('fixedStep')
     parsed = Chromosome.parse_header(header)
     
-    raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > chr_length(chr)
+    raise 'Random queries are not yet implemented for data with step != 1' if parsed.step != 1
+    raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > parsed.start + parsed.step*chr_length(chr)
 
     # Calculate the lines needed
     start_line = chr_start(chr) + 1 + (start - parsed.start)/parsed.step

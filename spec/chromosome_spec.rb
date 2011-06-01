@@ -3,7 +3,7 @@ require 'chromosome'
 
 describe Chromosome do
 	TEST_LENGTH = 10
-	TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/./fixtures') + "/test-chr.txt"
+	TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/fixtures/test-chr.txt')
 	# Should correspond to the data in test-chr.txt
 	TEST_DATA = [0,3,4,9,0,6,44,3,5,7,8,9,5,6,3,1,1,2,3,4,5,6,13,15,18,22]
 	
@@ -123,6 +123,10 @@ describe Chromosome do
 			@test.to_s.split("\n").length.should == @test.length
 		end
 	end
+  
+  context "with variableStep format" do
+    
+  end
 end
 
 describe Array do
@@ -151,7 +155,7 @@ describe Array do
 		chr.stop.should == 124
 		chr.length.should == 100
 		
-		@test.each_with_index do |value,i|
+		@test.each_index do |i|
 			chr[i].should == @test[i]
 		end
 	end

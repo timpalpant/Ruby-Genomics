@@ -150,7 +150,7 @@ module NativeStats
     half_window = window_size*sdev
     
     # Generate the gaussian vector (of length window_size)
-    gaussian = Array.new(2*window_size)
+    gaussian = Array.new(2*window_size, 0)
     coeff = 1 / (sdev*Math.sqrt(2*Math::PI))
     for x in -half_window..half_window
       gaussian[x+half_window] = coeff * Math.exp(-((x**2)/(2*(sdev**2))))
@@ -159,12 +159,10 @@ module NativeStats
     smooth = Array.new(self.length, 0)
     i = half_window
     self.each_cons(2*window_size) do |window|
-      sum = 0
       for j in 0...window.length
-        sum += window[j] * gaussian[j]
+        smooth[i] += window[j] * gaussian[j]
       end
       
-      smooth[i] = sum
       i += 1
     end
   

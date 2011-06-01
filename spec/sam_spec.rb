@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'sam'
 
-TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/./fixtures') + "/test.sam"
+TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
 
 describe SAMEntry do
 	context "single-end entry" do

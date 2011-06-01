@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		1F170BF31395C6BB00860C94 /* test.bam */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam; sourceTree = "<group>"; };
+		1F170BF41395C87C00860C94 /* test.bam.bai */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam.bai; sourceTree = "<group>"; };
+		1FBFEFA31395C45000441DD7 /* affy_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = affy_spec.rb; sourceTree = "<group>"; };
+		1FBFEFA41395C50200441DD7 /* stats_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = stats_spec.rb; sourceTree = "<group>"; };
+		1FBFEFA51395C53C00441DD7 /* samtools_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = samtools_spec.rb; sourceTree = "<group>"; };
+		1FBFEFA61395C54600441DD7 /* tabix_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = tabix_spec.rb; sourceTree = "<group>"; };
 		1FD2388613948F3D00E666C2 /* samtools.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = samtools.rb; sourceTree = "<group>"; };
 		1FD2388813948F4400E666C2 /* tabix.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = tabix.rb; sourceTree = "<group>"; };
 		1FD61DB413909D530013355B /* affy.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = affy.rb; sourceTree = "<group>"; };
@@ -431,6 +437,10 @@
 				1FD61E4A13909D530013355B /* spec_helper.rb */,
 				1FD61E4B13909D530013355B /* unix_file_utils_spec.rb */,
 				1FD61E4C13909D530013355B /* wig_spec.rb */,
+				1FBFEFA31395C45000441DD7 /* affy_spec.rb */,
+				1FBFEFA41395C50200441DD7 /* stats_spec.rb */,
+				1FBFEFA51395C53C00441DD7 /* samtools_spec.rb */,
+				1FBFEFA61395C54600441DD7 /* tabix_spec.rb */,
 			);
 			path = spec;
 			sourceTree = "<group>";
@@ -438,6 +448,8 @@
 		1FD61E3F13909D530013355B /* fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				1F170BF41395C87C00860C94 /* test.bam.bai */,
+				1F170BF31395C6BB00860C94 /* test.bam */,
 				1FD61E4013909D530013355B /* test-chr.txt */,
 				1FD61E4113909D530013355B /* test.sam */,
 				1FD61E4213909D530013355B /* test.wig */,
@@ -512,6 +524,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		1FBFEF9D1395C2AA00441DD7 /* Specs */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = spec;
+			buildConfigurationList = 1FBFEFA01395C2AA00441DD7 /* Build configuration list for PBXLegacyTarget "Specs" */;
+			buildPhases = (
+			);
+			buildToolPath = /opt/local/bin/rake1.9;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = Specs;
+			passBuildSettingsInEnvironment = 1;
+			productName = Specs;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXProject section */
 		1FBCE04713909CCC002347A0 /* Project object */ = {
 			isa = PBXProject;
@@ -529,6 +558,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				1FBFEF9D1395C2AA00441DD7 /* Specs */,
 			);
 		};
 /* End PBXProject section */
@@ -546,6 +576,54 @@
 			};
 			name = Release;
 		};
+		1FBFEF9E1395C2AA00441DD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		1FBFEF9F1395C2AA00441DD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -554,6 +632,15 @@
 			buildConfigurations = (
 				1FBCE04C13909CCC002347A0 /* Debug */,
 				1FBCE04D13909CCC002347A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1FBFEFA01395C2AA00441DD7 /* Build configuration list for PBXLegacyTarget "Specs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FBFEF9E1395C2AA00441DD7 /* Debug */,
+				1FBFEF9F1395C2AA00441DD7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
