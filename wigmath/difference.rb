@@ -27,6 +27,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
+require 'parallelizer'
 require 'pickled_optparse'
 require 'wig'
 
@@ -43,6 +44,10 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-m', '--minuend FILE', :required, "File 1" ) { |f| options[:minuend] = f }
   opts.on( '-s', '--subtrahend FILE', :required, "File 2" ) { |f| options[:subtrahend] = f }
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -56,39 +61,31 @@ ARGV.options do |opts|
 	end
 end
 
-# Initialize WigFile files
+# Initialize the Wig files to subtract
 minuend = WigFile.new(options[:minuend])
 subtrahend = WigFile.new(options[:subtrahend])
   
 # Validate that both files have the same chromosomes
 puts "Validating compatibility"
 minuend.chromosomes.each do |chr_id|
-  raise "Files have different chromosomes!" unless subtrahend.chromosomes.include?(chr_id)
+  raise "Files have different chromosomes!" unless subtrahend.include?(chr_id)
+  raise "Chromosome #{chr_id} has a different length" unless minuend.chr_length(chr_id) == subtrahend.chr_length(chr_id)
 end
 
-File.open(options[:output],'w') do |f|
-  name = "#{File.basename(options[:minuend])} - #{File.basename(options[:subtrahend])}"
-  desc = "Difference of #{File.basename(options[:minuend])} - #{File.basename(options[:subtrahend])}"
-  f.puts Wig.track_header(name, desc)
-        
-  minuend.chromosomes.each do |chr_id|
-    puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
-    
-    # Load the chromosome from both files
-    minuend_chr = minuend.chr(chr_id)
-    subtrahend_chr = subtrahend.chr(chr_id)
-    
-    # Check that the chromosomes have the same number of values
-    raise "Chromosome #{chr_id} has different number of values! (#{minuend_chr.length} vs. #{subtrahend_chr.length}" if minuend_chr.length != subtrahend_chr.length
-    
-    # Compute the difference for all values in the chromosome
-    difference = Chromosome.new(minuend_chr.length, minuend_chr.start, minuend_chr.stop, minuend_chr.span)
-    for bp in 0...minuend_chr.length
-      difference[bp] = minuend_chr[bp] - subtrahend_chr[bp]
-    end
-    
-    # Write to file
-    f.puts Wig.fixed_step(chr_id, difference)
-    f.puts difference
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:threads])
+
+# Define the block for subtraction
+proc = lambda do |chr, chunk_start, chunk_stop, minuend, subtrahend|
+  m_chunk = minuend.query(chr, chunk_start, chunk_stop)
+  s_chunk = minuend.query(chr, chunk_start, chunk_stop)
+  difference = Array.new(m_chunk.length)
+  for i in 0...m_chunk.length
+    difference[i] = m_chunk[i] - s_chunk[i]
   end
+  
+  return difference
 end
+
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(proc, minuend.chromosomes, minuend, subtrahend)

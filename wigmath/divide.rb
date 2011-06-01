@@ -42,6 +42,10 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-1', '--dividend FILE', :required, "File 1" ) { |f| options[:dividend] = f }
   opts.on( '-2', '--divisor FILE', :required, "File 2" ) { |f| options[:divisor] = f }
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -68,29 +72,70 @@ dividend.chromosomes.each do |chr_id|
 	end
 end
 
-File.open(options[:output],'w') do |f|
-  name = "#{File.basename(options[:dividend])} / #{File.basename(options[:divisor])}"
-  desc = "Ratio of #{File.basename(options[:dividend])} / #{File.basename(options[:divisor])}"
-  f.puts Wig.track_header(name, desc)
-        
-  dividend.chromosomes.each do |chr_id|
-    puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
-    
-    # Load the chromosome from both files
-    dividend_chr = dividend[chr_id]
-    divisor_chr = divisor[chr_id]
-    
-    # Check that the chromosomes have the same number of values
-    raise "Chromosome #{chr_id} has different # of values! (#{dividend_chr.length} vs. #{divisor_chr.length}" if dividend_chr.length != divisor_chr.length
-    
-    # Compute the ratio for all values in the chromosome
-		ratio = Chromosome.new(dividend_chr.length, dividend_chr.start, dividend_chr.step, dividend_chr.span)
-    for bp in 0...dividend_chr.length
-      ratio[bp] = dividend_chr[bp] / divisor_chr[bp] if divisor_chr[bp] != 0
-    end
-    
-    # Write to file
-    f.puts Wig.fixed_step(chr_id, ratio)
-    f.puts ratio
-  end
+# Initialize WigFile files
+dividend = WigFile.new(options[:dividend])
+divisor = WigFile.new(options[:divisor])
+  
+# Validate that both files have the same chromosomes
+puts "Validating compatibility"
+dividend.chromosomes.each do |chr_id|
+  raise "Files have different chromosomes!" unless divisor.include?(chr_id)
+  raise "Chromosome #{chr_id} has a different length" unless dividend.chr_length(chr_id) == divisor.chr_length(chr_id)
 end
+
+# Initialize the process manager
+pm = Parallel::ForkManager.new(options[:threads])
+
+# Process each chromosome in parallel
+dividend.chromosomes.each do |chr|
+  # Run in parallel processes managed by ForkManager
+  pm.start(chr) and next
+  
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+
+	# Write the chromosome fixedStep header
+	File.open(options[:output]+'.'+chr, 'w') do |f|
+		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
+	end
+	
+	chunk_start = 1
+  chr_length = wigs.first.chr_length(chr)
+	while chunk_start < chr_length
+    chunk_stop = chunk_start + options[:step] - 1
+    puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+    
+		dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
+    divisor_chunk = dividend.query(chr, chunk_start, chunk_stop)
+    ratio = Array.new(dividend_chunk.length, 0)
+    for i in 0...dividend_chunk.length
+      ratio[i] = dividend_chunk[i] / divisor_chunk[i] unless divisor_chunk[i] == 0
+    end
+
+		# Write this chunk to disk
+		File.open(options[:output]+'.'+chr, 'a') do |f|
+			f.puts ratio.map { |value| value.to_s(5) }.join("\n")
+		end
+		
+		chunk_start = chunk_stop + 1
+	end
+
+  pm.finish(0)
+end
+
+# Wait for all of the child processes (each chromosome) to complete
+pm.wait_all_children
+
+# Iterate over the Wig file chromosome-by-chromosome
+header_file = options[:output]+'.header'
+File.open(header_file, 'w') do |f|
+  name = "Average of #{ARGV.map { |f| File.basename(f) }.join(',')}"
+  f.puts Wig.track_header(name,name)
+end
+
+# Concatenate all of the individual chromosomes into the output file
+tmp_files = [header_file]
+dividend.chromosomes.each { |chr| tmp_files << (options[:output]+'.'+chr) }
+File.cat(tmp_files, options[:output])
+
+# Delete the individual chromosome files created by each process
+tmp_files.each { |filename| File.delete(filename) }
