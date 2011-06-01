@@ -16,13 +16,14 @@ class Parallelizer
 end
 
 class WigComputationParallelizer < Parallelizer
-  def initialize(output_file, max_threads = 2)
+  def initialize(output_file, chunk_size = 200_000, max_threads = 2)
     super(max_threads)
     @output = output_file
+    @chunk_size = chunk_size
   end
   
   # Run a given Proc for each chromosome in chunks
-  def run(proc, chr_set, *args)
+  def run(wig)
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
@@ -33,29 +34,30 @@ class WigComputationParallelizer < Parallelizer
     tmp_files = [header_file]
   
     # Iterate over the Wig file chromosome-by-chromosome
-    @chr_set.each do |chr|
+    wig.chromosomes.each do |chr|
+      chr_temp_file = @output+'.'+chr
+      tmp_files << chr_temp_file      
+      
       # Run in parallel processes managed by ForkManager
       @pm.start(chr) and next
       
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-      chr_temp_file = @output+'.'+chr
-      tmp_files << chr_temp_file
-      
+
       # Write the chromosome fixedStep header
       File.open(chr_temp_file, 'w') do |f|
         f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
       end
       
       chunk_start = 1
-      chr_length = wigs.first.chr_length(chr)
+      chr_length = wig.chr_length(chr)
       while chunk_start < chr_length
-        chunk_stop = chunk_start + options[:step] - 1
+        chunk_stop = [chunk_start+@chunk_size-1, chr_length].min
         puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
         
-        output = proc.call(chr, chunk_start, chunk_stop, *wigs)
+        output = yield(chr, chunk_start, chunk_stop)
         
         # Write this chunk to disk
-        File.open(options[:output]+'.'+chr, 'a') do |f|
+        File.open(chr_temp_file, 'a') do |f|
           f.puts output.map { |value| value.to_s(5) }.join("\n")
         end
         
