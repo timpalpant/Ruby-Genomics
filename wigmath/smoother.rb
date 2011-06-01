@@ -85,63 +85,20 @@ wig = WigFile.new(options[:input])
 pm = Parallel::ForkManager.new(options[:threads])
 
 
-# Process each chromosome in chunks
-# Each chromosome in a different parallel process
-wig.chromosomes.each do |chr|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(wig) do |chr, chunk_start, chunk_stop|
+  # Don't pad off the end of the chromosome
+  query_start = [1, chunk_start-padding].max
+  query_stop = [chunk_stop+padding, chr_length].min
   
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-
-	# Write the chromosome fixedStep header
-	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
-	end
-	
-	chunk_start = 1
-  chr_length = wig.chr_length(chr)
-	while chunk_start < chr_length
-    chunk_stop = chunk_start + options[:step] - 1
-    puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-    
-    # Don't pad off the end of the chromosome
-    query_start = [1, chunk_start-padding].max
-    query_stop = [chunk_stop+padding, chr_length].min
-    
-    # Actual padding
-    padding_left = chunk_start - query_start
-    padding_right = query_stop - chunk_stop
-    
-		chunk = wig.query(chr, query_start, query_stop)
-		smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
-		smoothed = smoothed[padding_left...-padding_right]
-
-		# Write this chunk to disk
-		File.open(options[:output]+'.'+chr, 'a') do |f|
-			f.puts smoothed.map { |value| value.to_s(5) }.join("\n")
-		end
-		
-		chunk_start = chunk_stop + 1
-	end
-
-  pm.finish(0)
+  # Actual padding
+  padding_left = chunk_start - query_start
+  padding_right = query_stop - chunk_stop
+  
+  chunk = wig.query(chr, query_start, query_stop)
+  smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
+  smoothed[padding_left...-padding_right]
 end
-
-
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
-
-# Iterate over the Wig file chromosome-by-chromosome
-header_file = options[:output]+'.header'
-File.open(header_file, 'w') do |f|
-  name = "Smoothed #{File.basename(options[:input])}"
-  f.puts Wig.track_header(name,name)
-end
-
-# Concatenate all of the individual chromosomes into the output file
-tmp_files = [header_file]
-wig.chromosomes.each { |chr| tmp_files << (options[:output]+'.'+chr) }
-File.cat(tmp_files, options[:output])
-
-# Delete the individual chromosome files created by each process
-tmp_files.each { |filename| File.delete(filename) }
