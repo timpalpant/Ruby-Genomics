@@ -60,12 +60,14 @@ class Chromosome < Array
 		
 			prev_base, prev_value = nil, nil
 			data[1..-1].each do |line|
-				entry = line.split("\t")
+				entry = line.chomp.split("\t")
 				base = entry.first.to_i
 				value = entry.last.to_f
 				
 				if prev_base and prev_value
-					chr[prev_base-chr.start..base-chr.start] = prev_value
+          for bp in prev_base-chr.start..base-chr.start
+            chr[bp] = prev_value
+          end
 				end
 				
 				prev_base = base

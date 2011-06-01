@@ -13,7 +13,8 @@ class File
 			return total
 		end
 		
-    %x[ wc -l #{filename} ].split(' ').first.to_i
+    # Add 1 because wc counts line breaks
+    %x[ wc -l #{filename} ].split(' ').first.to_i + 1
   end
 
 	# Get the number of characters in a file using wc -c
