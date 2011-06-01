@@ -150,11 +150,16 @@ class WigFile
     raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > parsed.start + parsed.step*chr_length(chr)
 
     # Calculate the lines needed
-    start_line = chr_start(chr) + 1 + (start - parsed.start)/parsed.step
-    stop_line = start_line + (stop-start)/parsed.step
+    low = [start, stop].min
+    high = [start, stop].max
+    start_line = chr_start(chr) + 1 + (low - parsed.start)/parsed.step
+    stop_line = start_line + (high-low)/parsed.step
     
     # Call tail and head to get the appropriate lines from the Wig
-    File.lines(@data_file, start_line, stop_line).map { |line| line.to_f }
+    values = File.lines(@data_file, start_line, stop_line).map { |line| line.to_f }
+    values.reverse! if start > stop
+    
+    return values
   end
   
 	# Output a summary about this Wig file
