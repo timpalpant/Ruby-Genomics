@@ -32,6 +32,7 @@ require 'pickled_optparse'
 require 'fixed_precision'
 require 'wig'
 require 'stats'
+require 'convolution'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -45,12 +46,12 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file" ) { |f| options[:input] = f }
-  options[:sdev] = 10
-  opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 10)" ) { |num| options[:sdev] = num.to_i }
+  options[:sdev] = 20
+  opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 20)" ) { |num| options[:sdev] = num.to_i }
   options[:window_size] = 3
   opts.on( '-w', '--window NUM', "Number of standard deviations +/- to make a window (default 3)" ) { |num| options[:window_size] = num.to_i }
-  options[:step] = 500_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
@@ -69,6 +70,13 @@ end
 
 # Gaussian smoothing requires padding of half_window on either end
 padding = options[:sdev] * options[:window_size]
+
+# Set up the Gaussian filter
+#g = Filter.gaussian(options[:sdev], options[:window_size])
+#padded = Array.new(options[:step], 0)
+#for i in 0..g.length
+#  padded[i+padded.length/2-g.length/2] = g[i]
+#end
 
 # Initialize the wig files to smooth
 wig = WigFile.new(options[:input])
