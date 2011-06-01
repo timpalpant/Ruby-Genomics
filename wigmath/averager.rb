@@ -25,7 +25,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'forkmanager'
+require 'parallelizer'
 require 'pickled_optparse'
 require 'wig'
 
@@ -69,62 +69,20 @@ wigs[1..-1].each do |wig|
   end
 end
 
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads])
 
-# Process each chromosome in parallel
-wigs.first.chromosomes.each do |chr|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
-  
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
 
-	# Write the chromosome fixedStep header
-	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
-	end
-	
-	chunk_start = 1
-  chr_length = wigs.first.chr_length(chr)
-	while chunk_start < chr_length
-    chunk_stop = chunk_start + options[:step] - 1
-    puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-    
-		sum = wigs.first.query(chr, chunk_start, chunk_stop)
-    wigs[1..-1].each do |wig|
-      data = wig.query(chr, chunk_start, chunk_stop)
-      for i in 0...data.length
-        sum[i] += data[i]
-      end
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
+  sum = wigs.first.query(chr, chunk_start, chunk_stop)
+  wigs[1..-1].each do |wig|
+    data = wig.query(chr, chunk_start, chunk_stop)
+    for i in 0...data.length
+      sum[i] += data[i]
     end
+  end
 
-    avg = sum.map { |value| value / num_files }
-
-		# Write this chunk to disk
-		File.open(options[:output]+'.'+chr, 'a') do |f|
-			f.puts avg.map { |value| value.to_s(5) }.join("\n")
-		end
-		
-		chunk_start = chunk_stop + 1
-	end
-
-  pm.finish(0)
+  # Return the average for this chunk
+  sum.map { |value| value / num_files }
 end
-
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
-
-# Iterate over the Wig file chromosome-by-chromosome
-header_file = options[:output]+'.header'
-File.open(header_file, 'w') do |f|
-  name = "Average of #{ARGV.map { |f| File.basename(f) }.join(',')}"
-  f.puts Wig.track_header(name,name)
-end
-
-# Concatenate all of the individual chromosomes into the output file
-tmp_files = [header_file]
-wigs.first.chromosomes.each { |chr| tmp_files << (options[:output]+'.'+chr) }
-File.cat(tmp_files, options[:output])
-
-# Delete the individual chromosome files created by each process
-tmp_files.each { |filename| File.delete(filename) }

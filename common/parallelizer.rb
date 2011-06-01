@@ -22,7 +22,9 @@ class WigComputationParallelizer < Parallelizer
     @chunk_size = chunk_size
   end
   
-  # Run a given Proc for each chromosome in chunks
+  # Run a given block transform for each chromosome in chunks
+  # The wig file provides the chromosomes and the chunk coordinates
+  # Sort of a map-reduce approach
   def run(wig)
     # Write the output file header
     header_file = @output+'.header'
@@ -40,7 +42,6 @@ class WigComputationParallelizer < Parallelizer
       
       # Run in parallel processes managed by ForkManager
       @pm.start(chr) and next
-      
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
 
       # Write the chromosome fixedStep header
@@ -75,5 +76,72 @@ class WigComputationParallelizer < Parallelizer
 
     # Delete the individual temp files created by each process
     tmp_files.each { |filename| File.delete(filename) }
+  end
+end
+
+
+##
+# Add methods for parallel computation to the WigFile class
+##
+class WigFile
+  @@pm = Parallel::ForkManager.new(2)
+  
+  # Set the total number of computation processes for all Wig files (default = 2)
+  def self.max_threads=(n)
+    @@pm = Parallel::ForkManager.new(n.to_i)
+  end
+  
+  # Run a given block for each chromosome
+  # (parallel each)
+  def p_each    
+    wig.chromosomes.each do |chr|
+      @@pm.start(chr)
+      yield(chr)
+      @@pm.finish(0)
+    end
+  end
+
+  # Compute a given block for each chromosome
+  # and return the results (parallel map)
+  def p_map
+    results = Array.new(wig.chromosomes.length)
+    
+    wig.chromosomes.each_with_index do |chr,i|
+      @@pm.start(chr)
+      results[i] = yield(chr)
+      @@pm.finish(0)
+    end
+    
+    return results
+  end
+  
+  # Compute a given block for all chromosomes in chunks
+  # and inject the results (parallel inject)
+  def chunk_map(initial_value)
+    results = Array.new(wig.chromosomes.length)
+    
+    wig.chromosomes.each_with_index do |chr,i|
+      # Run in parallel processes managed by ForkManager
+      @pm.start(chr) and next   
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      result = initial_value
+      chunk_start = 1
+      chr_length = wig.chr_length(chr)
+      while chunk_start < chr_length
+        chunk_stop = [chunk_start+@chunk_size-1, chr_length].min
+        puts "Computing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        
+        result = yield(result, chr, chunk_start, chunk_stop)
+        
+        chunk_start = chunk_stop + 1
+      end
+      
+      results[i] = result
+
+      @pm.finish(0)
+    end
+    
+    return results
   end
 end

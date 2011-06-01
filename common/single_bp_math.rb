@@ -8,10 +8,11 @@
 #  Copyright 2011 UNC. All rights reserved.
 #
 
+require 'gsl'
 require 'stats'
 
 module SingleBPMath
-	# Return the total number of values in this GenomicData
+	# Return the total number of values in this SingleBPData
   def num_values
   	self.collect { |chr_id,data| data.length }.sum.to_i
   end
@@ -28,7 +29,7 @@ module SingleBPMath
 	
 	# Return the standard deviation of all values
   def stdev(mean = self.mean, num_values = self.num_values)
-  	tss = self.map { |chr_id,values| values.tss(mean) }.sum
+  	tss = self.map { |chr_id,values| values.to_gslv.tss(mean) }.sum
   	Math.sqrt(tss / num_values)
   end
 end

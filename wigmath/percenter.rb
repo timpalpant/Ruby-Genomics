@@ -26,6 +26,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
+require 'parallelizer'
 require 'wig'
 require 'stats'
 require 'pickled_optparse'
@@ -43,6 +44,10 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input Wig file" ) { |f| options[:input] = f }
   opts.on( '-t', '--total NUM', "Number to divide each value by (optional)" ) { |n| options[:total] = n.to_f }
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output Wig file (percents)" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments
@@ -59,25 +64,18 @@ end
 # Initialize Wig file to percentize
 wig = WigFile.new(options[:input])
 
-# Number to normalize (divide)
+# Number to normalize with (divide by)
 sum = if not options[:total].nil? and options[:total] > 0
 	options[:total]
 else
 	wig.total.to_f
 end
 
-# Iterate over the Wig file chromosome-by-chromosome
-File.open(options[:output],'w') do |f|
-  name = "Sum #{File.basename(options[:output])}"
-  desc = "Sum #{File.basename(options[:output])}"
-  f.puts Wig.track_header(name, desc) 
-  
-  wig.each do |chr,values|
-    for bp in 0...values.length
-      values[bp] /= sum
-    end
-    
-    f.puts Wig.fixed_step(chr, values)
-    f.puts values
-  end
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(wig) do |chr, chunk_start, chunk_stop|
+  chunk = wig.query(chr, chunk_start, chunk_stop)
+  chunk.map { |value| value / sum }
 end

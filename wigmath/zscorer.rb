@@ -24,6 +24,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
+require 'parallelizer'
 require 'wig'
 require 'pickled_optparse'
 
@@ -39,6 +40,10 @@ ARGV.options do |opts|
   
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input Wig file" ) { |f| options[:input] = f }
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', "Output Wig file (Z-scored)" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments
@@ -69,17 +74,11 @@ stdev = wig.stdev(mean)
 puts "StDev: #{stdev.to_s(5)}"
 raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 
-File.open(options[:input], 'w') do |f|
-  name = "Z-Scored #{File.basename(options[:input])}"
-  desc = "Z-Scored #{File.basename(options[:input])}"
-  f.puts Wig.track_header(name, desc)  
-  
-  wig.each do |chr,values|
-    values.each do |value|
-      value = (value-mean) / stdev
-    end
-    
-    f.puts Wig.fixed_step(chr, values)
-    f.puts values
-  end
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(wig) do |chr, chunk_start, chunk_stop|
+  chunk = wig.query(chr, chunk_start, chunk_stop)
+  chunk.map { |value| (value-mean)/stdev }
 end

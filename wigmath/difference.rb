@@ -83,5 +83,6 @@ parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
     difference[i] = m_chunk[i] - s_chunk[i]
   end
   
+  # Return the difference for this chunk
   difference
 end

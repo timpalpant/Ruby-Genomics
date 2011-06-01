@@ -1,6 +1,6 @@
 <tool id="Divide" name="Divide" version="1.0.0">
   <description>two Wiggle files</description>
-  <command interpreter="ruby1.9">divide.rb -1 $dividend -2 $divisor -o $output</command>
+  <command interpreter="ruby1.9">divide.rb -1 $dividend -2 $divisor -p 4 -o $output</command>
   <inputs>
 		<param format="wig" name="dividend" type="data" label="File 1 (dividend)" />
 		<param format="wig" name="divisor" type="data" label="File 2 (divisor)" />

@@ -1,6 +1,6 @@
 <tool id="Difference" name="Subtract" version="1.0.0">
   <description>two Wiggle files</description>
-  <command interpreter="ruby1.9">difference.rb -m $minuend -s $subtrahend -o $output</command>
+  <command interpreter="ruby1.9">difference.rb -m $minuend -s $subtrahend -p 4 -o $output</command>
   <inputs>
 		<param format="wig" name="minuend" type="data" label="File 1 (minuend)" />
 		<param format="wig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
