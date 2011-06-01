@@ -42,32 +42,15 @@ class WigFile
     # Store hash of what chromosomes are available and what line they start at
     @index = Hash.new
 		
-		# Find fixedStep lines and index
-		puts 'Indexing fixedStep lines' if ENV['DEBUG']
-    File.grep_with_linenum(@data_file, 'fixedStep').each do |line|
+		# Find chromosome header lines and index (ghetto B-tree)
+		puts 'Indexing chromosome header lines' if ENV['DEBUG']
+    File.grep_with_linenum(@data_file, 'chrom').each do |line|
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
-      fixedStep_line = grep_line.last
+      header_line = grep_line.last
+      next unless header_line.start_with?('fixedStep') or header_line.start_with?('variableStep')
       
-      fixedStep_line.split(' ').each do |opt|
-        keypair = opt.split('=')
-        key = keypair.first
-        value = keypair.last
-        
-        if key == 'chrom'
-          @index[value] = line_num
-        end
-      end
-    end
-		
-		# Find variableStep lines and index
-		puts 'Indexing variableStep lines' if ENV['DEBUG']
-		File.grep_with_linenum(@data_file, 'variableStep').each do |line|
-      grep_line = line.split(':')
-      line_num = grep_line.first.to_i
-      variableStep_line = grep_line.last
-      
-      variableStep_line.split(' ').each do |opt|
+      header_line.split(' ').each do |opt|
         keypair = opt.split('=')
         key = keypair.first
         value = keypair.last

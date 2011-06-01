@@ -32,7 +32,7 @@ require 'pickled_optparse'
 require 'fixed_precision'
 require 'wig'
 require 'stats'
-require 'convolution'
+#require 'convolution'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
