@@ -58,7 +58,6 @@ output_dir = File.dirname(File.expand_path(options[:output]))
 
 # Call fastq-dump and swallow the output
 # Silence warnings
-$VERBOSE = nil
 output = %x[ fastq-dump -O #{output_dir} #{options[:input]} ]
 
 # Write the output (e.g. "Written 1293 spots")
