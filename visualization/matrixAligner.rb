@@ -110,22 +110,16 @@ wig = WigFile.new(options[:input])
     
 # Align values for each locus around the alignment point
 output = Hash.new
+skipped = 0
 loci.each do |chr,spots|
-	if wig.chromosomes.include?(chr)
-		puts "Aligning spots on chromosome #{chr}" if ENV['DEBUG']
-		chr_data = wig.chr(chr)
-	else
-		puts "Skipping chromosome #{chr} because wig does not contain that data" if ENV['DEBUG']
-		next
-	end
-	
 	spots.each_with_index do |spot,i|
 		# Get the data for this interval from the wig file
 		begin
-			values = chr_data.bases(spot.start, spot.stop)
-		rescue ChromosomeError
-			puts "Skipping spot (#{spot}) because coordinates are invalid / missing data" if ENV['DEBUG']
-			next
+			values = wig.query(chr, spot.start, spot.stop)
+		rescue
+			puts "Skipping spot (#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
+			skipped += 1
+      next
 		end
 		
 		# Locus alignment point (spot.value) should be positioned over
@@ -145,6 +139,7 @@ end
 
 # Sanity check
 puts "#{output.length} rows in alignment data" if ENV['DEBUG']
+puts "#{skipped} spots skipped" if ENV['DEBUG']
 
 # Write to disk in the original Bed entry order
 puts "Writing aligned matrix to disk" if ENV['DEBUG']
