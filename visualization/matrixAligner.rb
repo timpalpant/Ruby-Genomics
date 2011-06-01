@@ -112,9 +112,9 @@ wig = WigFile.new(options[:input])
 tmp_file = options[:output] + '.tmp'
     
 # Align values for each locus around the alignment point
-tmp_line = Hash.new
 skipped = 0
 line = 1
+output = Hash.new
 File.open(tmp_file, 'w') do |f|
   loci.each do |chr,spots|
     spots.each_with_index do |spot,i|
@@ -141,7 +141,7 @@ File.open(tmp_file, 'w') do |f|
       
       # Save to the temp file and index the line
       f.puts entry[left_bound..right_bound].join("\t")
-      tmp_line[spot.id] = line
+      output[spot.id] = line
       line += 1
     end
   end

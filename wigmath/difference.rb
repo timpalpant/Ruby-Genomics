@@ -14,7 +14,6 @@
 #   -h, --help          Displays help message
 #   -m, --minuend       File 1
 #   -s, --subtrahend    File 2
-#   -p, --percent       Output the percent difference
 #   -o, --output        Output file
 #
 # == Author
@@ -73,19 +72,16 @@ minuend.chromosomes.each do |chr_id|
 end
 
 # Initialize the parallel computation manager
-parallelizer = WigComputationParallelizer.new(options[:output], options[:threads])
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
 
-# Define the block for subtraction
-proc = lambda do |chr, chunk_start, chunk_stop, minuend, subtrahend|
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
   m_chunk = minuend.query(chr, chunk_start, chunk_stop)
-  s_chunk = minuend.query(chr, chunk_start, chunk_stop)
+  s_chunk = subtrahend.query(chr, chunk_start, chunk_stop)
   difference = Array.new(m_chunk.length)
   for i in 0...m_chunk.length
     difference[i] = m_chunk[i] - s_chunk[i]
   end
   
-  return difference
+  difference
 end
-
-# Run the subtraction on all chromosomes in parallel
-parallelizer.run(proc, minuend.chromosomes, minuend, subtrahend)
