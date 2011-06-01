@@ -31,6 +31,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'wig'
 require 'bed'
+require 'unix_file_utils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -107,34 +108,43 @@ end
 puts "Initializing Wig file" if ENV['DEBUG']
 wig = WigFile.new(options[:input])
 
+# Temp file to hold the aligned rows
+tmp_file = options[:output] + '.tmp'
     
 # Align values for each locus around the alignment point
-output = Hash.new
+tmp_line = Hash.new
 skipped = 0
-loci.each do |chr,spots|
-	spots.each_with_index do |spot,i|
-		# Get the data for this interval from the wig file
-		begin
-			values = wig.query(chr, spot.start, spot.stop)
-		rescue
-			puts "Skipping spot (#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
-			skipped += 1
-      next
-		end
-		
-		# Locus alignment point (spot.value) should be positioned over
-		# the matrix alignment point (alignment_point)
-		n1 = alignment_point - (spot.value-spot.start).abs.to_i
-		n2 = alignment_point + (spot.value-spot.stop).abs.to_i
-		# length we are trying to insert should equal the length we are replacing
-		raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
-		
-		entry = Array.new(n, NA_PLACEHOLDER)
-		entry[n1..n2] = values
-		# Total length should be the matrix width to avoid irregular matrices
-		raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
-		output[spot.id] = entry[left_bound..right_bound]
-	end
+line = 1
+File.open(tmp_file, 'w') do |f|
+  loci.each do |chr,spots|
+    spots.each_with_index do |spot,i|
+      # Get the data for this interval from the wig file
+      begin
+        values = wig.query(chr, spot.start, spot.stop)
+      rescue
+        puts "Skipping spot (#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
+        skipped += 1
+        next
+      end
+      
+      # Locus alignment point (spot.value) should be positioned over
+      # the matrix alignment point (alignment_point)
+      n1 = alignment_point - (spot.value-spot.start).abs.to_i
+      n2 = alignment_point + (spot.value-spot.stop).abs.to_i
+      # length we are trying to insert should equal the length we are replacing
+      raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+      
+      entry = Array.new(n, NA_PLACEHOLDER)
+      entry[n1..n2] = values
+      # Total length should be the matrix width to avoid irregular matrices
+      raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
+      
+      # Save to the temp file and index the line
+      f.puts entry[left_bound..right_bound].join("\t")
+      tmp_line[spot.id] = line
+      line += 1
+    end
+  end
 end
 
 # Sanity check
@@ -152,6 +162,9 @@ File.open(options[:output],'w') do |f|
 		entry = line.chomp.split("\t")
 		next if entry.length < 4
 		id = entry[3]
-		f.puts id + "\t" + output[id].join("\t") if output.include?(id)
+		f.puts id + "\t" + File.lines(tmp_file, output[id], output[id]).first.chomp if output.include?(id)
 	end
 end
+
+# Delete the temp file
+File.delete(tmp_file)
