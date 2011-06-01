@@ -1,7 +1,7 @@
 <tool id="WigSum" name="Add" version="1.0.0">
   <description>multiple Wiggle files</description>
   <command interpreter="ruby1.9">
-		sum.rb -o $output
+		sum.rb -p 4 -o $output
 			#for $input in $inputs
 				${input.file}
 			#end for

@@ -1,6 +1,6 @@
 <tool id="ZScorer" name="Z-Score" version="1.0.0">
   <description>a Wiggle file</description>
-  <command interpreter="ruby1.9">zscorer.rb -i $input -o $output</command>
+  <command interpreter="ruby1.9">zscorer.rb -i $input -p 4 -o $output</command>
   <inputs>
       <param format="wig" name="input" type="data" label="Z-score the data in" />
   </inputs>

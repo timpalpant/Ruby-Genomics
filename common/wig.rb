@@ -3,7 +3,8 @@ require 'unix_file_utils'
 require 'chromosome'
 require 'genomic_index_error'
 require 'single_bp_data'
-require 'single_bp_math'
+require 'parallelizer'
+require 'stats'
 
 ##
 # Lazy-load a Wig file, reading data into memory by chromosome
@@ -11,7 +12,6 @@ require 'single_bp_math'
 ##
 class WigFile
   include Enumerable
-	include SingleBPMath
   
   attr_reader :name, :description, :data_file
   
@@ -143,6 +143,34 @@ class WigFile
     values.reverse! if start > stop
     
     return values
+  end
+  
+  # Number of values in the Wig file
+  def num_values
+    self.chromosomes.map { |chr| chr_length(chr) }.sum
+  end
+  
+  # The sum of all values
+  def total
+    chr_totals = self.chunk_map(0) do |sum,chr,start,stop|
+      sum + query(chr,start,stop).sum
+    end
+    
+    chr_totals.sum
+  end
+  
+  # The mean of all values
+  def mean
+    total / num_values
+  end
+  
+  # The standard deviation of all values
+  def stdev(avg = self.mean)
+    chr_deviances = self.chunk_map(0) do |sum,chr,start,stop|
+      sum + query(chr,start,stop).map { |elem| (elem-avg)**2 }.sum
+    end
+    
+    Math.sqrt(chr_deviances.sum / num_values)
   end
   
 	# Output a summary about this Wig file

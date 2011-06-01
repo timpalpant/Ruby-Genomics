@@ -1,6 +1,6 @@
 <tool id="Logger" name="Log transform" version="1.0.0">
   <description>a Wiggle file</description>
-  <command interpreter="ruby1.9">logger.rb -i $input -b $base -o $output</command>
+  <command interpreter="ruby1.9">logger.rb -i $input -b $base -p 4 -o $output</command>
   <inputs>
 		<param format="wig" name="input" type="data" label="Z-score the data in" />
 		<param name="base" type="integer" value="2" label="Logarithm base" />

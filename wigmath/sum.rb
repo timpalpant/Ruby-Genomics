@@ -25,6 +25,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
+require 'parallelizer'
 require 'pickled_optparse'
 require 'wig'
 
@@ -39,6 +40,10 @@ ARGV.options do |opts|
   end
   
   # List all parameters
+  options[:step] = 200_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -55,24 +60,27 @@ end
 
 # Initialize the wig files to add
 wigs = ARGV.map { |filename| WigFile.new(filename) }
-
-# Iterate over the Wig files chromosome-by-chromosome
-File.open(options[:output],'w') do |f|
-  name = "Sum #{File.basename(options[:output])}"
-  desc = "Sum #{File.basename(options[:output])}"
-  f.puts Wig.track_header(name, desc)  
-  
-  # TODO: Validate that all the Wigs to average are compatible
+# Validate their compatibility
+wigs[1..-1].each do |wig|
   wigs.first.chromosomes.each do |chr|
-    sum = wigs.first[chr]
-    wigs[1..-1].each do |wig|
-      data = wig[chr]
-      for bp in 0...sum.length
-        sum[bp] += data[bp]
-      end
-    end
-    
-    f.puts Wig.fixed_step(chr, sum)
-    f.puts sum
+    raise "Wig files do not have the same chromosomes" unless wig.include?(chr)
+    raise "Wig file chromosome lengths are incompatible" unless wigs.first.chr_length(chr) == wig.chr_length(chr)
   end
+end
+
+# Initialize the parallel computation manager
+parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Run the subtraction on all chromosomes in parallel
+parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
+  sum = wigs.first.query(chr, chunk_start, chunk_stop)
+  wigs[1..-1].each do |wig|
+    data = wig.query(chr, chunk_start, chunk_stop)
+    for i in 0...data.length
+      sum[i] += data[i]
+    end
+  end
+
+  # Return the sum for this chunk
+  sum
 end

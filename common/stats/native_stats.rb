@@ -12,9 +12,8 @@ module NativeStats
 		self.sum.to_f / numel unless numel.zero?
 	end
 	
-	def variance
-		avg = self.mean
-		sum_of_deviance = self.compact.inject(0) { |sum, elem| sum + (elem-avg)**2 }
+	def variance(avg = self.mean)
+		sum_of_deviance = self.compact.map { |elem| (elem-avg)**2 }.sum
 		return sum_of_deviance / self.compact.size
 	end
 	
