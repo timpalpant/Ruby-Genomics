@@ -150,7 +150,7 @@ module NativeStats
     half_window = window_size*sdev
     
     # Generate the gaussian vector (of length window_size)
-    gaussian = Array.new(2*window_size, 0)
+    gaussian = Array.new(2*half_window, 0)
     coeff = 1 / (sdev*Math.sqrt(2*Math::PI))
     for x in -half_window..half_window
       gaussian[x+half_window] = coeff * Math.exp(-((x**2)/(2*(sdev**2))))
