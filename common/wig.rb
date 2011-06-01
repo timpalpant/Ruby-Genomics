@@ -85,15 +85,8 @@ class WigFile
   # Enumerate over the chromosomes in this Wig file
   def each
     self.chromosomes.each do |chr_id| 
-			yield [chr_id, self[chr_id]]
-			
-			# Hack to enforce garbage collection of old chromosomes
-			# so that we don't exceed the available memory (hopefully)
-			GC.start
+			yield [chr_id, chr(chr_id)]
 		end
-		
-		# Final GC
-		GC.start
   end
 
   # Return an array of all chromosomes in this WigFile file
