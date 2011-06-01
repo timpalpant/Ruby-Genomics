@@ -68,7 +68,7 @@ end
 
 
 # Gaussian smoothing requires padding of half_window on either end
-padding = options[:sdev] * options[:window_size] / 2
+padding = options[:sdev] * options[:window_size]
 
 # Initialize the wig files to smooth
 wig = WigFile.new(options[:input])
@@ -116,7 +116,7 @@ wig.chromosomes.each do |chr|
 		chunk_start = chunk_stop + 1
 	end
 
-    pm.finish(0)
+  pm.finish(0)
 end
 
 
