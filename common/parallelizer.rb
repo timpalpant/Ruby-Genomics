@@ -79,6 +79,6 @@ class WigComputationParallelizer < Parallelizer
     tmp_files.each { |filename| File.delete(filename) }
     
     # Return a handle to the output file
-    WigFile.new(@output)
+    #WigFile.new(@output)
   end
 end

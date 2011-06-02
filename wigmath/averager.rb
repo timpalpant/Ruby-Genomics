@@ -76,7 +76,7 @@ tmp_wig = options[:output] + '.tmp'
 parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
 
 # Run the subtraction on all chromosomes in parallel
-output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
+parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
   sum = wigs.first.query(chr, chunk_start, chunk_stop)
   wigs[1..-1].each do |wig|
     data = wig.query(chr, chunk_start, chunk_stop)
@@ -90,7 +90,7 @@ output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
 end
 
 # Convert the output Wig file to BigWig
-output.to_bigwig(options[:output])
+WigFile.new(tmp_wig).to_bigwig(options[:output])
 
 # Delete the temporary intermediate Wig file
 File.delete(tmp_wig)
