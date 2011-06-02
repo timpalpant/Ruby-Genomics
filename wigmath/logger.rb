@@ -43,8 +43,8 @@ ARGV.options do |opts|
   opts.on( '-i', '--input FILE', :required, "Input Wig file" ) { |f| options[:input] = f }
 	options[:base] = 2
 	opts.on( '-b', '--base N', "Logarithm base (default: 2)" ) { |n| options[:base] = n.to_i }
-  options[:step] = 200_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:step] = 500_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', "Output Wig file (log-transformed)" ) { |f| options[:output] = f }

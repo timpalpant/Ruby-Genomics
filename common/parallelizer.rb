@@ -91,6 +91,11 @@ class WigFile
     @@pm = Parallel::ForkManager.new(n.to_i)
   end
   
+  # Set the default chunk size
+  def self.chunk_size(n)
+    @@default_chunk_size = n
+  end
+  
   # Run a given block for each chromosome
   # (parallel each)
   def p_each    
@@ -104,7 +109,7 @@ class WigFile
   # Compute a given block for each chromosome
   # and return the results (parallel map)
   def p_map
-    results = Array.new(wig.chromosomes.length)
+    results = Array.new(self.chromosomes.length)
     
     self.chromosomes.each_with_index do |chr,i|
       @@pm.start(chr)
@@ -115,10 +120,30 @@ class WigFile
     return results
   end
   
+  # Iterate over all chromosomes in chunks
+  def chunk_each(chunk_size = @@default_chunk_size)
+    self.chromosomes.each do |chr|
+      # Run in parallel processes managed by ForkManager
+      @pm.start(chr) and next 
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      chunk_start = 1
+      chr_length = self.chr_length(chr)
+      while chunk_start < chr_length
+        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        yield(chr, chunk_start, chunk_stop)
+        chunk_start = chunk_stop + 1
+      end
+
+      @pm.finish(0)
+    end
+  end
+  
   # Compute a given block for all chromosomes in chunks
   # and inject the results (parallel inject)
-  def chunk_map(initial_value, chunk_size = 200_000)
-    results = Array.new(wig.chromosomes.length)
+  def chunk_map(initial_value, chunk_size = @@default_chunk_size)
+    results = Array.new(self.chromosomes.length)
     
     self.chromosomes.each_with_index do |chr,i|
       # Run in parallel processes managed by ForkManager
@@ -127,7 +152,7 @@ class WigFile
       
       result = initial_value
       chunk_start = 1
-      chr_length = wig.chr_length(chr)
+      chr_length = self.chr_length(chr)
       while chunk_start < chr_length
         chunk_stop = [chunk_start+chunk_size-1, chr_length].min
         puts "Computing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']

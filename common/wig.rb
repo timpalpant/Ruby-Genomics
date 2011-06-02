@@ -173,6 +173,21 @@ class WigFile
     Math.sqrt(chr_deviances.sum / num_values)
   end
   
+  # Write this Wig file to a BedGraph file
+  def to_bedGraph(filename, chunk_size = 200_000)
+    File.open(options[:output], 'w') do |f|
+      self.chromosomes.each do |chr|
+        chunk_start = 1
+        while chunk_start < chr_length(chr)
+          chunk_stop = chunk_start + chunk_size - 1
+          query(chr, chunk_start, chunk_stop).each_with_index do |value,i|
+            f.puts "#{chr}\t#{chunk_start+i}\t#{chunk_start+i}\t#{value}"
+          end
+        end
+      end
+    end
+  end
+  
 	# Output a summary about this Wig file
   def to_s
     str = "WigFile: connected to file #{@data_file}\n"
