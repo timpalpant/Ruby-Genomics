@@ -120,6 +120,26 @@ class WigFile
     return results
   end
   
+  # Iterate over all chromosomes in chunks
+  def chunk_each(chunk_size = @@default_chunk_size)
+    self.chromosomes.each do |chr|
+      # Run in parallel processes managed by ForkManager
+      @pm.start(chr) and next 
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      chunk_start = 1
+      chr_length = self.chr_length(chr)
+      while chunk_start < chr_length
+        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        yield(chr, chunk_start, chunk_stop)
+        chunk_start = chunk_stop + 1
+      end
+
+      @pm.finish(0)
+    end
+  end
+  
   # Compute a given block for all chromosomes in chunks
   # and inject the results (parallel inject)
   def chunk_map(initial_value, chunk_size = @@default_chunk_size)
