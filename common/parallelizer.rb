@@ -94,7 +94,7 @@ class WigFile
   # Run a given block for each chromosome
   # (parallel each)
   def p_each    
-    wig.chromosomes.each do |chr|
+    self.chromosomes.each do |chr|
       @@pm.start(chr)
       yield(chr)
       @@pm.finish(0)
@@ -106,7 +106,7 @@ class WigFile
   def p_map
     results = Array.new(wig.chromosomes.length)
     
-    wig.chromosomes.each_with_index do |chr,i|
+    self.chromosomes.each_with_index do |chr,i|
       @@pm.start(chr)
       results[i] = yield(chr)
       @@pm.finish(0)
@@ -117,10 +117,10 @@ class WigFile
   
   # Compute a given block for all chromosomes in chunks
   # and inject the results (parallel inject)
-  def chunk_map(initial_value)
+  def chunk_map(initial_value, chunk_size = 200_000)
     results = Array.new(wig.chromosomes.length)
     
-    wig.chromosomes.each_with_index do |chr,i|
+    self.chromosomes.each_with_index do |chr,i|
       # Run in parallel processes managed by ForkManager
       @pm.start(chr) and next   
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
@@ -129,7 +129,7 @@ class WigFile
       chunk_start = 1
       chr_length = wig.chr_length(chr)
       while chunk_start < chr_length
-        chunk_stop = [chunk_start+@chunk_size-1, chr_length].min
+        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
         puts "Computing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
         
         result = yield(result, chr, chunk_start, chunk_stop)
