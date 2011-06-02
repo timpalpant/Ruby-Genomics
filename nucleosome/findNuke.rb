@@ -29,7 +29,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'assembly'
-require 'single_bp_data'
+require 'wig'
 require 'bed'
 require 'nucleosome'
 
@@ -69,7 +69,7 @@ loci = Bed.load(options[:loci])
 
 # Initialize a wig file to hold the nucleosomes
 a = Assembly.load(options[:genome])
-wig = SingleBPData.for_assembly(a)
+wig = Wig.for_assembly(a)
 
 # Mark nucleosomes on the genome
 NukeCalls.load(options[:input]).each do |chr,nukes|

@@ -24,6 +24,7 @@ end
 
 ##
 # Load bedGraph files
+# @DEPRECATED: only feasible for small genomess / datasets
 ##
 class BedGraph < SpotArray
   # Load the Bed file as a SpotArray

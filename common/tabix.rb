@@ -16,9 +16,21 @@
 # not present locally.
 
 module Tabix
-
+  def self.index(filename, chr_col = 1, start_col = 2, end_col = 3)
+    %x[ tabix -s #{chr_col} -b #{start_col} -e #{end_col} #{filename} ]
+  end
+  
+  def self.query(filename, chr, start, stop)
+    %x[ tabix #{filename} #{chr}:#{start}-#{stop} ].split("\n")
+  end
 end
 
 module BGZip
-
+  def self.compress(input_file, output_file)
+    %x[ bgzip -c #{input_file} > #{output_file} ]
+  end
+  
+  def self.decompress(input_file, output_file)
+    %x[ bgzip -c -d #{input_file} > #{output_file} ]
+  end
 end

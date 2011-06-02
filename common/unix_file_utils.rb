@@ -87,4 +87,9 @@ class File
   def self.cat(input_files, output_file)
     %x[ cat #{input_files.join(' ')} > #{output_file} ]
   end
+  
+  # Sort files
+  def self.sort(input_file, output_file, options)
+    %x[ sort #{options.join(' ')} -o #{output_file} #{input_file} ]
+  end
 end

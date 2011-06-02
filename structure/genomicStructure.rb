@@ -27,7 +27,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'assembly'
-require 'single_bp_data'
+require 'wig'
 require 'structure/dna_property'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -60,7 +60,7 @@ end
 
 # Load the genome assembly
 a = Assembly.load(options[:genome])
-seq_file = SingleBPData.for_assembly(a)
+seq_file = Wig.for_assembly(a)
 
 # Run structural computation on all chromosomes
 puts "Computing #{options[:property]} for all chromosomes" if ENV['DEBUG']

@@ -71,7 +71,7 @@ wig = WigFile.new(options[:input])
 
 # Initialize a new wig to hold the minima
 a = Assembly.load(options[:genome])
-extrema = SingleBPData.for_assembly(a)
+extrema = Wig.for_assembly(a)
 
 # Find all extrema
 wig.each do |chr,values|

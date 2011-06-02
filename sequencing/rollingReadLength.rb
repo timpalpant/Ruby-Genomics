@@ -66,8 +66,8 @@ end
 
 # Initialize a new wig file to hold the output
 genome = Assembly.load(options[:genome])
-sum = SingleBPData.for_assembly(a)
-count = SingleBPData.for_assembly(a)
+sum = Wig.for_assembly(a)
+count = Wig.for_assembly(a)
 
 # Iterate over the reads and map their lengths to the wig file
 SAMFile.foreach_read(options[:input]) do |read|

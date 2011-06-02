@@ -25,6 +25,7 @@ end
 
 ##
 # Load Bed files completely into memory
+# @DEPRECATED: only feasible for small genomess / datasets
 ##
 class Bed < SpotArray
   # Load the Bed file as a SpotArray
@@ -58,9 +59,21 @@ class Bed < SpotArray
 end
 
 ##
+# Base class for all Bed files (BedFile / BigBedFile)
+##
+class AbstractBedFile < File
+end
+
+##
+# Get data from BigBed files
+##
+class BigBedFile < AbstractBedFile
+end
+
+##
 # Stream bed files by line or by chromosome
 ##
-class BedFile < File
+class BedFile < AbstractBedFile
 	# Override each (line) to return each BedEntry
 	def self.foreach(filename)
 		File.foreach(File.expand_path(filename)) do |line|

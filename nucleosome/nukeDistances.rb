@@ -28,7 +28,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'assembly'
-require 'single_bp_data'
+require 'wig'
 require 'spot'
 require 'stats'
 require 'roman_numerals'
@@ -73,7 +73,7 @@ loci = BedGraph.load(options[:loci])
 
 puts 'Initializing genome file'
 a = Assembly.load(options[:genome])
-wig = SingleBPData.for_assembly(a)
+wig = Wig.for_assembly(a)
   
 puts 'Marking all nucleosomes on the genome'
 line_num = 0

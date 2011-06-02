@@ -2,6 +2,7 @@ require 'spot_array'
 
 ##
 # Load Affymetrix array files
+# @DEPRECATED: only feasible for small genomess / datasets
 ##
 class Affy < SpotArray
   # Load the Affy file as a SpotArray
