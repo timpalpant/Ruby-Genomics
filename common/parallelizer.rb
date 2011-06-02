@@ -26,7 +26,7 @@ class WigComputationParallelizer < Parallelizer
   # The wig file provides the chromosomes and the chunk coordinates
   # Sort of a map-reduce approach
   # Return a WigFile handle to the output
-  def run(wig)
+  def run(wig, &proc)
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
@@ -80,5 +80,20 @@ class WigComputationParallelizer < Parallelizer
     
     # Return a handle to the output file
     WigFile.new(@output)
+  end
+end
+
+class BigWigComputationParallelizer < WigComputationParallelizer
+  # Same as WigComputationParallelizer#run, but convert the final output to BigWig
+  def run(wig, assembly, &proc)
+    output = super.run(wig, &proc)
+    
+    # Convert the output Wig file to BigWig
+    assembly = Assembly.load(options[:genome])
+    tmp_file = options[:output] + '.tmp'
+    output.to_bigwig(options[:output]+'.tmp', assembly)
+    
+    # Delete the temporary intermediate Wig file
+    File.move(tmp_file, options[:output])
   end
 end

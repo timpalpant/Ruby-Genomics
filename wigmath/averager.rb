@@ -32,7 +32,7 @@ require 'wig'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} file1.wig file2.wig -o output.wig"
+  opts.banner = "Usage: ruby #{__FILE__} file1.bw file2.bw -o output.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -45,7 +45,7 @@ ARGV.options do |opts|
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
-  opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
 	opts.parse!
@@ -72,11 +72,13 @@ end
 
 
 # Initialize the parallel computation manager
-tmp_wig = options[:output] + '.tmp'
-parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
+parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Initialize the output assembly
+assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
+parallelizer.run(wigs.first, assembly) do |chr, chunk_start, chunk_stop|
   sum = wigs.first.query(chr, chunk_start, chunk_stop)
   wigs[1..-1].each do |wig|
     data = wig.query(chr, chunk_start, chunk_stop)
@@ -88,10 +90,3 @@ output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
   # Return the average for this chunk
   sum.map { |value| value / num_files }
 end
-
-# Convert the output Wig file to BigWig
-assembly = Assembly.load(options[:genome])
-output.to_bigwig(options[:output], assembly)
-
-# Delete the temporary intermediate Wig file
-File.delete(tmp_wig)

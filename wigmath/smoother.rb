@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Gaussian smooths Wig Files
+#   Gaussian smooths BigWig Files
 #
 # == Usage 
-#   Smooth file1.wig:
+#   Smooth file1.bw:
 #
-#   smoother.rb -i file1.wig -o file1.smoothed.wig
+#   smoother.rb -i file1.bw -o file1.smoothed.bw
 #
 #   For help use: smoother.rb -h
 #
@@ -37,7 +37,7 @@ require 'stats'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i file1.wig -o file1.smoothed.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -i file1.bw -o file1.smoothed.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -45,7 +45,7 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-i', '--input FILE', :required, "Input file" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input file (BigWig)" ) { |f| options[:input] = f }
   options[:sdev] = 20
   opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 20)" ) { |num| options[:sdev] = num.to_i }
   options[:window_size] = 3
@@ -54,7 +54,8 @@ ARGV.options do |opts|
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
-  opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
+  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
 	opts.parse!
@@ -79,17 +80,16 @@ padding = options[:sdev] * options[:window_size]
 #end
 
 # Initialize the wig files to smooth
-wig = WigFile.new(options[:input])
-
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads])
-
+wig = BigWigFile.new(options[:input])
 
 # Initialize the parallel computation manager
-parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Initialize the output assembly
+assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(wig) do |chr, chunk_start, chunk_stop|
+parallelizer.run(wig, assembly) do |chr, chunk_start, chunk_stop|
   # Don't pad off the end of the chromosome
   query_start = [1, chunk_start-padding].max
   query_stop = [chunk_stop+padding, wig.chr_length(chr)].min

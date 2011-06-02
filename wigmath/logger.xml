@@ -1,8 +1,8 @@
 <tool id="Logger" name="Log transform" version="1.0.0">
-  <description>a Wiggle file</description>
-  <command interpreter="ruby1.9">logger.rb -i $input -b $base -p 4 -o $output</command>
+  <description>a BigWig file</description>
+  <command interpreter="ruby1.9">logger.rb -i $input -b $base -g $dbkey -p 4 -o $output</command>
   <inputs>
-		<param format="wig" name="input" type="data" label="Z-score the data in" />
+		<param format="bigwig" name="input" type="data" label="BigWig file" />
 		<param name="base" type="integer" value="2" label="Logarithm base" />
   </inputs>
   <outputs>
@@ -12,7 +12,7 @@
 	<help>
 		.. class:: warningmark
 		
-		This tool requires Wiggle formatted data.
+		This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
 		
 		.. class:: warningmark
 		

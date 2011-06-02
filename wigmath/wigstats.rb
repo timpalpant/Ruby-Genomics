@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Compute basic statistics on Wig files
+#   Compute basic statistics on BigWig files
 #
 # == Examples
-#   This command processes seqData.wig:
-#     wigstats.rb -i seqData.wig -o seqData.stats.txt
+#   This command processes seqData.bw:
+#     wigstats.rb -i seqData.bw -o seqData.stats.txt
 #
 #   For help use: wigstats.rb -h
 #
@@ -30,7 +30,7 @@ require 'pickled_optparse'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i input.wig -o output.stats.txt"
+  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -o output.stats.txt"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -38,7 +38,7 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input Wig file" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
@@ -56,17 +56,12 @@ end
 
 
 # Set the number of threads to use
-WigFile.max_threads = options[:threads]
+AbstractWigFile.max_threads = options[:threads]
 
 # Initialize the Wig file
-wig = WigFile.new(options[:input])
+wig = BigWigFile.new(options[:input])
 
 # Compute the statistics and write to file
 File.open(options[:output], 'w') do |f|
   f.puts wig.to_s
-  f.puts "Total of all values:\t#{wig.total}"
-  avg = wig.mean
-  f.puts "Mean:\t#{avg}"
-  stdev = wig.stdev(avg)
-  f.puts "Standard deviation:\t#{stdev}"
 end

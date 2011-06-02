@@ -73,11 +73,13 @@ dividend.chromosomes.each do |chr_id|
 end
 
 # Initialize the parallel computation manager
-tmp_wig = options[:output] + '.tmp'
-parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
+parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Initialize the output assembly
+assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-output = parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
+parallelizer.run(dividend, assembly) do |chr, chunk_start, chunk_stop|
   dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
   divisor_chunk = divisor.query(chr, chunk_start, chunk_stop)
   ratio = Array.new(dividend_chunk.length, 0)
@@ -88,10 +90,3 @@ output = parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
   # Return the ratio for this chunk
   ratio
 end
-
-# Convert the output Wig file to BigWig
-assembly = Assembly.load(options[:genome])
-output.to_bigwig(options[:output], assembly)
-
-# Delete the temporary intermediate Wig file
-File.delete(tmp_wig)

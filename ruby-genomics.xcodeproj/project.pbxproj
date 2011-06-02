@@ -46,8 +46,6 @@
 		1FD61DCD13909D530013355B /* roman_numerals.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = roman_numerals.rb; sourceTree = "<group>"; };
 		1FD61DCE13909D530013355B /* sam.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sam.rb; sourceTree = "<group>"; };
 		1FD61DCF13909D530013355B /* sgd_features.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sgd_features.rb; sourceTree = "<group>"; };
-		1FD61DD013909D530013355B /* single_bp_data.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = single_bp_data.rb; sourceTree = "<group>"; };
-		1FD61DD113909D530013355B /* single_bp_math.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = single_bp_math.rb; sourceTree = "<group>"; };
 		1FD61DD213909D530013355B /* spot.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spot.rb; sourceTree = "<group>"; };
 		1FD61DD313909D530013355B /* spot_array.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spot_array.rb; sourceTree = "<group>"; };
 		1FD61DD513909D530013355B /* gsl_stats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gsl_stats.rb; sourceTree = "<group>"; };
@@ -246,8 +244,6 @@
 				1FD61DCD13909D530013355B /* roman_numerals.rb */,
 				1FD61DCE13909D530013355B /* sam.rb */,
 				1FD61DCF13909D530013355B /* sgd_features.rb */,
-				1FD61DD013909D530013355B /* single_bp_data.rb */,
-				1FD61DD113909D530013355B /* single_bp_math.rb */,
 				1FD61DD213909D530013355B /* spot.rb */,
 				1FD61DD313909D530013355B /* spot_array.rb */,
 				1FD61DD413909D530013355B /* stats */,

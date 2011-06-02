@@ -1,14 +1,14 @@
 <tool id="WigSum" name="Add" version="1.0.0">
-  <description>multiple Wiggle files</description>
+  <description>multiple Big files</description>
   <command interpreter="ruby1.9">
-		sum.rb -p 4 -o $output
+		sum.rb -g $dbkey -p 4 -o $output
 			#for $input in $inputs
 				${input.file}
 			#end for
 	</command>
   <inputs>
 			<repeat name="inputs" title="Wig file">
-				<param name="file" type="data" format="wig" />
+				<param name="file" type="data" format="bigwig" />
 			</repeat>
   </inputs>
   <outputs>
@@ -18,7 +18,7 @@
 <help>
 .. class:: warningmark
 
-This tool requires Wiggle formatted data.
+This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
 
 .. class:: warningmark
 

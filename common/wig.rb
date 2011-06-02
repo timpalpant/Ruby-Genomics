@@ -360,6 +360,11 @@ class BigWigFile < AbstractWigFile
       str += "\tChromosome #{chr} (bases covered: #{chr_size})\n"
     end
     
+    str += "Mean:\t#{@mean}"
+    str += "Standard deviation:\t#{@stdev}"
+    str += "Min:\t#{@min}"
+    str += "Max:\t#{@max}"
+    
     return str
   end
 end

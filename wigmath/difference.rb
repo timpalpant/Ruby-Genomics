@@ -33,7 +33,7 @@ require 'wig'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -m file1.wig -s file2.wig -p -o output.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -m file1.bw -s file2.bw -p -o output.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -73,11 +73,13 @@ minuend.chromosomes.each do |chr_id|
 end
 
 # Initialize the parallel computation manager
-tmp_wig = options[:output] + '.tmp'
-parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
+parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+
+# Initialize the output assembly
+assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-output = parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
+parallelizer.run(minuend, assembly) do |chr, chunk_start, chunk_stop|
   m_chunk = minuend.query(chr, chunk_start, chunk_stop)
   s_chunk = subtrahend.query(chr, chunk_start, chunk_stop)
   difference = Array.new(m_chunk.length)
@@ -88,10 +90,3 @@ output = parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
   # Return the difference for this chunk
   difference
 end
-
-# Convert the output Wig file to BigWig
-assembly = Assembly.load(options[:genome])
-output.to_bigwig(options[:output], assembly)
-
-# Delete the temporary intermediate Wig file
-File.delete(tmp_wig)
