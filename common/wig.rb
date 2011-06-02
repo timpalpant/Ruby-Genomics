@@ -17,7 +17,7 @@ class WigFile
   
   # Open a Wig file and parse its track/chromosome information
   def initialize(filename)
-    @data_file = filename
+    @data_file = File.expand_path(filename)
     
     # Load the track information from the first line
     File.open(File.expand_path(filename)) do |f|
@@ -175,14 +175,16 @@ class WigFile
   
   # Write this Wig file to a BedGraph file
   def to_bedGraph(filename, chunk_size = 200_000)
-    File.open(options[:output], 'w') do |f|
+    File.open(File.expand_path(filename), 'w') do |f|
       self.chromosomes.each do |chr|
         chunk_start = 1
-        while chunk_start < chr_length(chr)
-          chunk_stop = chunk_start + chunk_size - 1
+        num_bases = chr_length(chr)
+        while chunk_start < num_bases
+          chunk_stop = [chunk_start+chunk_size-1, num_bases].min
           query(chr, chunk_start, chunk_stop).each_with_index do |value,i|
             f.puts "#{chr}\t#{chunk_start+i}\t#{chunk_start+i}\t#{value}"
           end
+          chunk_start = chunk_stop + 1
         end
       end
     end
