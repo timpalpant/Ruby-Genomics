@@ -90,7 +90,8 @@ output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
 end
 
 # Convert the output Wig file to BigWig
-output.to_bigwig(options[:output])
+assembly = Assembly.load(options[:genome])
+output.to_bigwig(options[:output], assembly)
 
 # Delete the temporary intermediate Wig file
 File.delete(tmp_wig)
