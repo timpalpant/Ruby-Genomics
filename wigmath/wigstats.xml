@@ -1,0 +1,20 @@
+<tool id="WigStats" name="Compute basic statistics" version="1.0.0">
+  <description>on a Wiggle file</description>
+  <command interpreter="ruby1.9">wigstats.rb -i $input -p 4 -o $output</command>
+  <inputs>
+      <param format="wig" name="input" type="data" label="Wiggle file" />
+  </inputs>
+  <outputs>
+      <data format="tabular" name="output" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool requires Wiggle formatted data.
+
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>
