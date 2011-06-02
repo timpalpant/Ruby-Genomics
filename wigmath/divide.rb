@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Find the division of 2 Wig files
+#   Find the division of 2 BigWig files
 #
 # == Usage 
-#   Divide file2.wig into file1.wig:
+#   Divide file2.bw into file1.bw:
 #
-#   divide.rb -m file1.wig -s file2.wig -o output.wig
+#   divide.rb -m file1.bw -s file2.bw -o output.bw
 #
 #   For help use: divide.rb -h
 #
@@ -33,7 +33,7 @@ require 'wig'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -1 file1.wig -2 file2.wig -o output.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -1 file1.bw -2 file2.bw -o output.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -47,6 +47,7 @@ ARGV.options do |opts|
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -61,8 +62,8 @@ ARGV.options do |opts|
 end
 
 # Initialize WigFile files
-dividend = WigFile.new(options[:dividend])
-divisor = WigFile.new(options[:divisor])
+dividend = BigWigFile.new(options[:dividend])
+divisor = BigWigFile.new(options[:divisor])
   
 # Validate that both files have the same chromosomes
 puts "Validating compatibility"
@@ -72,10 +73,11 @@ dividend.chromosomes.each do |chr_id|
 end
 
 # Initialize the parallel computation manager
-parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+tmp_wig = options[:output] + '.tmp'
+parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
+output = parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
   dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
   divisor_chunk = divisor.query(chr, chunk_start, chunk_stop)
   ratio = Array.new(dividend_chunk.length, 0)
@@ -86,3 +88,10 @@ parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
   # Return the ratio for this chunk
   ratio
 end
+
+# Convert the output Wig file to BigWig
+assembly = Assembly.load(options[:genome])
+output.to_bigwig(options[:output], assembly)
+
+# Delete the temporary intermediate Wig file
+File.delete(tmp_wig)

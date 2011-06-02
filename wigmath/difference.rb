@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Find the difference between 2 Wig files
+#   Find the difference between 2 BigWig files
 #
 # == Usage 
-#   Subtract file2.wig from file1.wig:
+#   Subtract file2.bw from file1.bw:
 #
-#   difference.rb -m file1.wig -s file2.wig -o output.wig
+#   difference.rb -m file1.bw -s file2.bw -o output.bw
 #
 #   For help use: difference.rb -h
 #
@@ -41,13 +41,14 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-m', '--minuend FILE', :required, "File 1" ) { |f| options[:minuend] = f }
-  opts.on( '-s', '--subtrahend FILE', :required, "File 2" ) { |f| options[:subtrahend] = f }
+  opts.on( '-m', '--minuend FILE', :required, "File 1 (BigWig)" ) { |f| options[:minuend] = f }
+  opts.on( '-s', '--subtrahend FILE', :required, "File 2 (BigWig)" ) { |f| options[:subtrahend] = f }
   options[:step] = 500_000
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
-  opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
+  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
 	opts.parse!
@@ -60,9 +61,9 @@ ARGV.options do |opts|
 	end
 end
 
-# Initialize the Wig files to subtract
-minuend = WigFile.new(options[:minuend])
-subtrahend = WigFile.new(options[:subtrahend])
+# Initialize the BigWig files to subtract
+minuend = BigWigFile.new(options[:minuend])
+subtrahend = BigWigFile.new(options[:subtrahend])
   
 # Validate that both files have the same chromosomes
 puts "Validating compatibility"
@@ -72,10 +73,11 @@ minuend.chromosomes.each do |chr_id|
 end
 
 # Initialize the parallel computation manager
-parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+tmp_wig = options[:output] + '.tmp'
+parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
+output = parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
   m_chunk = minuend.query(chr, chunk_start, chunk_stop)
   s_chunk = subtrahend.query(chr, chunk_start, chunk_stop)
   difference = Array.new(m_chunk.length)
@@ -86,3 +88,10 @@ parallelizer.run(minuend) do |chr, chunk_start, chunk_stop|
   # Return the difference for this chunk
   difference
 end
+
+# Convert the output Wig file to BigWig
+assembly = Assembly.load(options[:genome])
+output.to_bigwig(options[:output], assembly)
+
+# Delete the temporary intermediate Wig file
+File.delete(tmp_wig)

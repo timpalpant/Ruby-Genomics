@@ -349,7 +349,7 @@ class BigWigFile < AbstractWigFile
   
   # Write this BigWigFile to a Wig file
   def to_wig(output_file)
-    puts "Converting BigWig file (#{File.basename(@data_file)})to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
+    puts "Converting BigWig file (#{File.basename(@data_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
     %x[ bigWigToWig #{@data_file} #{File.expand_path(output_file)} ]
   end
   
@@ -513,7 +513,7 @@ class WigFile < AbstractWigFile
   
   # Convert this WigFile to a BigWigFile
   def to_bigwig(output_file, assembly)
-    puts "Converting Wig file (#{File.basename(@data_file)})to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
+    puts "Converting Wig file (#{File.basename(@data_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
     %x[ wigToBigWig #{@data_file} #{assembly.len_file} #{output_file} ]
   end
 end

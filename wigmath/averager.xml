@@ -1,7 +1,7 @@
 <tool id="WigAvg" name="Average" version="1.0.0">
   <description>multiple Wiggle files</description>
   <command interpreter="ruby1.9">
-		averager.rb -p 4 -o $output
+		averager.rb -g $dbkey -p 4 -o $output
 			#for $input in $inputs
 				${input.file}
 			#end for
