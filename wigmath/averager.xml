@@ -7,8 +7,8 @@
 			#end for
 	</command>
   <inputs>
-			<repeat name="inputs" title="Wig file">
-				<param name="file" type="data" format="wig" />
+			<repeat name="inputs" title="BigWig files">
+				<param name="file" type="data" format="bigwig" />
 			</repeat>
   </inputs>
   <outputs>
@@ -18,7 +18,7 @@
 <help>
 .. class:: warningmark
 
-This tool requires Wiggle formatted data.
+This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
 
 .. class:: warningmark
 

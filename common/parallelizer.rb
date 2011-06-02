@@ -25,6 +25,7 @@ class WigComputationParallelizer < Parallelizer
   # Run a given block transform for each chromosome in chunks
   # The wig file provides the chromosomes and the chunk coordinates
   # Sort of a map-reduce approach
+  # Return a WigFile handle to the output
   def run(wig)
     # Write the output file header
     header_file = @output+'.header'
@@ -76,5 +77,8 @@ class WigComputationParallelizer < Parallelizer
 
     # Delete the individual temp files created by each process
     tmp_files.each { |filename| File.delete(filename) }
+    
+    # Return a handle to the output file
+    WigFile.new(@output)
   end
 end

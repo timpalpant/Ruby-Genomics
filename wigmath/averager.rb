@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Averages multiple Wig Files
+#   Averages multiple BigWig Files
 #
 # == Usage 
-#   Average file1.wig and file2.wig:
+#   Average file1.bw and file2.bw:
 #
-#   averager.rb file1.wig file2.wig -o wig
+#   averager.rb file1.bw file2.bw -o output.bw
 #
 #   For help use: averager.rb -h
 #
@@ -44,6 +44,7 @@ ARGV.options do |opts|
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -59,7 +60,7 @@ end
 
 
 # Initialize the wig files to average
-wigs = ARGV.map { |filename| WigFile.new(filename) }
+wigs = ARGV.map { |filename| BigWigFile.new(filename) }
 num_files = wigs.length.to_f
 # Validate their compatibility
 wigs[1..-1].each do |wig|
@@ -71,10 +72,11 @@ end
 
 
 # Initialize the parallel computation manager
-parallelizer = WigComputationParallelizer.new(options[:output], options[:step], options[:threads])
+tmp_wig = options[:output] + '.tmp'
+parallelizer = WigComputationParallelizer.new(tmp_wig, options[:step], options[:threads])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
+output = parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
   sum = wigs.first.query(chr, chunk_start, chunk_stop)
   wigs[1..-1].each do |wig|
     data = wig.query(chr, chunk_start, chunk_stop)
@@ -86,3 +88,9 @@ parallelizer.run(wigs.first) do |chr, chunk_start, chunk_stop|
   # Return the average for this chunk
   sum.map { |value| value / num_files }
 end
+
+# Convert the output Wig file to BigWig
+output.to_bigwig(options[:output])
+
+# Delete the temporary intermediate Wig file
+File.delete(tmp_wig)
