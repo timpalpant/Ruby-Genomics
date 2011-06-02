@@ -92,7 +92,7 @@ parallelizer = WigComputationParallelizer.new(options[:output], options[:step], 
 parallelizer.run(wig) do |chr, chunk_start, chunk_stop|
   # Don't pad off the end of the chromosome
   query_start = [1, chunk_start-padding].max
-  query_stop = [chunk_stop+padding, chr_length].min
+  query_stop = [chunk_stop+padding, wig.chr_length(chr)].min
   
   # Actual padding
   padding_left = chunk_start - query_start

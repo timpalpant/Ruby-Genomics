@@ -79,7 +79,7 @@ parallelizer.run(dividend) do |chr, chunk_start, chunk_stop|
   dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
   divisor_chunk = divisor.query(chr, chunk_start, chunk_stop)
   ratio = Array.new(dividend_chunk.length, 0)
-  for i in 0...m_chunk.length
+  for i in 0...ratio.length
     ratio[i] = dividend_chunk[i] / divisor_chunk[i] unless divisor_chunk[i] == 0
   end
   
