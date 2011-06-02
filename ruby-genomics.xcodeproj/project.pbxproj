@@ -13,6 +13,10 @@
 		1FBFEFA41395C50200441DD7 /* stats_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = stats_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA51395C53C00441DD7 /* samtools_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = samtools_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA61395C54600441DD7 /* tabix_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = tabix_spec.rb; sourceTree = "<group>"; };
+		1FC9386413970EAA00A4A4F4 /* wigstats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wigstats.rb; sourceTree = "<group>"; };
+		1FC9386613970EBA00A4A4F4 /* wigstats.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = wigstats.xml; sourceTree = "<group>"; };
+		1FC9386713970F6800A4A4F4 /* convolution.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = convolution.rb; sourceTree = "<group>"; };
+		1FC9386813970F7200A4A4F4 /* parallelizer.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = parallelizer.rb; sourceTree = "<group>"; };
 		1FD2388613948F3D00E666C2 /* samtools.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = samtools.rb; sourceTree = "<group>"; };
 		1FD2388813948F4400E666C2 /* tabix.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = tabix.rb; sourceTree = "<group>"; };
 		1FD61DB413909D530013355B /* affy.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = affy.rb; sourceTree = "<group>"; };
@@ -213,6 +217,8 @@
 		1FD61DB313909D530013355B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				1FC9386813970F7200A4A4F4 /* parallelizer.rb */,
+				1FC9386713970F6800A4A4F4 /* convolution.rb */,
 				1FD61DB413909D530013355B /* affy.rb */,
 				1FD61DB513909D530013355B /* assembly.rb */,
 				1FD61DB613909D530013355B /* bed.rb */,
@@ -518,6 +524,8 @@
 				1FD61E6D13909D530013355B /* sum.xml */,
 				1FD61E6E13909D530013355B /* zscorer.rb */,
 				1FD61E6F13909D530013355B /* zscorer.xml */,
+				1FC9386413970EAA00A4A4F4 /* wigstats.rb */,
+				1FC9386613970EBA00A4A4F4 /* wigstats.xml */,
 			);
 			path = wigmath;
 			sourceTree = "<group>";
