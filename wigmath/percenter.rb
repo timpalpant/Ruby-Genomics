@@ -44,8 +44,8 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input Wig file" ) { |f| options[:input] = f }
   opts.on( '-t', '--total NUM', "Number to divide each value by (optional)" ) { |n| options[:total] = n.to_f }
-  options[:step] = 200_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:step] = 500_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output Wig file (percents)" ) { |f| options[:output] = f }

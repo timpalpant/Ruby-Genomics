@@ -43,8 +43,8 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-1', '--dividend FILE', :required, "File 1" ) { |f| options[:dividend] = f }
   opts.on( '-2', '--divisor FILE', :required, "File 2" ) { |f| options[:divisor] = f }
-  options[:step] = 200_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 200,000)" ) { |n| options[:step] = n.to_i }
+  options[:step] = 500_000
+  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
