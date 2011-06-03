@@ -92,6 +92,40 @@ class Wig
     %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
   end
   
+  # For converting wigs to BedGraph without having to load (index them) first
+  def self.to_bedGraph(input_file, output_file)
+    puts "Converting Wig file #{File.basename(input_file)} to BedGraph #{File.basename(output_file)}" if ENV['DEBUG']
+    File.open(output_file, 'w') do |f|
+      chr, start, step, span = nil, 1, 1, 1
+      File.foreach(input_file) do |line|
+        if line.start_with?('track')
+          next
+        elsif line.start_with?('variable')
+          raise WigError, "Only fixedStep-format Wig files are supported at this time"
+        elsif line.start_with?('fixed')
+          line.split(' ').each do |opt|
+            keypair = opt.split('=')
+            key = keypair.first
+            value = keypair.last
+            
+            if key == 'chrom'
+              chr = value
+            elsif key == 'start'
+              start = value.to_i
+            elsif key == 'step'
+              step = value.to_i
+            elsif key == 'span'
+              span = value.to_i
+            end
+          end        
+        else
+          f.puts "#{chr}\t#{start}\t#{start+span-1}\t#{line.chomp}"
+          start += step
+        end
+      end
+    end
+  end
+  
   # Return the total number of values in this WigFile
   def num_values
   	self.collect { |chr_id,data| data.length }.sum.to_i
@@ -422,7 +456,8 @@ class WigFile < AbstractWigFile
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
       header_line = grep_line.last
-      next unless header_line.start_with?('fixedStep') or header_line.start_with?('variableStep')
+      raise WigError, "Only fixedStep-format Wig files are supported at this time" if header_line.start_with?('variable')
+      next unless header_line.start_with?('fixed')
       
       header_line.split(' ').each do |opt|
         keypair = opt.split('=')
@@ -436,7 +471,7 @@ class WigFile < AbstractWigFile
     end
 	
 		# Raise an error if no chromosomes were found
-		raise WigError, "No chromosome fixedStep/variableStep headers found in Wig file!" if @index.length == 0
+		raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
   end
   
   # Return an array of all chromosomes in this WigFile file
