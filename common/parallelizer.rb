@@ -7,6 +7,7 @@
 #  Copyright 2011 UNC. All rights reserved.
 #
 
+require 'fileutils'
 require 'forkmanager'
 
 class Parallelizer
@@ -26,7 +27,7 @@ class WigComputationParallelizer < Parallelizer
   # The wig file provides the chromosomes and the chunk coordinates
   # Sort of a map-reduce approach
   # Return a WigFile handle to the output
-  def run(wig, &proc)
+  def run(wig)
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
@@ -77,23 +78,22 @@ class WigComputationParallelizer < Parallelizer
 
     # Delete the individual temp files created by each process
     tmp_files.each { |filename| File.delete(filename) }
-    
-    # Return a handle to the output file
-    WigFile.new(@output)
   end
 end
 
 class BigWigComputationParallelizer < WigComputationParallelizer
+  # Apparently, Ruby doesn't have super.method() calling...
+  alias :super_run :run
+
   # Same as WigComputationParallelizer#run, but convert the final output to BigWig
-  def run(wig, assembly, &proc)
-    output = super.run(wig, &proc)
+  def run(wig, assembly, &block)
+    super_run(wig, &block)
     
     # Convert the output Wig file to BigWig
-    assembly = Assembly.load(options[:genome])
-    tmp_file = options[:output] + '.tmp'
-    output.to_bigwig(options[:output]+'.tmp', assembly)
+    tmp_file = @output + '.tmp'
+    Wig.to_bigwig(@output, tmp_file, assembly)
     
-    # Delete the temporary intermediate Wig file
-    File.move(tmp_file, options[:output])
+    # Delete the temporary intermediate Wig file by moving the BigWig on top of it
+    FileUtils.move(tmp_file, @output)
   end
 end

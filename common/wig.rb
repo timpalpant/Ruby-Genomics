@@ -84,6 +84,12 @@ class Wig
   	
   	return str
   end
+
+  # For converting wigs to BigWigs without having to load (index them) first
+  def self.to_bigwig(input_file, output_file, assembly)
+    puts "Converting Wig file (#{File.basename(input_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
+  end
   
   # Return the total number of values in this WigFile
   def num_values
@@ -296,15 +302,14 @@ end
 # Analogous to WigFile, but for compressed BigWigs
 ##
 class BigWigFile < AbstractWigFile
-  attr_reader :mean, :stdev, :min, :max
+  attr_reader :min, :max
 
   def initialize(filename)
     super(filename)
     
-    output = %x[ bigWigInfo -chroms #{@data_file} ]
-    raise WigError, "You must first convert your Wig file to BigWig" if output.chomp.end_with?('is not a big wig file')
+    info = %x[ bigWigInfo -chroms #{@data_file} ].split("\n")
+    raise WigError, "You must first convert your Wig file to BigWig" if info.length < 8
     
-    info = output.split("\n")
     @chromosomes = Hash.new
     info[7..-6].each do |chr_info|
       entry = chr_info.chomp.split(' ')
@@ -347,6 +352,14 @@ class BigWigFile < AbstractWigFile
     %x[ bigWigSummary #{@data_file} #{chr} #{start} #{stop} #{stop-start+1} ].split(' ').map { |v| v.to_f }
   end
   
+  def mean
+    @mean
+  end
+
+  def stdev(avg = mean)
+    @stdev
+  end
+
   # Write this BigWigFile to a Wig file
   def to_wig(output_file)
     puts "Converting BigWig file (#{File.basename(@data_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
@@ -518,7 +531,6 @@ class WigFile < AbstractWigFile
   
   # Convert this WigFile to a BigWigFile
   def to_bigwig(output_file, assembly)
-    puts "Converting Wig file (#{File.basename(@data_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ wigToBigWig #{@data_file} #{assembly.len_file} #{output_file} ]
+    Wig.to_bigwig(@datafile, output_file, assembly)
   end
 end
