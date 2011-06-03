@@ -3,6 +3,7 @@ require 'unix_file_utils'
 require 'chromosome'
 require 'genomic_index_error'
 require 'stats'
+require 'forkmanager'
 require 'genomic_data'
 require 'assembly'
 require 'gsl'
@@ -349,7 +350,8 @@ class BigWigFile < AbstractWigFile
   
   # Return single-bp data from the specified region
   def query(chr, start, stop)
-    %x[ bigWigSummary #{@data_file} #{chr} #{start} #{stop} #{stop-start+1} ].split(' ').map { |v| v.to_f }
+    # Data is 0-indexed
+    %x[ bigWigSummary #{@data_file} #{chr} #{start-1} #{stop-1} #{stop-start+1} ].split(' ').map { |v| v.to_f }
   end
   
   def mean
