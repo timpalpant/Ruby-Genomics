@@ -17,9 +17,10 @@ module SAMTools
   # If no region is specified, all the alignments will be printed; 
   # otherwise only alignments overlapping the specified regions will be output. 
   # An alignment may be given multiple times if it is overlapping several regions. 
-  # A region can be presented, for example, in the following format: â€˜chr2â€™ (the whole chr2), 
-  # â€˜chr2:1000000â€™ (region starting from 1,000,000bp) or â€˜chr2:1,000,000-2,000,000â€™ 
+  # A region can be presented, for example, in the following format: âchr2â (the whole chr2), 
+  # chr2:1000000â (region starting from 1,000,000bp) or âchr2:1,000,000-2,000,000 
   # (region between 1,000,000 and 2,000,000bp including the end points). The coordinate is 1-based.
+  # For iterating over reads on a stream, use BAMFile#foreach
   def self.view(bam_file, chr, start = nil, stop = nil)
     index(bam_file) if not File.exist?(bam_file + '.bai')
     %x[ samtools view #{bam_file} #{query_string(chr, start, stop)} ].split("\n").map { |line| SAMEntry.parse(line) }

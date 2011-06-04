@@ -119,38 +119,10 @@ class SAMEntry < GenomicInterval
 	end
 end
 
-# Load SAM files into memory
-class SAM < GenomicData
-	# NOTE: Only load small SAM files completely into memory
-	# For larger files, use stream operations
-	def self.load(filename)
-		sam = self.new
-	
-		SAMFile.foreach(File.expand_path(filename)) do |entry|
-			sam[entry.chr] ||= Array.new
-			sam[entry.chr] << entry
-		end
-
-		return sam
-	end
-
-	# Only store GenomicInterval attributes (chr, start, stop) rather than entire SAM entry
-	# to conserve memory, and only load one (forward) entry for paired-end reads
-	def self.load_reads(filename)
-		sam = self.new
-
-		SAMFile.foreach_read(File.expand_path(filename)) do |read|
-			sam[read.chr] ||= Array.new
-			sam[read.chr] << GenomicInterval.new(read.start, read.stop)
-		end
-
-		return sam
-	end
-end
 
 # Access SAM files through stream operations
 # Best option for iterating over large SAM files
-class SAMFile < File
+class SAMFile
 	# Return each SAMEntry
 	def self.foreach(filename)
 		File.foreach(File.expand_path(filename)) do |line|
@@ -161,13 +133,41 @@ class SAMFile < File
 	end
 
 	# Return each read, but only one (forward) entry for paired-end reads
-	# Analogous to SAM.load_reads, but accessed in a stream
 	def self.foreach_read(filename)
-		File.foreach(File.expand_path(filename)) do |line|
-			# Skip comment lines
-			next if line.start_with?('@')
-			entry = SAMEntry.parse(line)
-			yield entry unless entry.paired? and entry.crick?
-		end
+		self.foreach(filename) do |entry|
+      yield entry unless entry.paired? and entry.crick?
+    end
 	end
+end
+
+# Access BAM files through stream operations
+# For random access, use SAMTools
+class BAMFile
+  # Return each SAMEntry
+  def self.foreach(filename, chr = nil, start = nil, stop = nil)
+    IO.popen("samtools view #{File.expand_path(filename)} #{query_string(chr, start, stop)}") do |output|
+      output.each do |line|
+        next if line.start_with?('@')
+        yield SAMEntry.parse(line)
+      end
+    end
+  end
+
+  # Return each read, but only one (forward) entry for paired-end reads
+  def self.foreach_read(filename, chr = nil, start = nil, stop = nil)
+    self.foreach(filename) do |entry|
+      yield entry unless entry.paired? and entry.crick?
+    end
+  end
+
+  private
+
+  def self.query_string(chr = nil, start = nil, stop = nil)
+    query_string = String.new
+    query_string += chr.to_s if chr
+    query_string += ':' + start.to_s if start
+    query_string += '-' + stop.to_s if stop
+
+    return query_string
+  end
 end

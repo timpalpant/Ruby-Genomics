@@ -9,6 +9,10 @@
 /* Begin PBXFileReference section */
 		1F170BF31395C6BB00860C94 /* test.bam */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam; sourceTree = "<group>"; };
 		1F170BF41395C87C00860C94 /* test.bam.bai */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam.bai; sourceTree = "<group>"; };
+		1F26FF7F1399C62700CED327 /* distogram.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = distogram.rb; sourceTree = "<group>"; };
+		1F26FF801399C63800CED327 /* phasogram.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = phasogram.rb; sourceTree = "<group>"; };
+		1F26FF811399C64200CED327 /* distogram.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = distogram.xml; sourceTree = "<group>"; };
+		1F26FF821399C64C00CED327 /* phasogram.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = phasogram.xml; sourceTree = "<group>"; };
 		1FBFEFA31395C45000441DD7 /* affy_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = affy_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA41395C50200441DD7 /* stats_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = stats_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA51395C53C00441DD7 /* samtools_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = samtools_spec.rb; sourceTree = "<group>"; };
@@ -318,6 +322,10 @@
 				1FD61DFC13909D530013355B /* nukeDistances.rb */,
 				1FD61E0013909D530013355B /* powerSpectrum.rb */,
 				1FD61E0113909D530013355B /* powerSpectrum.xml */,
+				1F26FF7F1399C62700CED327 /* distogram.rb */,
+				1F26FF811399C64200CED327 /* distogram.xml */,
+				1F26FF801399C63800CED327 /* phasogram.rb */,
+				1F26FF821399C64C00CED327 /* phasogram.xml */,
 			);
 			path = nucleosome;
 			sourceTree = "<group>";

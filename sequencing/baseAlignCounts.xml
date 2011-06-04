@@ -12,7 +12,7 @@
 	<help>
 		.. class:: warningmark
 		
-		This tool requires sequencing reads in SAM format.
+		This tool requires sequencing reads in BAM format.
 		
 		.. class:: warningmark
 		

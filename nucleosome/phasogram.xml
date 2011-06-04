@@ -1,0 +1,22 @@
+<tool id="Phasogram" name="Make phasogram" version="1.0.0">
+  <description>of paired-end sequencing reads</description>
+  <command interpreter="ruby1.9">phasogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
+  <inputs>
+		<param name="input" type="data" format="bam" label="Sequencing reads" />
+		<param name="low" type="integer" value="0" label="Low end of range (bp)" />
+    <param name="high" type="integer" value="1000" label="High end of range (bp)" />
+  </inputs>
+  <outputs>
+		<data name="output" format="tabular" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool requires sequencing reads in BAM format.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>
