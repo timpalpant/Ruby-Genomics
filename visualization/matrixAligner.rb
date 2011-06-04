@@ -31,7 +31,6 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'wig'
 require 'bed'
-require 'forkmanager'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -62,9 +61,6 @@ end
 
 # Set to whatever empty matrix values should be (e.g. NaN, -, '', etc.)
 NA_PLACEHOLDER = '-'
-
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => Dir.tmpdir})
 
 # Load the list of loci to align to
 loci = Bed.load(options[:loci])

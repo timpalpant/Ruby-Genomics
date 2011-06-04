@@ -1,5 +1,5 @@
 <tool id="ZScorer" name="Z-Score" version="1.0.0">
-  <description>a Big file</description>
+  <description>a BigWig file</description>
   <command interpreter="ruby1.9">zscorer.rb -i $input -g $dbkey -p 4 -o $output</command>
   <inputs>
       <param format="bigwig" name="input" type="data" label="Z-score the data in" />
