@@ -27,8 +27,10 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
+require 'forkmanager'
 require 'samtools'
 require 'assembly'
+require 'stats'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -101,6 +103,12 @@ assembly.each do |chr, chr_length|
   BAMFile.foreach_read(options[:input], chr) do |read|
     bin = [[read.length, low].max, high].min - low
     chr_hist[bin] += 1
+  end
+
+  if ENV['DEBUG']
+    puts "Total number of reads on chromosome #{chr}: #{chr_hist.sum}"
+    puts "Histogram for chromosome #{chr}:"
+    p chr_hist
   end
   
   pm.finish(0, chr_hist)

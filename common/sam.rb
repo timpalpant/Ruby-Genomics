@@ -134,7 +134,7 @@ class SAMFile
 
 	# Return each read, but only one (forward) entry for paired-end reads
 	def self.foreach_read(filename)
-		self.foreach(filename) do |entry|
+		self.foreach(filename, chr, start, stop) do |entry|
       yield entry unless entry.paired? and entry.crick?
     end
 	end
@@ -155,7 +155,7 @@ class BAMFile
 
   # Return each read, but only one (forward) entry for paired-end reads
   def self.foreach_read(filename, chr = nil, start = nil, stop = nil)
-    self.foreach(filename) do |entry|
+    self.foreach(filename, chr, start, stop) do |entry|
       yield entry unless entry.paired? and entry.crick?
     end
   end

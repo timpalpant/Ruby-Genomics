@@ -31,8 +31,8 @@ require 'pickled_optparse'
 require 'assembly'
 require 'wig'
 require 'samtools'
+require 'unix_file_utils'
 require 'forkmanager'
-require 'tmpdir'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -70,10 +70,10 @@ end
 SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 
 # Initialize the assembly to generate coverage on
-a = Assembly.load(options[:genome])
+assembly = Assembly.load(options[:genome])
 
 # Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => Dir.tmpdir})
+pm = Parallel::ForkManager.new(options[:threads])
 
 
 # Process each chromosome in chunks
@@ -95,7 +95,7 @@ assembly.each do |chr, chr_length|
 		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
     chunk_size = chunk_stop - chunk_start + 1
 		total = Array.new(chunk_size, 0)
-    count = Array.new(chunk_size, 0)
+    read_count = Array.new(chunk_size, 0)
     
     # Pad the query because SAMTools only returns reads that physically overlap the given window
     # It is possible that our 36bp reads may be physically outside the chunk window
@@ -118,25 +118,21 @@ assembly.each do |chr, chr_length|
     end
     
 		# Get all aligned reads for this chunk and map the dyads
-		SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|
-      # Get the high and low read coordinates, and clamp to the ends of the chromosome
-      low = [1, entry.low].max
-      high = [entry.high, wig[entry.chr].length].min
-      
+    SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|      
       # Also clamp to the chunk
-      low = [low-chunk_start, 0].max
-      high = [high-chunk_start, chunk_size-1].min
+      low = [entry.low-chunk_start, 0].max
+      high = [entry.high-chunk_start, chunk_size-1].min
       
       # Map the read coverage within the wig file
       for bp in low..high
         total[bp] += entry.length
-        count[bp] += 1
+        read_count[bp] += 1
       end
     end
     
     mean = Array.new(total.length, 0)
     for i in 0...total.length
-      mean[i] = total[i].to_f / count[i] unless count[i] == 0
+      mean[i] = total[i].to_f / read_count[i] unless read_count[i] == 0
     end
   
     # Write this chunk to disk
@@ -174,5 +170,5 @@ File.delete(options[:input] + '.bai')
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'
-Wig.to_bigwig(options[:output], tmp)
+Wig.to_bigwig(options[:output], tmp, assembly)
 FileUtils.move(tmp, options[:output])

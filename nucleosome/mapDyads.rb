@@ -34,6 +34,7 @@ require 'unix_file_utils'
 require 'assembly'
 require 'wig'
 require 'samtools'
+require 'fileutils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -189,3 +190,8 @@ tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
 File.delete(options[:input] + '.bai')
+
+# Convert the output to BigWig
+tmp = options[:output] + '.tmp'
+Wig.to_bigwig(options[:output], tmp, assembly)
+FileUtilsmove(tmp, options[:output])

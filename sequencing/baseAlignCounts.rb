@@ -33,8 +33,8 @@ require 'pickled_optparse'
 require 'assembly'
 require 'wig'
 require 'samtools'
+require 'unix_file_utils'
 require 'fileutils'
-require 'tmpdir'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -82,7 +82,7 @@ SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 a = Assembly.load(options[:genome])
 
 # Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => Dir.tmpdir})
+pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => '/tmp'})
 
 # Callback to get the number of unmapped reads from each subprocess
 total_unmapped = 0
@@ -203,5 +203,5 @@ File.delete(options[:input] + '.bai')
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'
-Wig.to_bigwig(options[:output], tmp)
+Wig.to_bigwig(options[:output], tmp, assembly)
 FileUtils.move(tmp, options[:output])
