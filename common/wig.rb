@@ -7,67 +7,11 @@ require 'stats'
 require 'forkmanager'
 require 'genomic_data'
 require 'assembly'
-require 'gsl'
 
 ##
-# Load a fixedStep Wig file completely into memory
-# @DEPRECATED: only feasible for small genomes / datasets
+# Shouldn't ever load a Wig file completely into memory, so just methods to convert and create Wig files
 ##
-class Wig	
-  attr_accessor :name, :description, :assembly
-  
-  def self.load(filename)
-    wig = self.new
-    
-		# Piggyback on WigFile parsing
-    # Iterate over each chromosome and store permanently
-    cached_wig = WigFile.new(filename)
-    wig.name = cached_wig.name
-    wig.description = cached_wig.description
-    
-    cached_wig.each do |chr,values|
-    	wig[chr] = values
-    end
-    
-    return wig
-  end
-  
-  # Return a new empty SingleBPData (zeros) with dimensions of an assembly
-  def self.for_assembly(a)    
-    empty_seq = self.new
-		empty_seq.assembly = a.name
-  	a.each { |chr,num_bases| empty_seq[chr] = Chromosome.new(num_bases) }
-    return empty_seq
-  end
-  
-  # Summary information about this sequencing file object
-  def to_s
-    out = "Sequencing File: #{@name}\n"
-    out << "Assembly: #{@assembly}\n"
-    out << "Total number of values: #{self.num_values}\n"
-    out << "Total: #{self.total}\n"
-    out << "Mean: #{self.mean}\n"
-    out << "StDev: #{self.stdev}\n"
-    
-    # Summary for each Chromosome
-  	out << self.map { |chr_id,chr_data| "Chromosome #{chr_id}: #{chr_data.length} values" }.join("\n")
-      
-    return out
-  end
-  
-  # Output the data in Wig format
-  def to_wig(filename)
-    File.open(filename,'w') do |f|
-      # TODO: should be rewritten to intelligently use step size
-      f.puts Wig.track_header(@name, @description) 
-          
-      self.each do |chr_id,values|
-        f.puts Wig.fixed_step(chr_id, values)
-        f.puts values
-      end
-    end
-  end
-
+class Wig
   # Make a Wig track header with the given name and description
   def self.track_header(name = '', description = '')
   	"track type=wiggle_0 name=\"#{name}\" description=\"#{description}\" autoScale=\"off\" visibility=\"full\""
@@ -136,26 +80,23 @@ class Wig
       end
     end
   end
-  
-  # Return the total number of values in this WigFile
-  def num_values
-  	self.collect { |chr_id,data| data.length }.sum.to_i
-  end
-	
-	# Return the sum of all values
-  def total
-    self.collect { |chr_id,values| values.sum }.sum
+end
+
+##
+# Shouldn't load BigWig files into memory since they can be randomly accessed
+# so just methods to convert them into other things
+##
+class BigWig
+  # Write a BigWigFile to a Wig file
+  def self.to_wig(input_file, output_file)
+    puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
   end
 
-  # Return the mean of all values
-  def mean
-  	total.to_f / num_values
-  end
-	
-	# Return the standard deviation of all values
-  def stdev(mean = self.mean, num_values = self.num_values)
-  	tss = self.map { |chr_id,values| values.to_gslv.tss(mean) }.sum
-  	Math.sqrt(tss / num_values)
+  # Write this BigWig to a BedGraph
+  def self.to_bedGraph(input_file, output_file)
+  puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
+  %x[ bigWigToBedGraph #{input_file} #{output_file} ]
   end
 end
 
@@ -422,18 +363,6 @@ class BigWigFile < AbstractWigFile
 
   def stdev(avg = mean)
     @stdev
-  end
-
-  # Write a BigWigFile to a Wig file
-  def self.to_wig(input_file, output_file)
-    puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
-  end
-
-  # Write this BigWig to a BedGraph
-  def self.to_bedGraph(input_file, output_file)
-    puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToBedGraph #{input_file} #{output_file} ]
   end
   
   # Output a summary about this BigWigFile

@@ -2,16 +2,16 @@
   <description>from paired-end sequencing reads</description>
   <command interpreter="ruby1.9">rollingReadLength.rb -i $input -g $dbkey -p 4 -o $output</command>
   <inputs>
-      <param format="sam" name="input" type="data" label="Mapped reads" />
+      <param format="bam" name="input" type="data" label="Mapped reads" />
   </inputs>
   <outputs>
-      <data format="wig" name="output" />
+      <data format="bigwig" name="output" />
   </outputs>
   
 <help>
 .. class:: warningmark
 
-This tool requires paired-end Wiggle formatted data. Using single-end data will result in a constant read length across the genome since single-end reads are extended a specified amount *in silico*.
+This tool requires paired-end BAM formatted data. Using single-end data will result in a constant read length (36/72bp)
 
 .. class:: warningmark
 

@@ -7,14 +7,14 @@
 #   Take BAM reads and count the number of reads overlapping
 #   at each loci (occupancy).
 #
-#   baseAlignCounts.rb -i bowtie.bam -o occupancy.wig
+#   baseAlignCounts.rb -i bowtie.bam -o occupancy.bw
 #
 #   For help use: baseAlignCounts.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input file with mapped reads (BAM)
-#   -o, --output        Output file with occupancy (Wig)
+#   -o, --output        Output file with occupancy (BigWig)
 #   -g, --genome        Genome assembly to use
 #		-x, --extend				In silico artificial extension
 #
@@ -33,11 +33,13 @@ require 'pickled_optparse'
 require 'assembly'
 require 'wig'
 require 'samtools'
+require 'fileutils'
+require 'tmpdir'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i reads.bam -o occupancy.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -i reads.bam -o occupancy.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -53,7 +55,7 @@ ARGV.options do |opts|
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-x', '--extend N', "In silico extension (default: read length)") { |n| options[:x] = n.to_i }
-  opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
 	opts.parse!
@@ -80,14 +82,14 @@ SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 a = Assembly.load(options[:genome])
 
 # Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads])
+pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => Dir.tmpdir})
 
 # Callback to get the number of unmapped reads from each subprocess
 total_unmapped = 0
-pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data_structure|
-  begin
-    total_unmapped += data_structure.to_i
-  rescue
+pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
+  if data
+    total_unmapped += data['output']
+  else
     puts "Number of unmapped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
   end
 end
@@ -173,7 +175,7 @@ assembly.each do |chr, chr_length|
   
   # Send the number of unmapped reads on this chromosome back to the parent process
   puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
-  pm.finish(0, unmapped.to_s)
+  pm.finish(0, {'output' => unmapped})
 end
 
 
@@ -198,3 +200,8 @@ tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
 File.delete(options[:input] + '.bai')
+
+# Conver the output Wig file to BigWig
+tmp = options[:output] + '.tmp'
+Wig.to_bigwig(options[:output], tmp)
+FileUtils.move(tmp, options[:output])

@@ -31,7 +31,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'wig'
 require 'bed'
-require 'unix_file_utils'
+require 'forkmanager'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -62,6 +62,9 @@ end
 
 # Set to whatever empty matrix values should be (e.g. NaN, -, '', etc.)
 NA_PLACEHOLDER = '-'
+
+# Initialize the process manager
+pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => Dir.tmpdir})
 
 # Load the list of loci to align to
 loci = Bed.load(options[:loci])
@@ -149,6 +152,7 @@ File.open(options[:output],'w') do |f|
 	# Write a header (required by matrix2png)
 	f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
 	
+  # Write them out to the matrix in the orginial order
 	File.foreach(options[:loci]) do |line|
 		next if line.start_with?('#')
 		entry = line.chomp.split("\t")

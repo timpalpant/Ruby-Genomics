@@ -76,16 +76,11 @@
 		1FD61DF313909D530013355B /* callNukes.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = callNukes.xml; sourceTree = "<group>"; };
 		1FD61DF413909D530013355B /* conditionalPositioning.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = conditionalPositioning.rb; sourceTree = "<group>"; };
 		1FD61DF513909D530013355B /* conditionalPositioning.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = conditionalPositioning.xml; sourceTree = "<group>"; };
-		1FD61DF613909D530013355B /* findExtrema.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findExtrema.rb; sourceTree = "<group>"; };
-		1FD61DF713909D530013355B /* findExtrema.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = findExtrema.xml; sourceTree = "<group>"; };
 		1FD61DF813909D530013355B /* findNuke.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = findNuke.rb; sourceTree = "<group>"; };
 		1FD61DF913909D530013355B /* findNuke.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = findNuke.xml; sourceTree = "<group>"; };
 		1FD61DFA13909D530013355B /* mapDyads.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = mapDyads.rb; sourceTree = "<group>"; };
 		1FD61DFB13909D530013355B /* mapDyads.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mapDyads.xml; sourceTree = "<group>"; };
 		1FD61DFC13909D530013355B /* nukeDistances.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = nukeDistances.rb; sourceTree = "<group>"; };
-		1FD61DFD13909D530013355B /* occupancyVsChange.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = occupancyVsChange.rb; sourceTree = "<group>"; };
-		1FD61DFE13909D530013355B /* overlapFinder.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = overlapFinder.rb; sourceTree = "<group>"; };
-		1FD61DFF13909D530013355B /* positionChange.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = positionChange.rb; sourceTree = "<group>"; };
 		1FD61E0013909D530013355B /* powerSpectrum.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = powerSpectrum.rb; sourceTree = "<group>"; };
 		1FD61E0113909D530013355B /* powerSpectrum.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = powerSpectrum.xml; sourceTree = "<group>"; };
 		1FD61E0313909D530013355B /* fastqDumpWrapper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fastqDumpWrapper.rb; sourceTree = "<group>"; };
@@ -156,14 +151,11 @@
 		1FD61E4A13909D530013355B /* spec_helper.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = spec_helper.rb; sourceTree = "<group>"; };
 		1FD61E4B13909D530013355B /* unix_file_utils_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = unix_file_utils_spec.rb; sourceTree = "<group>"; };
 		1FD61E4C13909D530013355B /* wig_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wig_spec.rb; sourceTree = "<group>"; };
-		1FD61E4E13909D530013355B /* bindingSiteStructure.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bindingSiteStructure.rb; sourceTree = "<group>"; };
 		1FD61E4F13909D530013355B /* genomicStructure.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genomicStructure.rb; sourceTree = "<group>"; };
-		1FD61E5013909D530013355B /* getSequences.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = getSequences.rb; sourceTree = "<group>"; };
 		1FD61E5113909D530013355B /* sequenceDistribution.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sequenceDistribution.rb; sourceTree = "<group>"; };
 		1FD61E5313909D530013355B /* testGNUPlot.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = testGNUPlot.rb; sourceTree = "<group>"; };
 		1FD61E5513909D530013355B /* wigCorrelate.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wigCorrelate.rb; sourceTree = "<group>"; };
 		1FD61E5613909D530013355B /* wigCorrelate.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = wigCorrelate.xml; sourceTree = "<group>"; };
-		1FD61E5813909D530013355B /* boundVsUnbound.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = boundVsUnbound.rb; sourceTree = "<group>"; };
 		1FD61E5913909D530013355B /* matrixAligner.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = matrixAligner.rb; sourceTree = "<group>"; };
 		1FD61E5A13909D530013355B /* matrixAligner.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = matrixAligner.xml; sourceTree = "<group>"; };
 		1FD61E5B13909D530013355B /* patternFinder.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = patternFinder.rb; sourceTree = "<group>"; };
@@ -319,16 +311,11 @@
 				1FD61DF313909D530013355B /* callNukes.xml */,
 				1FD61DF413909D530013355B /* conditionalPositioning.rb */,
 				1FD61DF513909D530013355B /* conditionalPositioning.xml */,
-				1FD61DF613909D530013355B /* findExtrema.rb */,
-				1FD61DF713909D530013355B /* findExtrema.xml */,
 				1FD61DF813909D530013355B /* findNuke.rb */,
 				1FD61DF913909D530013355B /* findNuke.xml */,
 				1FD61DFA13909D530013355B /* mapDyads.rb */,
 				1FD61DFB13909D530013355B /* mapDyads.xml */,
 				1FD61DFC13909D530013355B /* nukeDistances.rb */,
-				1FD61DFD13909D530013355B /* occupancyVsChange.rb */,
-				1FD61DFE13909D530013355B /* overlapFinder.rb */,
-				1FD61DFF13909D530013355B /* positionChange.rb */,
 				1FD61E0013909D530013355B /* powerSpectrum.rb */,
 				1FD61E0113909D530013355B /* powerSpectrum.xml */,
 			);
@@ -462,9 +449,7 @@
 		1FD61E4D13909D530013355B /* structure */ = {
 			isa = PBXGroup;
 			children = (
-				1FD61E4E13909D530013355B /* bindingSiteStructure.rb */,
 				1FD61E4F13909D530013355B /* genomicStructure.rb */,
-				1FD61E5013909D530013355B /* getSequences.rb */,
 				1FD61E5113909D530013355B /* sequenceDistribution.rb */,
 			);
 			path = structure;
@@ -490,7 +475,6 @@
 		1FD61E5713909D530013355B /* visualization */ = {
 			isa = PBXGroup;
 			children = (
-				1FD61E5813909D530013355B /* boundVsUnbound.rb */,
 				1FD61E5913909D530013355B /* matrixAligner.rb */,
 				1FD61E5A13909D530013355B /* matrixAligner.xml */,
 				1FD61E5B13909D530013355B /* patternFinder.rb */,

@@ -16,7 +16,7 @@
 # == Options
 #   -h, --help          Displays help message
 #   -l, --loci          List of loci to align to (chromosome  start  stop  id   alignmentBase)
-#   -o, --output        Output file (Average value #(loci)x#(inputs))
+#   -o, --output        Output file
 #
 # == Author
 #   Timothy Palpant
@@ -31,8 +31,6 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'wig'
 require 'bed'
-require 'gsl'
-include GSL
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -74,25 +72,19 @@ puts "Average will be computed for #{n} bases from #{-alignment_point} to #{n-al
 indices = Vector[-alignment_point..n-alignment_point]
 
 puts "\nInitializing input files\n" if ENV['DEBUG']
-wigs = ARGV.map { |input_file| WigFile.new(input_file) }
+wigs = ARGV.map { |input_file| BigWigFile.new(input_file) }
 
 puts "\nBeginning averaging\n" if ENV['DEBUG']
 averages = Array.new
 wigs.each do |wig|
 	# Align and average values from all loci
 	puts "\nAveraging values for: #{File.basename(wig.data_file)}" if ENV['DEBUG']
-	sum = Vector[n]
-	count = Vector[n]
+	sum = Array.new(n, 0)
+	count = Array.new(n, 0)
 	loci.each do |chr,spots|
-		begin
-			chr_data = wig.chr(chr)
-		rescue GenomicIndexError
-			next
-		end
-	  
-		spots.select { |spot| chr_data.include?(spot.low,spot.high) }.each do |spot|
+		spots.each do |spot|
 			begin
-				values = chr_data.bases(spot.start, spot.stop)
+				values = wig.query(chr, spot.start, spot.stop)
 			rescue GenomicIndexError
 				next
 			end
@@ -105,17 +97,22 @@ wigs.each do |wig|
 			raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
 		
 		  # Add values to the sum and add one to the count for those bases
-			sum[n1..n2] += values
-			count[n1..n2] += 1
+      for bp in n1..n2
+        sum[bp] += values[bp-n1]
+        count[bp] += 1
+      end
 		end
 	end
 
 	puts 'Computing average' if ENV['DEBUG']
-	avg = sum / count
+  avg = Array.new(sum.length, 'NaN')
+  for i in 0...sum.length
+    avg[i] = sum[i] / count[i] unless count[i] == 0
+  end
 	averages << avg
 end
 
-puts 'Writing average to disk' if ENV['DEBUG']
+puts 'Writing averages to disk' if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
 	for i in 0...averages[0].length
 		f.puts "#{indices[i]}\t#{averages.collect { |avg| avg[i] }.join("\t")}"
