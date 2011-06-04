@@ -1,8 +1,8 @@
 <tool id="Phasogram" name="Make phasogram" version="1.0.0">
-  <description>of paired-end sequencing reads</description>
+  <description>of dyads</description>
   <command interpreter="ruby1.9">phasogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
   <inputs>
-		<param name="input" type="data" format="bam" label="Sequencing reads" />
+		<param name="input" type="data" format="bigwig" label="Dyads BigWig file" />
 		<param name="low" type="integer" value="0" label="Low end of range (bp)" />
     <param name="high" type="integer" value="1000" label="High end of range (bp)" />
   </inputs>
@@ -13,7 +13,7 @@
 	<help>
 		.. class:: warningmark
 		
-		This tool requires sequencing reads in BAM format.
+		This tool requires mapped dyads in BigWig format.
 		
 		.. class:: warningmark
 		

@@ -79,7 +79,7 @@ assembly = Assembly.load(options[:genome])
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
 
-# Callback to get the number of unmapped reads from each subprocess
+# Callback to get the results from each subprocess
 histogram = Array.new(num_bins, 0)
 pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
   # Add the individual chromosome's histogram data to the totals

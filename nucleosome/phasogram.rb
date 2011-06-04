@@ -1,20 +1,18 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   
+#   Make histogram of distances between dyads
 #
 # == Usage 
-#   Smooth file1.bw:
+#   Process dyads.bw:
 #
-#   smoother.rb -i file1.bw -o file1.smoothed.bw
+#   phasogram.rb -i dyads.bw -r 0:1000 -o dyads.phasogram
 #
-#   For help use: smoother.rb -h
+#   For help use: phasogram.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input file
-#   -s, --stdev         Standard deviation of the Gaussian
-#   -w, --window        Window size
+#   -i, --input         Input file (BigWig)
 #   -o, --output        Output file
 #
 # == Author
@@ -29,15 +27,12 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'forkmanager'
 require 'pickled_optparse'
-require 'fixed_precision'
 require 'wig'
-require 'stats'
-#require 'convolution'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i file1.bw -o file1.smoothed.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -i dyads.bw -r 0:1000 -o dyads.phasogram"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -46,10 +41,6 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file (BigWig)" ) { |f| options[:input] = f }
-  options[:sdev] = 20
-  opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 20)" ) { |num| options[:sdev] = num.to_i }
-  options[:window_size] = 3
-  opts.on( '-w', '--window NUM', "Number of standard deviations +/- to make a window (default 3)" ) { |num| options[:window_size] = num.to_i }
   options[:step] = 500_000
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
@@ -69,36 +60,84 @@ ARGV.options do |opts|
 end
 
 
-# Gaussian smoothing requires padding of half_window on either end
-padding = options[:sdev] * options[:window_size]
+# Parse the range
+range = options[:range].split(':')
+raise "Invalid range given. Range should be of the format LOW:HIGH" if range.length != 2
+low = range.first.to_i
+high = range.last.to_i
+raise "Invalid range given. Range should be of the format LOW:HIGH" if low >= high
+num_bins = high - low + 1
 
-# Set up the Gaussian filter
-#g = Filter.gaussian(options[:sdev], options[:window_size])
-#padded = Array.new(options[:step], 0)
-#for i in 0..g.length
-#  padded[i+padded.length/2-g.length/2] = g[i]
-#end
+# Pad the query ranges so that we get reads with the dyad in the current chunk if it would
+# be within the range we're interested in
+padding = 2 * high
 
-# Initialize the wig files to smooth
+# Initialize the BigWig dyads file
 wig = BigWigFile.new(options[:input])
 
-# Initialize the parallel computation manager
-parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
-
-# Initialize the output assembly
+# Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
-# Run the subtraction on all chromosomes in parallel
-parallelizer.run(wig, assembly) do |chr, chunk_start, chunk_stop|
-  # Don't pad off the end of the chromosome
-  query_start = [1, chunk_start-padding].max
-  query_stop = [chunk_stop+padding, wig.chr_length(chr)].min
+# Initialize the process manager
+pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
+
+# Callback to get the results from each subprocess
+histogram = Array.new(num_bins, 0)
+pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
+  # Add the individual chromosome's histogram data to the totals
+  for i in 0...num_bins
+    histogram[i] += data[i]
+  end
+end
+
+
+# Process each chromosome in parallel
+# Each chromosome in a different parallel process
+wig.chromosomes.each do |chr|
+  # Run in parallel processes managed by ForkManager
+  pm.start(chr) and next
   
-  # Actual padding
-  padding_left = chunk_start - query_start
-  padding_right = query_stop - chunk_stop
+	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   
-  chunk = wig.query(chr, query_start, query_stop)
-  smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
-  smoothed[padding_left...-padding_right]
+  chr_hist = Array.new(num_bins, 0)
+  chunk_start = 1
+  chr_length = chr_length(chr)
+  while chunk_start < chr_length
+    chunk_stop = [chunk_start+options[:step]-1, chr_length].min
+    
+    # Don't pad off the end of the chromosome
+    query_start = [1, chunk_start-padding].max
+    query_stop = [chunk_stop+padding, chr_length].min
+    
+    # Actual padding
+    padding_left = chunk_start - query_start
+    padding_right = query_stop - chunk_stop
+    
+    chunk = wig.query(chr, query_start, query_stop)
+    for bp in padding_left...-padding_right
+      # Get the number of reads a certain distance away
+      # Multiply by the number of reads at the current location
+      for dist in low..high
+        # Left
+        chr_hist[dist-low] += chunk[bp] * chunk[bp-dist] if bp-dist >= 0
+        # Right
+        chr_hist[dist-low] += chunk[bp] * chunk[bp+dist] if bp+dist < chunk.length
+      end
+    end
+    
+    chunk_start = chunk_stop + 1
+  end
+  
+  pm.finish(0, chr_hist)
+end
+
+
+# Wait for all of the child processes (each chromosome) to complete
+pm.wait_all_children
+
+# Write the histogram to the output file
+File.open(options[:output], 'w') do |f|
+  for length in low..high
+    f.puts "#{length}\t#{histogram[length-low]}"
+  end
 end
