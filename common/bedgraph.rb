@@ -60,9 +60,9 @@ class BedGraph < SpotArray
   def self.to_bigwig(input_file, output_file, assembly)
     # BedGraph must be sorted first
     tmp_sorted = input_file + '.sorted'
-    File.sort(input_file, tmp_sorted, '-k1,1 -k2,2')
-    %x[ bedGraphToBigWig #{tmp_sorted} #{assembly.len_file} #{output_file} ]
-    File.delete(tmp_sorted)
+    File.sort(File.expand_path(input_file), File.expand_path(tmp_sorted), '-k1,1 -k2,2')
+    %x[ bedGraphToBigWig #{File.expand_path(tmp_sorted)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
+    File.delete(File.expand_path(tmp_sorted))
   end
 end
 

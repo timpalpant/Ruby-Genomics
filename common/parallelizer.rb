@@ -8,11 +8,12 @@
 #
 
 require 'fileutils'
+require 'tmpdir'
 require 'forkmanager'
 
 class Parallelizer
   def initialize(max_threads = 2)
-    @pm = Parallel::ForkManager.new(max_threads)
+    @pm = Parallel::ForkManager.new(max_threads, {'tempdir' => Dir.tmpdir})
   end
 end
 

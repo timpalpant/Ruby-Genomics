@@ -7,13 +7,13 @@
 #   Align readcount.wig to loci specified in orfs.txt and output
 #   the values to orfs-aligned.txt
 #
-#   matrixAligner.rb -i readcounts.wig -l orfs.bed -o orfs-aligned.matrix.txt
+#   matrixAligner.rb -i readcounts.bw -l orfs.bed -o orfs-aligned.matrix.txt
 #
 #   For help use: matrixAligner.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input file to average values (Wig)
+#   -i, --input         Input file to align values (BigWig)
 #   -l, --loci          List of loci to align to (chromosome  start  stop  id   alignmentBase)
 #   -o, --output        Output file (matrix with dimensions #(loci) x max(stop-start)
 #		-m, --max						Maximum allowed length for a row (entries outside this value will be truncated)
@@ -36,7 +36,7 @@ require 'unix_file_utils'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i readcount.wig -l orfs.txt -o orfs-aligned.txt"
+  opts.banner = "Usage: ruby #{__FILE__} -i readcount.bw -l orfs.txt -o orfs-aligned.txt"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -44,7 +44,7 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-i', '--input FILE', :required, "Input file to align values (Wig)" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input file to align values (BigWig)" ) { |f| options[:input] = f }
   opts.on( '-l', '--loci FILE', :required, "List of loci to align to (Bed format)" ) { |f| options[:loci] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
 	opts.on( '-m', '--max N', "Maximum allowed row length" ) { |n| options[:max] = n.to_i }
@@ -105,45 +105,37 @@ end
 
 
 # Initialize the Wig file
-puts "Initializing Wig file" if ENV['DEBUG']
-wig = WigFile.new(options[:input])
+puts "Initializing BigWig file" if ENV['DEBUG']
+wig = BigWigFile.new(options[:input])
 
-# Temp file to hold the aligned rows
-tmp_file = options[:output] + '.tmp'
-    
 # Align values for each locus around the alignment point
 skipped = 0
-line = 1
 output = Hash.new
-File.open(tmp_file, 'w') do |f|
-  loci.each do |chr,spots|
-    spots.each_with_index do |spot,i|
-      # Get the data for this interval from the wig file
-      begin
-        values = wig.query(chr, spot.start, spot.stop)
-      rescue
-        puts "Skipping spot (#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
-        skipped += 1
-        next
-      end
-      
-      # Locus alignment point (spot.value) should be positioned over
-      # the matrix alignment point (alignment_point)
-      n1 = alignment_point - (spot.value-spot.start).abs.to_i
-      n2 = alignment_point + (spot.value-spot.stop).abs.to_i
-      # length we are trying to insert should equal the length we are replacing
-      raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
-      
-      entry = Array.new(n, NA_PLACEHOLDER)
-      entry[n1..n2] = values
-      # Total length should be the matrix width to avoid irregular matrices
-      raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
-      
-      # Save to the temp file and index the line
-      f.puts entry[left_bound..right_bound].join("\t")
-      output[spot.id] = line
-      line += 1
+loci.each do |chr,spots|
+  spots.each_with_index do |spot,i|
+    # Get the data for this interval from the wig file
+    begin
+      values = wig.query(chr, spot.start, spot.stop)
+    rescue
+      puts "Skipping spot (#{spot.id},#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
+      skipped += 1
+      next
     end
+      
+    # Locus alignment point (spot.value) should be positioned over
+    # the matrix alignment point (alignment_point)
+    n1 = alignment_point - (spot.value-spot.start).abs.to_i
+    n2 = alignment_point + (spot.value-spot.stop).abs.to_i
+    # length we are trying to insert should equal the length we are replacing
+    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+      
+    entry = Array.new(n, NA_PLACEHOLDER)
+    entry[n1..n2] = values
+    # Total length should be the matrix width to avoid irregular matrices
+    raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
+      
+    # Save to the temp file and index the line
+    output[spot.id] = entry[left_bound..right_bound].join("\t")
   end
 end
 
@@ -162,9 +154,6 @@ File.open(options[:output],'w') do |f|
 		entry = line.chomp.split("\t")
 		next if entry.length < 4
 		id = entry[3]
-		f.puts id + "\t" + File.lines(tmp_file, output[id], output[id]).first.chomp if output.include?(id)
+		f.puts id + "\t" + output[id] if output.include?(id)
 	end
 end
-
-# Delete the temp file
-File.delete(tmp_file)

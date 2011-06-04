@@ -1,4 +1,5 @@
 require 'enumerator'
+require 'tmpdir'
 require 'unix_file_utils'
 require 'chromosome'
 require 'genomic_index_error'
@@ -93,11 +94,13 @@ class Wig
   end
   
   # For converting wigs to BedGraph without having to load (index them) first
+  # Also creates the most compact BedGraph possible by joining equal neighbors
   def self.to_bedGraph(input_file, output_file)
     puts "Converting Wig file #{File.basename(input_file)} to BedGraph #{File.basename(output_file)}" if ENV['DEBUG']
-    File.open(output_file, 'w') do |f|
-      chr, start, step, span = nil, 1, 1, 1
-      File.foreach(input_file) do |line|
+    File.open(File.expand_path(output_file), 'w') do |f|
+      chr, current, step, span = nil, 1, 1, 1
+      start, prev_value = 1, 0
+      File.foreach(File.expand_path(input_file)) do |line|
         if line.start_with?('track')
           next
         elsif line.start_with?('variable')
@@ -110,8 +113,9 @@ class Wig
             
             if key == 'chrom'
               chr = value
+              puts "Processing chromosome #{chr}" if ENV['DEBUG']
             elsif key == 'start'
-              start = value.to_i
+              current = value.to_i
             elsif key == 'step'
               step = value.to_i
             elsif key == 'span'
@@ -119,8 +123,15 @@ class Wig
             end
           end        
         else
-          f.puts "#{chr}\t#{start}\t#{start+span-1}\t#{line.chomp}"
-          start += step
+          value = line.chomp.to_f
+          if value == prev_value
+            current += step
+          else
+            f.puts "#{chr}\t#{start}\t#{current+span-1}\t#{prev_value}"
+            current += step
+            start = current
+            prev_value = value
+          end
         end
       end
     end
@@ -158,12 +169,12 @@ class AbstractWigFile
   include Enumerable
   
   attr_reader :name, :description, :data_file
-  @@pm = Parallel::ForkManager.new(2)
+  @@pm = Parallel::ForkManager.new(2, {'tempdir' => Dir.tmpdir})
   @@default_chunk_size = 200_000
   
   # Set the total number of computation processes for all Wig files (default = 2)
   def self.max_threads=(n)
-    @@pm = Parallel::ForkManager.new(n.to_i)
+    @@pm = Parallel::ForkManager.new(n.to_i, {'tempdir' => Dir.tmpdir})
   end
   
   # Set the default chunk size
@@ -226,8 +237,8 @@ class AbstractWigFile
     chr_totals = self.chunk_map(0) do |sum,chr,start,stop|
       sum + query(chr,start,stop).sum
     end
-    
-    chr_totals.sum
+
+    return chr_totals.sum
   end
   
   # The mean of all values
@@ -240,23 +251,6 @@ class AbstractWigFile
     raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
   end
   
-  # Write this Wig file to a BedGraph file
-  def to_bedGraph(filename, chunk_size = 200_000)
-    File.open(File.expand_path(filename), 'w') do |f|
-      self.chromosomes.each do |chr|
-        chunk_start = 1
-        num_bases = chr_length(chr)
-        while chunk_start < num_bases
-          chunk_stop = [chunk_start+chunk_size-1, num_bases].min
-          query(chr, chunk_start, chunk_stop).each_with_index do |value,i|
-            f.puts "#{chr}\t#{chunk_start+i}\t#{chunk_start+i}\t#{value}"
-          end
-          chunk_start = chunk_stop + 1
-        end
-      end
-    end
-  end
-  
   # Run a given block for each chromosome
   # (parallel each)
   def p_each    
@@ -265,6 +259,8 @@ class AbstractWigFile
       yield(chr)
       @@pm.finish(0)
     end
+
+    @@pm.wait_all_children
   end
 
   # Compute a given block for each chromosome
@@ -272,12 +268,18 @@ class AbstractWigFile
   def p_map
     results = Array.new(self.chromosomes.length)
     
+    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
+      results[id] = data['output']
+    end
+
     self.chromosomes.each_with_index do |chr,i|
       @@pm.start(chr)
-      results[i] = yield(chr)
-      @@pm.finish(0)
+      result = yield(chr)
+      @@pm.finish(0, {'output' => result})
     end
     
+    @@pm.wait_all_children
+
     return results
   end
   
@@ -285,7 +287,7 @@ class AbstractWigFile
   def chunk_each(chunk_size = @@default_chunk_size)
     self.chromosomes.each do |chr|
       # Run in parallel processes managed by ForkManager
-      @pm.start(chr) and next 
+      @@pm.start(chr) and next 
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
       
       chunk_start = 1
@@ -297,8 +299,10 @@ class AbstractWigFile
         chunk_start = chunk_stop + 1
       end
 
-      @pm.finish(0)
+      @@pm.finish(0)
     end
+
+    @@pm.wait_all_children
   end
   
   # Compute a given block for all chromosomes in chunks
@@ -306,9 +310,13 @@ class AbstractWigFile
   def chunk_map(initial_value, chunk_size = @@default_chunk_size)
     results = Array.new(self.chromosomes.length)
     
+    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
+      results[id] = data['output']
+    end
+
     self.chromosomes.each_with_index do |chr,i|
       # Run in parallel processes managed by ForkManager
-      @pm.start(chr) and next   
+      @@pm.start(i) and next   
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
       
       result = initial_value
@@ -323,10 +331,10 @@ class AbstractWigFile
         chunk_start = chunk_stop + 1
       end
       
-      results[i] = result
-
-      @pm.finish(0)
+      @@pm.finish(0, {'output' => result})
     end
+
+    @@pm.wait_all_children
     
     return results
   end
@@ -384,8 +392,28 @@ class BigWigFile < AbstractWigFile
   
   # Return single-bp data from the specified region
   def query(chr, start, stop)
+    # Don't query off the ends of chromosomes
+    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if start < 1 or stop > chr_length(chr)    
+
+    # Allow Crick queries
+    low = [start, stop].min
+    high = [start, stop].max
+
     # Data is 0-indexed
-    %x[ bigWigSummary #{@data_file} #{chr} #{start-1} #{stop-1} #{stop-start+1} ].split(' ').map { |v| v.to_f }
+    values = %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} #{high-low+1} ].split(' ').map { |v| v.to_f }
+    values.reverse! if start > stop
+    return values
+  end
+
+  # Return the average value for the specified region
+  def query_average(chr, start, stop)
+    # Don't query off the ends of chromosomes
+    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if start < 1 or stop > chr_length(chr)
+
+    low = [start, stop].min
+    high = [start, stop].max
+
+    %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} 1 ].to_f
   end
   
   def mean
@@ -396,10 +424,16 @@ class BigWigFile < AbstractWigFile
     @stdev
   end
 
-  # Write this BigWigFile to a Wig file
-  def to_wig(output_file)
-    puts "Converting BigWig file (#{File.basename(@data_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToWig #{@data_file} #{File.expand_path(output_file)} ]
+  # Write a BigWigFile to a Wig file
+  def self.to_wig(input_file, output_file)
+    puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
+  end
+
+  # Write this BigWig to a BedGraph
+  def self.to_bedGraph(input_file, output_file)
+    puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ bigWigToBedGraph #{input_file} #{output_file} ]
   end
   
   # Output a summary about this BigWigFile
@@ -409,10 +443,10 @@ class BigWigFile < AbstractWigFile
       str += "\tChromosome #{chr} (bases covered: #{chr_size})\n"
     end
     
-    str += "Mean:\t#{@mean}"
-    str += "Standard deviation:\t#{@stdev}"
-    str += "Min:\t#{@min}"
-    str += "Max:\t#{@max}"
+    str += "Mean:\t#{@mean}\n"
+    str += "Standard deviation:\t#{@stdev}\n"
+    str += "Min:\t#{@min}\n"
+    str += "Max:\t#{@max}\n"
     
     return str
   end
@@ -569,5 +603,10 @@ class WigFile < AbstractWigFile
   # Convert this WigFile to a BigWigFile
   def to_bigwig(output_file, assembly)
     Wig.to_bigwig(@datafile, output_file, assembly)
+  end
+
+  # Convert this WigFile to a BedGraph
+  def to_bedgraph(output_file)
+    Wig.to_bedGraph(@datafile, output_file)
   end
 end

@@ -5,15 +5,15 @@
 #   easy import into R or Matlab
 #
 # == Usage 
-#   Dump a list of ORF windows in readcount.marshal to OrfWindows.txt
+#   Dump a list of ORF windows in readcount.bw to OrfWindows.txt
 #
-#   extractRegions.rb -i readcount.wig -w windows.bed -o WindowAverage.txt
+#   extractRegions.rb -i readcount.bw -w windows.bed -o WindowAverage.txt
 #
 #   For help use: extractRegions.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input file to average values (Wig)
+#   -i, --input         Input file to average values (BigWig)
 #   -w, --windows       List of windows to extract (in Bed format: chrXII  10345  10600)
 #   -o, --output        Output file (flat list)
 #
@@ -42,7 +42,7 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-i', '--input FILE', :required, "Input file to average values (Wig)" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input file (BigWig)" ) { |f| options[:input] = f }
   opts.on( '-w', '--window FILE', :required, "List of windows to extract (in Bed format)" ) { |f| options[:windows] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
@@ -58,18 +58,12 @@ ARGV.options do |opts|
 end
 
 
-puts 'Loading the list of windows'
-windows = Bed.load(options[:windows])
-
 # Load the Wig file
-wig = Wig.load(options[:input])
+wig = BigWigFile.load(options[:input])
 
 puts 'Writing window values to file'
 File.open(options[:output],'w') do |f|
-  windows.each do |chr,spots|
-  	puts "Processing chromosome #{chr}"
-  	spots.each do |spot|
-  		f.puts wig[chr][spot.start-1..spot.stop-1].to_a.join("\n")
-		end
+  BedFile.foreach(options[:input]) do |spot|
+    f.puts wig.query(spot.chr, spot.start, spot.stop).join("\n")
   end
 end

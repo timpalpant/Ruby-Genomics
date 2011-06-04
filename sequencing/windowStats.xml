@@ -7,8 +7,8 @@
 			#end for
 	</command>
   <inputs>
-			<repeat name="inputs" title="Wig file">
-				<param name="file" type="data" format="wig" />
+			<repeat name="inputs" title="BigWig file">
+				<param name="file" type="data" format="bigwig" />
 			</repeat>
       <param format="bed" name="windows" type="data" label="List of intervals" />
       <param name="stat" type="select" optional="true" label="For each window, compute the">
@@ -25,7 +25,7 @@
 <help>
 .. class:: warningmark
 
-This tool requires Wiggle input data.
+This tool requires Wiggle/BigWig input data.
 
 .. class:: warningmark
 

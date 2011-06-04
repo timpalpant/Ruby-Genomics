@@ -2,7 +2,7 @@
   <description>for a heatmap</description>
   <command interpreter="ruby1.9">matrixAligner.rb -i $input -l $loci -m $M -o $output</command>
   <inputs>
-      <param format="wig" name="input" type="data" label="Sequencing data" />
+      <param format="bigwig" name="input" type="data" label="Sequencing data" />
       <param format="bed" name="loci" type="data" label="List of intervals (with alignment points)" />
       <param type="integer" name="M" value="4000" label="Maximum row length" />
   </inputs>

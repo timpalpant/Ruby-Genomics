@@ -1,8 +1,8 @@
 <tool id="ExtractWigData" name="Extract regions" version="1.0.0">
-  <description>of wig data</description>
+  <description>of BigWig data</description>
   <command interpreter="ruby1.9">extractRegions.rb -i $input -w $window -o $output</command>
   <inputs>
-		<param name="input" type="data" format="wig" label="Wig data" />
+		<param name="input" type="data" format="bigwig" label="BigWig data" />
 		<param name="window" type="data" format="bed" label="Windows to extract" />
   </inputs>
   <outputs>

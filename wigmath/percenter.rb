@@ -67,10 +67,12 @@ wig = BigWigFile.new(options[:input])
 
 # Number to normalize with (divide by)
 sum = if not options[:total].nil? and options[:total] > 0
-	options[:total]
+	options[:total].to_f
 else
-	wig.total.to_f
+	wig.total
 end
+
+puts "Normalizing by a factor of #{sum}"
 
 # Initialize the parallel computation manager
 parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
