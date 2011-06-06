@@ -25,6 +25,7 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'gff'
+require 'assembly'
 require 'pickled_optparse'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -59,5 +60,8 @@ end
 # Load the GFF data
 gff = GFF.load(options[:input])
 
+# Load the assembly
+assembly = Assembly.load(options[:genome])
+
 # Write the Wiggle format
-gff.to_wig(options[:output], options[:genome])
+gff.to_wig(options[:output], assembly)
