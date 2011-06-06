@@ -45,8 +45,8 @@ ARGV.options do |opts|
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
-  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
-  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
+  opts.on( '-r', '--range LOW:HIGH', :required, "Histogram range (bp)" ) { |s| options[:range] = s }
+  opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
 	opts.parse!
@@ -75,9 +75,6 @@ padding = 2 * high
 # Initialize the BigWig dyads file
 wig = BigWigFile.new(options[:input])
 
-# Load the genome assembly
-assembly = Assembly.load(options[:genome])
-
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
 
@@ -101,10 +98,11 @@ wig.chromosomes.each do |chr|
   
   chr_hist = Array.new(num_bins, 0)
   chunk_start = 1
-  chr_length = chr_length(chr)
+  chr_length = wig.chr_length(chr)
   while chunk_start < chr_length
     chunk_stop = [chunk_start+options[:step]-1, chr_length].min
-    
+    puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']    
+
     # Don't pad off the end of the chromosome
     query_start = [1, chunk_start-padding].max
     query_stop = [chunk_stop+padding, chr_length].min
@@ -114,7 +112,7 @@ wig.chromosomes.each do |chr|
     padding_right = query_stop - chunk_stop
     
     chunk = wig.query(chr, query_start, query_stop)
-    for bp in padding_left...-padding_right
+    for bp in padding_left...chunk.length-padding_right
       # Get the number of reads a certain distance away
       # Multiply by the number of reads at the current location
       for dist in low..high
