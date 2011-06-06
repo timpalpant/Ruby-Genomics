@@ -69,7 +69,7 @@ right_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.s
 n = left_max + right_max + 1
 alignment_point = left_max
 puts "Average will be computed for #{n} bases from #{-alignment_point} to #{n-alignment_point}" if ENV['DEBUG']
-indices = Vector[-alignment_point..n-alignment_point]
+indices = (-alignment_point..n-alignment_point).to_a
 
 puts "\nInitializing input files\n" if ENV['DEBUG']
 wigs = ARGV.map { |input_file| BigWigFile.new(input_file) }

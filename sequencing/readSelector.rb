@@ -28,8 +28,6 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'unix_file_utils'
-require 'gsl'
-include GSL
 
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -71,7 +69,7 @@ else
 	n = options[:num]
 end
 	  
-selected = Rng.alloc.choose(Vector[0...num_lines], n).sort
+selected = (0...num_lines).to_a.sample(n).sort
   
 output_line = current_reject = 0
 File.open(options[:output],'w') do |output|
