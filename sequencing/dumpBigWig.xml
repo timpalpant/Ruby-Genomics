@@ -1,0 +1,20 @@
+<tool id="DumpBigWig" name="Dump BigWig file" version="1.0.0">
+  <description>to column</description>
+  <command interpreter="ruby1.9">dumpBigWig.rb -i $input -o $output</command>
+  <inputs>
+		<param name="input" type="data" format="bigwig" label="BigWig data" />
+  </inputs>
+  <outputs>
+		<data name="output" format="tabular" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool requires input data in BigWig format.
+		
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>
