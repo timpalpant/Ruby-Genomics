@@ -28,7 +28,6 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bed'
-require 'macs'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -61,32 +60,32 @@ puts "Loading the list of alignment loci" if ENV['DEBUG']
 loci = Bed.load(options[:loci])
   
 puts "\nLoading binding sites" if ENV['DEBUG']
-bs = MACS.load(options[:input])
-  
-puts "\nMarking binding sites relative to alignment loci" if ENV['DEBUG']
-offsets = Array.new
-bs.each do |chr,sites|
-	sites.each do |site|
-		if not loci.include?(chr)
-			puts "Skipping binding site because no loci for {chr}" if ENV['DEBUG']
-			next
-		end
-		
-		selected_loci = loci[chr].select { |spot| spot.include?(site.summit) }
-			
-		if selected_loci.length > 0
-			selected_loci.each do |locus|
-				offset = site.summit - locus.value.to_i
-				offsets << [chr, locus, offset, site.tags]
-			end
-		end
-	end
-end
+bs = Bed.load(options[:input])
 
-puts "\nWriting relative binding sites to disk" if ENV['DEBUG']
-File.open(options[:output],'w') do |f|
-	f.puts "#Chromosome\tStart\tStop\tOffset\tTags"
-	offsets.each do |offset| 
-		f.puts "{offset[0]}\t#{offset[1].start}\t#{offset[1].stop}\t#{offset[2]}\t#{offset[3]}"
-	end
+puts "\nMarking binding sites relative to alignment loci" if ENV['DEBUG']
+File.open(options[:output], 'w') do |f|
+  f.puts "#Chromosome\tStart\tStop\tAlignment Point\tBinding Site\tRelative Binding Site"
+  
+  bs.each do |chr,sites|
+    if not loci.include?(chr)
+      puts "Skipping binding sites because no loci for #{chr}" if ENV['DEBUG']
+      next
+    end
+    
+    sites.each do |site|
+      selected_loci = loci[chr].select { |spot| spot.include?(site.summit) }
+        
+      if selected_loci.length > 0
+        selected_loci.each do |locus|
+          offset = if locus.watson?
+            site.value.to_i - locus.value.to_i
+          else
+            locus.value.to_i - site.value.to_i
+          end
+          
+          f.puts "#{chr}\t#{locus.start}\t#{locus.stop}\t#{locus.value.to_i}\t#{site.value.to_i}\t#{offset}
+        end
+      end
+    end
+  end
 end

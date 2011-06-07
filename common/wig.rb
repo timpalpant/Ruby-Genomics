@@ -334,7 +334,7 @@ class BigWigFile < AbstractWigFile
   # Return single-bp data from the specified region
   def query(chr, start, stop)
     # Don't query off the ends of chromosomes
-    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if start < 1 or stop > chr_length(chr)    
+    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)    
 
     # Allow Crick queries
     low = [start, stop].min

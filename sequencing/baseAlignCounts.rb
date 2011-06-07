@@ -79,15 +79,15 @@ end
 SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
 
 # Initialize the assembly to generate coverage on
-a = Assembly.load(options[:genome])
+assembly = Assembly.load(options[:genome])
 
 # Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tmpdir' => '/tmp'})
+pm = Parallel::ForkManager.new(options[:threads])
 
 # Callback to get the number of unmapped reads from each subprocess
 total_unmapped = 0
 pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
-  if data
+  if data and data.include?('output')
     total_unmapped += data['output']
   else
     puts "Number of unmapped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
@@ -149,7 +149,7 @@ assembly.each do |chr, chr_length|
 
       # Get the high and low read coordinates, and clamp to the ends of the chromosome
       low = [1, [entry.start, stop].min].max
-      high = [[entry.start, stop].max, wig[entry.chr].length].min
+      high = [[entry.start, stop].max, chr_length].min
       
       # Also clamp to the chunk
       low = [low-chunk_start, 0].max

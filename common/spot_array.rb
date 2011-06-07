@@ -103,14 +103,14 @@ class SpotArray < GenomicData
 					
 					# Add the spot data to the wig
 					for bp in low-1..high-1
-                                          values[bp] += spot.value
-                                          count[bp] += 1
-                                        end
+            values[bp] += spot.value
+            count[bp] += 1
+          end
 				end
 				
 				# Average spots that overlap (NaN where there isn't any data)
         for i in 0...values.length
-          values[i] /= count[i] unless count[i] == 0
+          values[i] /= count[i].to_f unless count[i] == 0
         end
 			
 				# Write to output file

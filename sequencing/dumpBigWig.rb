@@ -41,6 +41,10 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file (BigWig)" ) { |f| options[:input] = f }
+  options[:step] = 500_000
+  opts.on( '-s', '--step N', "Step size (default: 500,000bp)" ) { |n| options[:step] = n.to_i }
+  options[:threads] = 2
+  opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
 	# Parse the command-line arguments
@@ -84,9 +88,7 @@ wig.chromosomes.each do |chr|
     end
   end
   
-  # Send the number of unmapped reads on this chromosome back to the parent process
-  puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
-  pm.finish(0, {'output' => unmapped})
+  pm.finish(0)
 end
 
 
@@ -94,7 +96,7 @@ end
 pm.wait_all_children
 
 # Concatenate all of the individual chromosomes into the output file
-tmp_files = wig.chromosomes.map { |chr| tmp_files << (options[:output]+'.'+chr) }
+tmp_files = wig.chromosomes.map { |chr| options[:output]+'.'+chr }
 File.cat(tmp_files, options[:output])
 
 # Delete the individual chromosome files created by each process

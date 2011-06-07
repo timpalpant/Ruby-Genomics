@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		1F010BCF139C6CB3005AFE77 /* romanNumeralize.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = romanNumeralize.rb; sourceTree = "<group>"; };
+		1F010BD0139C6CB3005AFE77 /* romanNumeralize.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = romanNumeralize.xml; sourceTree = "<group>"; };
 		1F170BF31395C6BB00860C94 /* test.bam */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam; sourceTree = "<group>"; };
 		1F170BF41395C87C00860C94 /* test.bam.bai */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam.bai; sourceTree = "<group>"; };
 		1F26FF7F1399C62700CED327 /* distogram.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = distogram.rb; sourceTree = "<group>"; };
@@ -70,8 +72,6 @@
 		1FD61DE613909D530013355B /* bedToWig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = bedToWig.xml; sourceTree = "<group>"; };
 		1FD61DE713909D530013355B /* gffToWig.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = gffToWig.rb; sourceTree = "<group>"; };
 		1FD61DE813909D530013355B /* gffToWig.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gffToWig.xml; sourceTree = "<group>"; };
-		1FD61DE913909D530013355B /* sacCer1to2.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = sacCer1to2.rb; sourceTree = "<group>"; };
-		1FD61DEA13909D530013355B /* sacCer1to2.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = sacCer1to2.xml; sourceTree = "<group>"; };
 		1FD61DEB13909D530013355B /* Gemfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile; sourceTree = "<group>"; };
 		1FD61DEC13909D530013355B /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = "<group>"; };
 		1FD61DEF13909D530013355B /* subtract.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = subtract.rb; sourceTree = "<group>"; };
@@ -285,6 +285,8 @@
 		1FD61DE013909D530013355B /* dataprocessing */ = {
 			isa = PBXGroup;
 			children = (
+				1F010BCF139C6CB3005AFE77 /* romanNumeralize.rb */,
+				1F010BD0139C6CB3005AFE77 /* romanNumeralize.xml */,
 				1FD61DE113909D530013355B /* affyToBedGraph.rb */,
 				1FD61DE213909D530013355B /* affyToBedGraph.xml */,
 				1FD61DE313909D530013355B /* bedGraphToWig.rb */,
@@ -293,8 +295,6 @@
 				1FD61DE613909D530013355B /* bedToWig.xml */,
 				1FD61DE713909D530013355B /* gffToWig.rb */,
 				1FD61DE813909D530013355B /* gffToWig.xml */,
-				1FD61DE913909D530013355B /* sacCer1to2.rb */,
-				1FD61DEA13909D530013355B /* sacCer1to2.xml */,
 			);
 			path = dataprocessing;
 			sourceTree = "<group>";
