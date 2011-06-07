@@ -1,0 +1,16 @@
+<tool id="BigWigToWig" name="BigWig-to-Wig" version="1.0.2">
+  <description></description>
+  <command>bigWigToWig $input $output</command>
+  <inputs>
+		<param name="input" type="data" format="bigwig" label="Input BigWig file" />
+  </inputs>
+  <outputs>
+		<data name="output" format="wig" metadata_source="input" />
+  </outputs>
+  
+	<help>
+		.. class:: warningmark
+		
+		This tool was contributed by Timothy Palpant.
+	</help>
+</tool>
