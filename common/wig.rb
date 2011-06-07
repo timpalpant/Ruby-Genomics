@@ -184,12 +184,16 @@ class AbstractWigFile
   
   # The mean of all values
   def mean
-    raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+    total / num_values
   end
   
   # The standard deviation of all values
   def stdev(avg = self.mean)
-    raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+    chr_deviances = self.chunk_map(0) do |sum,chr,start,stop|
+      sum + query(chr,start,stop).map { |elem| (elem-avg)**2 }.sum
+    end
+    
+    Math.sqrt(chr_deviances.sum / num_values)
   end
   
   # Run a given block for each chromosome
@@ -302,10 +306,11 @@ class BigWigFile < AbstractWigFile
       @chromosomes[chr] = chr_size
     end
     
-    @mean = info[-4].chomp.split(':').last.to_f
+    # bigWigInfo doesn't calculate mean/stdev accurately enough when values are small (10^-7)
+    #@mean = info[-4].chomp.split(':').last.to_f
+    #@stdev = info[-1].chomp.split(':').last.to_f
     @min = info[-3].chomp.split(':').last.to_f
     @max = info[-2].chomp.split(':').last.to_f
-    @stdev = info[-1].chomp.split(':').last.to_f
   end
 
   # Return an array of all chromosomes in this WigFile file
@@ -355,14 +360,6 @@ class BigWigFile < AbstractWigFile
     high = [start, stop].max
 
     %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} 1 ].to_f
-  end
-  
-  def mean
-    @mean
-  end
-
-  def stdev(avg = mean)
-    @stdev
   end
   
   # Output a summary about this BigWigFile
@@ -503,20 +500,6 @@ class WigFile < AbstractWigFile
     values.reverse! if start > stop
     
     return values
-  end
-  
-  # The mean of all values
-  def mean
-    total / num_values
-  end
-  
-  # The standard deviation of all values
-  def stdev(avg = self.mean)
-    chr_deviances = self.chunk_map(0) do |sum,chr,start,stop|
-      sum + query(chr,start,stop).map { |elem| (elem-avg)**2 }.sum
-    end
-    
-    Math.sqrt(chr_deviances.sum / num_values)
   end
   
 	# Output a summary about this WigFile
