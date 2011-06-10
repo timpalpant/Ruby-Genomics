@@ -1,6 +1,6 @@
 <tool id="PeakRanger" name="PeakRanger" version="1.0.2">
   <description>peak caller</description>
-  <command intepreter="ruby1.9">peakRangerWrapper.rb -s $sample -c $control -o $output --nowig -t 4 -p $fdr -l $ext -r $delta -b $bandwidth</command>
+  <command interpreter="ruby1.9">peakRangerWrapper.rb -s $sample -c $control -o $output --nowig -t 4 -p $fdr -l $ext -r $delta -b $bandwidth</command>
   <inputs>
 		<param name="sample" type="data" format="bam" label="ChIP reads" />
     <param name="control" type="data" format="bam" label="Input control reads" />

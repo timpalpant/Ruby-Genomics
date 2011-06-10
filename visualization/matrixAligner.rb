@@ -45,6 +45,8 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file to align values (BigWig)" ) { |f| options[:input] = f }
   opts.on( '-l', '--loci FILE', :required, "List of loci to align to (Bed format)" ) { |f| options[:loci] = f }
+  #options[:threads] = 2
+  #opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
 	opts.on( '-m', '--max N', "Maximum allowed row length" ) { |n| options[:max] = n.to_i }
       

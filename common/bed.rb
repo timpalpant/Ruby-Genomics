@@ -52,7 +52,7 @@ class Bed < SpotArray
     end
 
     puts "Loaded #{spot_array.num_spots} entries" if ENV['DEBUG']
-		puts "Skipped #{skipped} invalid entries" if ENV['DEBUG'] and skipped > 0
+    puts "Skipped #{skipped} invalid entries" if ENV['DEBUG'] and skipped > 0
     
     return spot_array
   end

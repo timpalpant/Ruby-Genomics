@@ -62,8 +62,9 @@ ARGV.options do |opts|
 	end
   
   # Default output directory is the directory with the alignment loci
-  options[:output] = File.dirname(options[:loci]) if options[:output].nil?
-  
+  options[:output] = options[:loci] if options[:output].nil?
+  options[:output] = File.dirname(options[:output]) if File.file?(options[:output])  
+
   # Check that matrix2png is in the PATH
   raise "Cannot find executable: matrix2png in $PATH which is required to make heatmaps" if File.which('matrix2png').nil?
 end
@@ -103,7 +104,7 @@ puts "\nQueued #{loci_files.length} alignment loci file(s) to process:"
 loci_files.each_with_index { |f,i| puts "#{i+1}\t#{File.basename(f)}" }
 
 # Compute how many heatmaps we will be generating
-puts "Will be generating #{data_files.length * loci_files.length} heatmaps"
+puts "\nWill be generating #{data_files.length * loci_files.length} heatmaps"
 
 # Initialize the forkmanager for running in parallel
 pm = Parallel::ForkManager.new(options[:threads])
@@ -129,14 +130,16 @@ loci_files.each do |loci|
     
     # Align values in a matrix for a heatmap
     aligned_matrix = heatmap_dir + '/' + File.basename(input) + '.matrix'
-    %x[ ruby1.9 visualization/matrixAligner.rb -i -l -o ]
+    %x[ ruby1.9 visualization/matrixAligner.rb -i #{input} -l #{loci} -o #{aligned_matrix} ]
     
     # Generate a heatmap with matrix2png (must be on the PATH)
     heatmap = heatmap_dir + '/' + File.basename(File.basename(input, '.bw'), '.bigwig') + '.png'
-    %x[ matrix2png -data #{aligned_matrix} -range #{min}:#{max} -mincolor blue -maxcolor yellow -bkgcolor white -missingcolor gray -title "'#{File.basename(input)} aligned to #{File.basename(loci)} (+/- 500 bp)'" -b -s > #{heatmap} ]
+    %x[ matrix2png -data #{aligned_matrix} -range #{min}:#{max} -mincolor blue -maxcolor yellow -bkgcolor white -missingcolor gray -title "#{File.basename(input)} aligned to #{File.basename(loci)} (+/- 500 bp)" -b -s > #{heatmap} ]
     
     # Remove the aligned matrix unless we are keeping them
     File.delete(aligned_matrix) unless options[:keep]
+
+    pm.finish(0)
   end
 end
 
