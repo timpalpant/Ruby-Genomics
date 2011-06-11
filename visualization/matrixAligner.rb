@@ -63,6 +63,8 @@ end
 
 # Set to whatever empty matrix values should be (e.g. NaN, -, '', etc.)
 NA_PLACEHOLDER = '-'
+# Marker spacing in bp
+MARKER_SPACING = 200
 
 # Load the list of loci to align to
 loci = Bed.load(options[:loci])
@@ -149,6 +151,16 @@ puts "Writing aligned matrix to disk" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
 	# Write a header (required by matrix2png)
 	f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
+
+  # Add markers at the top
+  marker_line = Array.new(n, NA_PLACEHOLDER)
+  marker = alignment_point % MARKER_SPACING
+  while marker < n
+    marker_line[marker] = '1e30'
+    marker += MARKER_SPACING
+  end
+  marker_line ="Marker\t" +  marker_line.join("\t")
+  10.times { f.puts marker_line }
 	
   # Write them out to the matrix in the orginial order
 	File.foreach(options[:loci]) do |line|
@@ -158,4 +170,7 @@ File.open(options[:output],'w') do |f|
 		id = entry[3]
 		f.puts id + "\t" + output[id] if output.include?(id)
 	end
+
+  # Add markers at the bottom
+  10.times { f.puts marker_line }
 end

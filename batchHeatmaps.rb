@@ -115,7 +115,7 @@ pm = Parallel::ForkManager.new(options[:threads])
 ##
 
 loci_files.each do |loci|
-  puts "\nProcessing alignment loci #{File.basename(loci)}"
+  #puts "\nProcessing alignment loci #{File.basename(loci)}"
   
   # Make a directory for the output files with the same name as the loci file
   heatmap_dir = options[:output] + '/' + File.basename(loci, '.bed')
@@ -126,7 +126,7 @@ loci_files.each do |loci|
     # Run each heatmap job in a separate process
     pm.start and next
     
-    puts "\tdata file: #{File.basename(input)}"
+    puts "#{File.basename(input)} x #{File.basename(loci)}"
     
     # Align values in a matrix for a heatmap
     aligned_matrix = heatmap_dir + '/' + File.basename(input) + '.matrix'
