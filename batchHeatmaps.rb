@@ -130,7 +130,7 @@ loci_files.each do |loci|
     
     # Align values in a matrix for a heatmap
     aligned_matrix = heatmap_dir + '/' + File.basename(input) + '.matrix'
-    %x[ ruby1.9 visualization/matrixAligner.rb -i #{input} -l #{loci} -o #{aligned_matrix} ]
+    %x[ ruby1.9 visualization/matrixAligner.rb -m 4000 -i #{input} -l #{loci} -o #{aligned_matrix} ]
     
     # Generate a heatmap with matrix2png (must be on the PATH)
     heatmap = heatmap_dir + '/' + File.basename(File.basename(input, '.bw'), '.bigwig') + '.png'
