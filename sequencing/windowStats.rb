@@ -76,6 +76,6 @@ File.open(options[:output], 'w') do |f|
       next
     end
 
-    f.puts wigs.map { |wig| wig.query(spot.chr, spot.start, spot.stop).send(options[:stat]).join("\t")
+    f.puts wigs.map { |wig| wig.query(spot.chr, spot.start, spot.stop).send(options[:stat]) }.join("\t")
   end
 end

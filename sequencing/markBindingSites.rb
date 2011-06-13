@@ -28,6 +28,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bed'
+require 'macs'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -58,33 +59,37 @@ end
 
 puts "Loading the list of alignment loci" if ENV['DEBUG']
 loci = Bed.load(options[:loci])
+puts "#{loci.num_spots} alignment loci"
   
 puts "\nLoading binding sites" if ENV['DEBUG']
-bs = Bed.load(options[:input])
+bs = MACS.load(options[:input])
+puts "#{bs.num_spots} binding sites"
 
 puts "\nMarking binding sites relative to alignment loci" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|
-  f.puts "#Chromosome\tStart\tStop\tAlignment Point\tBinding Site\tRelative Binding Site"
+  f.puts "#Chromosome\tStart\tStop\tAlignment Point\tBinding Site\tRelative Binding Site\tTags"
   
   bs.each do |chr,sites|
     if not loci.include?(chr)
-      puts "Skipping binding sites because no loci for #{chr}" if ENV['DEBUG']
+      puts "Skipping binding sites because no loci for #{chr}"
       next
     end
     
     sites.each do |site|
       selected_loci = loci[chr].select { |spot| spot.include?(site.summit) }
-        
+  
       if selected_loci.length > 0
         selected_loci.each do |locus|
           offset = if locus.watson?
-            site.value.to_i - locus.value.to_i
+            site.summit - locus.value.to_i
           else
-            locus.value.to_i - site.value.to_i
+            locus.value.to_i - site.summit
           end
           
-          f.puts "#{chr}\t#{locus.start}\t#{locus.stop}\t#{locus.value.to_i}\t#{site.value.to_i}\t#{offset}
+          f.puts "#{chr}\t#{locus.start}\t#{locus.stop}\t#{locus.value.to_i}\t#{site.summit}\t#{offset}\t#{site.tags}"
         end
+      else
+        puts "No spots found for binding site (#{chr}#{site})" if ENV['DEBUG']
       end
     end
   end
