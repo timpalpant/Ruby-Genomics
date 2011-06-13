@@ -60,12 +60,21 @@ end
 ##
 class BedFile < AbstractBedFile
 	# Override each (line) to return each BedEntry
-	def self.foreach(filename)
-		File.foreach(File.expand_path(filename)) do |line|
-			# Skip comment and track lines
-			next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
-			yield BedEntry.parse(line)
-		end
+	def self.foreach(filename, chr = nil)
+    if chr.nil?
+      File.foreach(File.expand_path(filename)) do |line|
+        # Skip comment and track lines
+        next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
+        yield BedEntry.parse(line)
+      end
+    else
+      IO.popen("grep '#{chr}' #{File.expand_path(filename)}") do |output|
+        output.each do |line|
+          next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
+          yield BedEntry.parse(line)
+        end
+      end
+    end
 	end
 end
 
