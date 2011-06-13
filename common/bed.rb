@@ -32,28 +32,13 @@ class Bed < SpotArray
   def self.load(filename)
 		puts "Loading Bed file: #{File.basename(filename)}" if ENV['DEBUG']
     spot_array = self.new
-    skipped = 0
 		
-    File.foreach(File.expand_path(filename)) do |line|
-      # Ignore comment/empty lines
-      next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
-      
-      # Load spot lines
-			begin
-				entry = BedEntry.parse(line)
-			rescue BedError
-				puts "Invalid line: #{line}"
-				skipped += 1
-				next
-			end
-			
+    BedFile.foreach(filename) do |entry|
       spot_array[entry.chr] ||= Array.new
       spot_array[entry.chr] << entry
     end
 
     puts "Loaded #{spot_array.num_spots} entries" if ENV['DEBUG']
-		puts "Skipped #{skipped} invalid entries" if ENV['DEBUG'] and skipped > 0
-    
     return spot_array
   end
 end
@@ -61,7 +46,7 @@ end
 ##
 # Base class for all Bed files (BedFile / BigBedFile)
 ##
-class AbstractBedFile < File
+class AbstractBedFile
 end
 
 ##
@@ -78,7 +63,7 @@ class BedFile < AbstractBedFile
 	def self.foreach(filename)
 		File.foreach(File.expand_path(filename)) do |line|
 			# Skip comment and track lines
-			next if line.start_with?('#') or line.start_with?('track')
+			next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
 			yield BedEntry.parse(line)
 		end
 	end
