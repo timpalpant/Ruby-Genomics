@@ -346,7 +346,9 @@ class BigWigFile < AbstractWigFile
     high = [start, stop].max
 
     # Data is 0-indexed
-    values = %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} #{high-low+1} ].split(' ').map { |v| v.to_f }
+    result = %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} #{high-low+1} 2>&1 ]
+    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{low}-#{high}" if result.start_with?('no data in region')
+    values = result.split(' ').map { |v| v.to_f }
     values.reverse! if start > stop
     return values
   end

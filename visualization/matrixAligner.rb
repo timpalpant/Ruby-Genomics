@@ -130,7 +130,7 @@ loci.each do |chr,spots|
     n1 = alignment_point - (spot.value-spot.start).abs.to_i
     n2 = alignment_point + (spot.value-spot.stop).abs.to_i
     # length we are trying to insert should equal the length we are replacing
-    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, (#{chr},#{spot})" if values.length != (n2-n1+1)
       
     entry = Array.new(n, NA_PLACEHOLDER)
     entry[n1..n2] = values
@@ -153,9 +153,9 @@ File.open(options[:output],'w') do |f|
 	f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
 
   # Add markers at the top
-  marker_line = Array.new(n, NA_PLACEHOLDER)
+  marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
   marker = alignment_point % MARKER_SPACING
-  while marker < n
+  while marker < right_bound-left_bound+1
     marker_line[marker] = '1e30'
     marker += MARKER_SPACING
   end

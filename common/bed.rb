@@ -68,7 +68,7 @@ class BedFile < AbstractBedFile
         yield BedEntry.parse(line)
       end
     else
-      IO.popen("grep '#{chr}' #{File.expand_path(filename)}") do |output|
+      IO.popen("grep -w #{chr} #{File.expand_path(filename)}") do |output|
         output.each do |line|
           next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
           yield BedEntry.parse(line)

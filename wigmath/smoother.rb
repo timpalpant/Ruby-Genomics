@@ -27,7 +27,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'forkmanager'
+require 'parallelizer'
 require 'pickled_optparse'
 require 'fixed_precision'
 require 'wig'
