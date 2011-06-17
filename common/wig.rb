@@ -368,11 +368,11 @@ class BigWigFile < AbstractWigFile
   def to_s
     str = "BigWigFile: connected to file #{@data_file}\n"
     @chromosomes.each do |chr,chr_size|
-      str += "\tChromosome #{chr} (bases covered: #{chr_size})\n"
+      str += "\t#{chr} (bases covered: #{chr_size})\n"
     end
     
-    str += "Mean:\t#{@mean}\n"
-    str += "Standard deviation:\t#{@stdev}\n"
+    #str += "Mean:\t#{mean}\n"
+    #str += "Standard deviation:\t#{stdev}\n"
     str += "Min:\t#{@min}\n"
     str += "Max:\t#{@max}\n"
     

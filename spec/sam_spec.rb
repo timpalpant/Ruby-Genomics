@@ -94,40 +94,6 @@ describe SAMEntry do
 	end
 end
 
-describe SAM do
-	context "loading entries" do
-		before(:each) do
-			@test = SAM.load(TEST_SAM)
-		end
-		
-		it "has 69 entries" do
-			@test.values.flatten.length.should == 69
-		end
-		
-		it "has 43 single-end entries" do
-			@test.values.flatten.select { |entry| entry.single? }.length.should == 43
-		end
-		
-		it "has 26 paired-end entries" do
-			@test.values.flatten.select { |entry| entry.paired? }.length.should == 26
-		end
-				
-		it "should skip comment lines" do
-			@test.values.flatten.select { |entry| entry.qname.start_with?('@') }.length.should == 0
-		end
-	end
-	
-	context "loading reads" do
-		before(:each) do
-			@test = SAM.load_reads(TEST_SAM)
-		end
-		
-		it "has 56 reads" do
-			@test.values.flatten.length.should == 56
-		end
-	end
-end
-
 describe SAMFile do
 	context "iterating over entries" do
 		it "should correctly skip comment lines" do

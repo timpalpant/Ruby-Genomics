@@ -48,7 +48,7 @@ class SpotArray < GenomicData
     File.open(filename,'w') do |f|
       self.each do |chr,spots|
       	spots.each do |spot|
-      		f.puts "{chr}\t" + spot.to_gff
+      		f.puts "#{chr}\t" + spot.to_gff
       	end
       end
     end
@@ -59,7 +59,7 @@ class SpotArray < GenomicData
     File.open(filename,'w') do |f|
   		self.each do |chr,spots|
   			spots.each do |spot|
-  				f.puts "{chr}\t" + spot.to_bed
+  				f.puts "#{chr}\t" + spot.to_bed
   			end
   		end
   	end
@@ -70,7 +70,7 @@ class SpotArray < GenomicData
     File.open(filename,'w') do |f|
   		self.each do |chr,spots|
   			spots.each do |spot|
-  				f.puts "{chr}\t" + spot.to_bedGraph
+  				f.puts "#{chr}\t" + spot.to_bedGraph
   			end
   		end
   	end

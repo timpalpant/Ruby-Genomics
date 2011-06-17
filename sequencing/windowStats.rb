@@ -68,7 +68,7 @@ wigs = ARGV.map { |inputfile| BigWigFile.new(inputfile) }
 puts "\nComputing #{options[:stat]} for each window" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|
   basenames = ARGV.map { |inputfile| File.basename(inputfile) }
-  f.puts "#chr\tstart\tstop\t" + basenames.join("\t")
+  f.puts "#chr\tstart\tstop\tid\t" + basenames.join("\t")
 
   BedFile.foreach(options[:windows]) do |spot|
     unless wigs.map { |wig| wig.include?(spot.chr) }.all?
@@ -76,6 +76,16 @@ File.open(options[:output], 'w') do |f|
       next
     end
 
-    f.puts wigs.map { |wig| wig.query(spot.chr, spot.start, spot.stop).send(options[:stat]) }.join("\t")
+    values = wigs.map do |wig|
+      begin
+         value = wig.query(spot.chr, spot.start, spot.stop).send(options[:stat])
+      rescue GenomicIndexError
+         value = 'NaN'
+      end
+
+      value
+    end
+
+    f.puts "#{spot.chr}\t#{spot.to_bed}\t" + values.join("\t")
   end
 end

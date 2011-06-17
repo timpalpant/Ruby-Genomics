@@ -117,6 +117,6 @@ File.open(options[:output], 'w') do |f|
   avgs = totals.map { |w| w.map { |t| t / count } }
   
   basenames.each_with_index do |name,i|
-    puts "#{name}\t" + avgs[i].join("\t")
+    f.puts "#{name}\t" + avgs[i].join("\t")
   end
 end

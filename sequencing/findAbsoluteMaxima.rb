@@ -62,16 +62,14 @@ end
 loci = Bed.load(options[:loci])
   
 # Load the wig data
-data = WigFile.new(options[:input])
+wig = BigWigFile.new(options[:input])
   
 # Find the peak in each locus
 loci.each do |chr,spots|
-  chr_data = data.chr(chr)
-
-	spots.each do |spot|
+  spots.each do |spot|
     peak_base, peak_value = 0, 0
-    values = chr_data.bases(spot.low, spot.high)
-		for i in 0...values.length
+    values = wig.query(chr, spot.low, spot.high)
+    for i in 0...values.length
       if values[i] > peak_value
         peak_base = i
         peak_value = values[i]
@@ -79,7 +77,7 @@ loci.each do |chr,spots|
     end
     
     spot.value = spot.low + peak_base
-	end
+  end
 end
 
 # Write maxima to file

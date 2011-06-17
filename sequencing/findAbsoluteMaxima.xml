@@ -2,7 +2,7 @@
   <description>in windows</description>
   <command interpreter="ruby1.9">findAbsoluteMaxima.rb -i $input -l $window -o $output</command>
   <inputs>
-		<param name="input" type="data" format="wig" label="Wig data" />
+		<param name="input" type="data" format="bigwig" label="Wig data" />
 		<param name="window" type="data" format="bed" label="Windows to find maxima in" />
   </inputs>
   <outputs>
