@@ -1,88 +1,32 @@
 require 'bio'
 require 'genomic_data'
+require 'assembly'
 
 ##
-# Load an entire genome from a set of text files in a directory
+# Load an entire genome from a set of Fasta files in a directory
 # Loads the sequences as Bio::Sequence::NA
 ##
-class Genome < GenomicData
-  # Default genome assemblies for model organisms
-  YEAST_GENOME = 'sacCer2'
-  WORM_GENOME = 'notAvailable'
-	FLY_GENOME = 'dm3'
-  HUMAN_GENOME = 'notAvailable'
-	
-	# Resources directory
-	RESOURCES = File.expand_path(File.dirname(__FILE__) + '/../resources')
-	
-	# Genome fasta directory
-	GENOME_DIR = RESOURCES + '/genomes'
-	  
-  attr_reader :assembly
-	
-	# List the available genomes
-	def self.list
-		Dir.glob(GENOME_DIR + '/*').map { |g| File.basename(g)[0..-8] }
-	end
-	
-	# Return the default yeast genome (sacCer2)
-	def self.yeast
-		self.load(YEAST_GENOME)
-	end
-	
-  # Return the default worm genome
-  def self.worm
-    raise "The C. elegans (worm) genome is not available"
-    #self.load(WORM_GENOME)
-  end
-	
-	# Return the default fly genome
-	def self.fly
-		self.load(FLY_GENOME)
-	end
-  
-  # Return the default human genome
-  def self.human
-    raise "The H. sapiens (human) genome is not available"
-    #self.load(HUMAN_GENOME)
-  end
-	
-  
-	# Load a genome specified by name
-	def self.load(name)
-	  full_name = GENOME_DIR + '/' + name + '.genome'
-	  raise "Specified genome assembly does not exist in resources/genomes/*" unless File.exist?(full_name)
-	  
-	  genome = nil
-    File.open(full_name) do |f| 
-      genome = Marshal.load(f)
+class Genome < GenomicData	
+	# Load a genomic reference sequence from a fasta file, or a directory of fasta files
+  def initialize(filename)
+    expanded = File.expand_path(filename)
+    if File.file?(expanded)
+      Bio::FlatFile.foreach(Bio::FastaFormat, expanded) do |entry|
+        self[entry.definition] = entry.naseq
+      end
+    elsif File.directory?(expanded)
+      Dir.glob(expanded + '/*').each do |subfile|        
+        if File.file?(subfile)
+          Bio::FlatFile.foreach(Bio::FastaFormat, subfile) do |entry|
+            self[entry.definition] = entry.naseq
+          end
+        end
+      end
+    else
+      raise "Genome to load must be either a single Fasta file or a directory of Fasta files, one per chromosome"
     end
-    
-    return genome
-	end
-    
-	
-  # Create a new genome from a sequentially-numbered directory of Fasta files
-  def initialize(dir)
-		Dir.glob(GENOME_DIR + '/' + dir + '/*').each do |filename|
-	    puts "Initializing #{dir} genome"
-			
-			if File.file?(filename)
-    		# Load the genome data from fasta text files
-	      lines = File.readlines(filename)
-	      #header = lines.first.chomp
-	      #chr = header[4..-1]
-	      
-				# Get the chromosome from the filename
-				chr = File.basename(filename, '.raw')
-				
-				# Store as a BioRuby Nucleic Acid Sequence
-	      self[chr] = Bio::Sequence::NA.new(lines.join)
-        puts "#{chr}: #{filename} (#{self[chr].length} bases loaded)"
-	    end
-		end
 		
-		puts "Loaded #{self.length} chromosomes for assembly #{dir}"
+		puts "Loaded #{self.length} chromosomes (#{self.bases} base pairs) from #{File.basename(filename)}" if ENV['DEBUG']
 	end
 	
 	# Return the number of base pairs in the genome
@@ -90,6 +34,17 @@ class Genome < GenomicData
 	def bases
 		self.values.inject(0) { |length,chr| length + chr.length }
 	end
+  
+  # Reduce this genome to an Assembly object (just chromosome id's and their lengths)
+  def to_assembly(name)
+    a = Assembly.new(name, nil)
+    
+    self.each do |chr, seq|
+      a[chr] = seq.length
+    end
+    
+    return a
+  end
 
   def to_s
     str = "Genome #{@assembly.upcase}: containing #{self.bases} base pairs\n"

@@ -24,10 +24,29 @@ class Assembly < GenomicData
 	attr_reader :name, :len_file
 	
 	# Initialize a new assembly
-	def initialize(name, len_file)
+	def initialize(name, len_file = nil)
 		@name = name
     @len_file = len_file
 	end
+  
+  # Write this assembly file to disk in len format (chr_id \t num_bases)
+  def to_len(filename)
+    File.open(File.expand_path(filename), 'w') do |f|
+      self.each do |chr, chr_len|
+        f.puts "#{chr}\t#{chr_len}"
+      end
+    end
+  end
+  
+  # Summary info about this Assembly
+  def to_s
+    str = "Assembly: #{@name}"
+    self.each do |chr, chr_length|
+      str += "\n\t#{chr}: #{chr_length} bases"
+    end
+    
+    return str
+  end
 
 	# List the available assemblies
 	def self.list
