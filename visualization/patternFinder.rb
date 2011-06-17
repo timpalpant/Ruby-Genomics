@@ -62,6 +62,15 @@ end
 puts 'Loading the list of alignment loci' if ENV['DEBUG']
 loci = Bed.load(options[:loci])
 
+# Validation and default alignment points
+loci.each do |chr,spots|
+	spots.each do |spot|
+		spot.start = 1 if spot.start < 1
+		spot.stop = 1 if spot.stop < 1
+		spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
+	end
+end
+
 puts "\nComputing alignment dimensions\n" if ENV['DEBUG']
 left_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.start).abs }.max }.max.to_i
 right_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.stop).abs }.max }.max.to_i
