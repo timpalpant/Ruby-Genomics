@@ -100,5 +100,5 @@ parallelizer.run(wig, assembly) do |chr, chunk_start, chunk_stop|
   
   chunk = wig.query(chr, query_start, query_stop)
   smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
-  smoothed[padding_left...-padding_right]
+  smoothed[padding_left...-padding_right-1]
 end

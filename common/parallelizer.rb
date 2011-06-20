@@ -54,7 +54,7 @@ class WigComputationParallelizer < Parallelizer
       
       chunk_start = 1
       chr_length = wig.chr_length(chr)
-      while chunk_start < chr_length
+      while chunk_start <= chr_length
         chunk_stop = [chunk_start+@chunk_size-1, chr_length].min
         puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
         

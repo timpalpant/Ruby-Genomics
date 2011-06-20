@@ -194,4 +194,4 @@ File.delete(options[:input] + '.bai')
 # Convert the output to BigWig
 tmp = options[:output] + '.tmp'
 Wig.to_bigwig(options[:output], tmp, assembly)
-FileUtilsmove(tmp, options[:output])
+FileUtils.move(tmp, options[:output])

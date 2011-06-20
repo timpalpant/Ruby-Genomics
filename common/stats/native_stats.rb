@@ -51,19 +51,13 @@ module NativeStats
 		end
 		sorted[midpoint..-1].median
 	end
-  
-  # Struct to contain index-value pairs for index_sort
-	IndexValuePair = Struct.new(:index, :value)
 
 	# Sort an array and return the index (like in Matlab)
-	def index_sort
-		sorted_indices  = Array.new(self.length)
-		self.each_with_index do |elem,i|
-			sorted_indices[i] = IndexValuePair.new(i,elem)
-		end
+	def sort_index
+	  indices = (0...self.length).to_a
 		
-		# Sort by element but keep indices
-		sorted_indices.sort { |e1,e2| e1.value <=> e2.value }.map { |elem| elem.index }
+	  # Sort the indices by their element (but keep indices)
+	  indices.sort { |e1,e2| self[e1] <=> self[e2] }
 	end
 
 	def zscore

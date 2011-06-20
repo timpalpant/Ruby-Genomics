@@ -36,7 +36,7 @@ require 'math_utils'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -b normalizedOccupancy.wig -r absoluteReadCenters.wig -s smoothededReadCenters.wig -n 147 -o output.nukes"
+  opts.banner = "Usage: ruby #{__FILE__} -a dyads.bw -c smoothededDyads.bw -n 147 -o output.nukes"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -66,8 +66,8 @@ end
 half_nuke = options[:nuke] / 2
 
 # Initialize WigFile files
-absolute = WigFile.new(options[:absolute])
-smoothed = WigFile.new(options[:smoothed])
+absolute = BigWigFile.new(options[:absolute])
+smoothed = BigWigFile.new(options[:smoothed])
   
 # Validate that all files have the same chromosomes
 absolute.chromosomes.each do |chr_id|
@@ -77,6 +77,7 @@ end
 File.open(options[:output],'w') do |f|
   # Header line
   f.puts NukeCalls::HEADER
+
   # Iterate over all chromosomes
   absolute.chromosomes.each do |chr|
     # Load the chromosome
@@ -84,7 +85,7 @@ File.open(options[:output],'w') do |f|
     # Map nil values on the ends of chromosomes (from smoothing) to zero
     smoothed_chr = smoothed[chr].map { |value| value.nil? ? 0 : value }
 
-		smoothed_chr.sort_index.reverse.to_a.each do |i|
+    smoothed_chr.sort_index.reverse.each do |i|
       if smoothed_chr[i] > 0
         nuke = Nucleosome.new
         nuke.start = Math.max(0, i-half_nuke)
@@ -111,7 +112,7 @@ File.open(options[:output],'w') do |f|
           nuke.dyad_stdev = Math.sqrt(sum_of_squares.to_f / nuke.occupancy)
           
           # Write nucleosome to output
-          f.puts "{chr}\t#{nuke}"
+          f.puts "#{chr}\t#{nuke}"
           
           # Set 147bp (nuke size) surrounding current bp on either side to 0
           # This is the region in which another nuke cannot be called

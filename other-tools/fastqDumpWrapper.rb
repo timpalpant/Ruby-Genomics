@@ -27,6 +27,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'fileutils'
+require 'unix_file_utils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -58,12 +59,11 @@ output_dir = File.dirname(File.expand_path(options[:output]))
 
 # Call fastq-dump and swallow the output
 # Silence warnings
-output = %x[ fastq-dump -O #{output_dir} #{options[:input]} ]
+output = %x[ fastq-dump -SF -O #{output_dir} #{options[:input]} ]
 
 # Write the output (e.g. "Written 1293 spots")
 puts output
 
 # Move the output file of fastq-dump to the desired output file name
 # since fastq-dump only lets you specify the folder
-default_output_file = output_dir + '/' + File.basename(options[:input], '.sra') + '.fastq'
-FileUtils.move(default_output_file, options[:output])
+FileUtils.move(options[:input]+'.fastq', options[:output])

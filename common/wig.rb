@@ -7,6 +7,7 @@ require 'stats'
 require 'forkmanager'
 require 'genomic_data'
 require 'assembly'
+require 'stringio'
 
 ##
 # Shouldn't ever load a Wig file completely into memory, so just methods to convert and create Wig files
@@ -339,16 +340,25 @@ class BigWigFile < AbstractWigFile
   # Return single-bp data from the specified region
   def query(chr, start, stop)
     # Don't query off the ends of chromosomes
-    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)    
+    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)
 
     # Allow Crick queries
     low = [start, stop].min
     high = [start, stop].max
 
     # Data is 0-indexed
-    result = %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} #{high-low+1} 2>&1 ]
-    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{low}-#{high}" if result.start_with?('no data in region')
-    values = result.split(' ').map { |v| v.to_f }
+    # bigWigSummary segfaults if query is too big, so use nice bite-size chunks
+    query_start = low-1
+    result = StringIO.new
+    while query_start <= high-1
+      query_stop = [query_start+@@default_chunk_size-1, high-1].min
+      chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{query_stop-query_start+1} 2>&1 ]
+      raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
+      result << ' ' << chunk
+      query_start = query_stop + 1
+    end
+
+    values = result.string.split(' ').map { |v| v.to_f }
     values.reverse! if start > stop
     return values
   end

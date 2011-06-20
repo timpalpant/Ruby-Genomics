@@ -2,12 +2,12 @@
   <description>in an MNase experiment</description>
   <command interpreter="ruby1.9">callNukes.rb -a $dyads -c $smoothed -n $N -o $output</command>
   <inputs>
-      <param name="dyads" type="data" format="wig" label="Dyad counts" />
-      <param name="smoothed" type="data" format="wig" label="Smoothed dyad counts" />
+      <param name="dyads" type="data" format="bigwig" label="Dyad counts" />
+      <param name="smoothed" type="data" format="bigwig" label="Smoothed dyad counts" />
       <param name="N" type="integer" value="147" optional="true" label="Assumed nucleosome size" />
   </inputs>
   <outputs>
-      <data name="output" format="nukes" />
+      <data name="output" format="tabular" />
   </outputs>
   
 <help>
