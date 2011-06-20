@@ -67,63 +67,40 @@ end
 # Load the windows
 loci = Bed.load(options[:loci])
 
-# Initialize a wig file to hold the nucleosomes
-a = Assembly.load(options[:genome])
-wig = Wig.for_assembly(a)
-
 # Mark nucleosomes on the genome
-NukeCalls.load(options[:input]).each do |chr,nukes|
-	nukes.each do |nuke|
-		wig[chr][nuke.dyad-1] += 1
-	end
-end
+calls = NukeCalls.load(options[:input])
+
+# Pre-sort the nucleosome calls
+calls.each { |chr,spots| spots.sort! { |n1,n2| n1.dyad <=> n2.dyad } }
 
 direction = options[:reverse] ? 3 : 5
 puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
-no_chr = 0
+skipped = 0
 invalid_coordinates = 0
 loci.each do |chr,spots|
-	if not wig.chromosomes.include?(chr)
-		no_chr += 1
+	if not calls.chromosomes.include?(chr)
+		skipped += 1
 		loci.delete(chr)
 		next
 	end
 	
 	spots.each do |spot|
-		begin
-			values = wig[chr].bases(spot.start, spot.stop)
-		rescue GenomicIndexError
+    nukes_in_spot = calls[chr].select { |nuke| nuke.dyad >= spot.low and nuke.dyad <= spot.high }
+    if nukes_in_spot.length < 1
 			invalid_coordinates += 1
 			spots.delete(spot)
 			next
 		end
 		
-		# Reverse if searching from the 3' end
-		values.reverse! if options[:reverse]
+		# Reverse the nucleosome calls if searching from the 3' end
+		nukes_in_spot.reverse! if options[:reverse]
 		
-		for i in 0...values.length
-      if values[i] > 0
-        if options[:reverse]
-          if spot.watson?
-            spot.value = spot.stop - i
-					else
-            spot.value = spot.stop + i
-          end
-				else
-          if spot.watson?
-            spot.value = spot.start + i
-					else
-            spot.value = spot.start - i
-          end
-        end
-        
-        break
-      end
-    end
+    # Take the position of the first nucleosome
+    spot.value = nukes_in_spot.first.dyad
 	end
 end
 
-puts "No nucleosomes for #{no_chr} chromosome(s)" if no_chr > 0
+puts "No nucleosomes for #{skipped} chromosome(s)" if skipped > 0
 puts "No nucleosomes for #{invalid_coordinates} coordinate(s)" if invalid_coordinates > 0
 
 # Write to disk
