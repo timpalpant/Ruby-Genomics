@@ -1,7 +1,7 @@
 require 'genomic_interval'
 
 ##
-# A genomic "spot" with a value / an entry in a bedGraph file
+# A genomic interval with an associated value (such as a BedGraph entry)
 # i.e. for microarrays
 ##
 class Spot < GenomicInterval

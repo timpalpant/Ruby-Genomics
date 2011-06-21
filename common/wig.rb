@@ -381,8 +381,8 @@ class BigWigFile < AbstractWigFile
       str += "\t#{chr} (bases covered: #{chr_size})\n"
     end
     
-    #str += "Mean:\t#{mean}\n"
-    #str += "Standard deviation:\t#{stdev}\n"
+    str += "Mean:\t#{mean}\n"
+    str += "Standard deviation:\t#{stdev}\n"
     str += "Min:\t#{@min}\n"
     str += "Max:\t#{@max}\n"
     

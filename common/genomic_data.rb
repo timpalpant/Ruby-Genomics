@@ -1,10 +1,10 @@
 ##
 # Abstract class for all arrays of genomic information
 # stored by chromosome
-# Subclasses: SpotArray, NukeCalls, SAM, etc.
+# Subclasses: SpotArray, NukeCalls, SAM, Bed, BedGraph, etc.
 #
 # The structure is a Hash of chromosomes, with an array of 
-# spots/reads/chromosomal elements under each Hash
+# spots/reads/entries under each Hash
 ##
 class GenomicData < Hash
 	# Return all of the chromosomes in this genome
