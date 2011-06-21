@@ -66,21 +66,21 @@ end
 
 
 # Initialize the sequencing data
-wig = WigFile.new(options[:input])
+wig = BigWigFile.new(options[:input])
 
 # Store the mean spectral density
 total = Vector[(options[:padding]+1)*options[:window]/2]
 count = 0
 
 # Iterate over all the windows and compute the power spectrum
-wig.each do |chr,values|
+wig.chromosomes.each do |chr|
 	puts "Processing chromosome #{chr}" if ENV['DEBUG']
 	
-	bp = values.start
-	stop = values.start + values.length
+	bp = 1
+	stop = wig.chr_length(chr)
 	while bp + options[:window] < stop
 		# Demean
-		data = values.bases(bp, bp+options[:window]-1)
+		data = wig.query(chr, bp, bp+options[:window]-1).to_gslv
 		data -= data.mean
 		
 		# Pad with zeros
@@ -88,7 +88,7 @@ wig.each do |chr,values|
 		padded[0..data.length-1] = data
 		
 		# Compute the power spectrum and normalize
-		p = padded.power_spectrum
+		p = padded.power_spectrum.to_gslv
 		total_power = p.sum
 		p /= total_power unless total_power == 0
 		

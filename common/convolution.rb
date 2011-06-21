@@ -53,9 +53,3 @@ class Filter < Array
     return self.new(g.to_a)
   end
 end
-
-class Vector
-  def to_gslv
-    self
-  end
-end

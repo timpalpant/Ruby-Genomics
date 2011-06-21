@@ -63,41 +63,35 @@ end
 loci = Bed.load(options[:loci])
 
 # Initialize the sequencing data
-wig = WigFile.new(options[:input])
+wig = BigWigFile.new(options[:input])
 
 # Iterate over the list of windows
 # and compute the power spectrum for each
 crystal, bistable, other = 0, 0, 0
 loci.each do |chr,spots|
 	puts "chromosome #{chr}" if ENV['DEBUG']
-	# Load the data for the current chromosome from disk
-	begin
-		chr_data = wig.chr(chr)
-	rescue GenomicIndexError
-		next
-	end
-	
 	# Process the current chromosome
 	spots.each do |spot|
 		next if spot.length <= 1
 		
 		# Compute the power spectrum
 		begin
-			p = chr_data.bases(spot.start, spot.stop).power_spectrum
+			p = wig.query(chr, spot.start, spot.stop).power_spectrum
 		rescue GenomicIndexError
 			next
 		end
 		
 		# Normalize
-		p /= p.sum
+                total = p.sum
+                p.map! { |e| e / total }
 		
 		# Decide whether the window is crystal, bistable, or other
 		# based on definitions in Vaillant et al. 2010
 		sorted_indices = p.sort_index.reverse
-		sorted = p[sorted_indices]
+		sorted = sorted_indices.map { |i| p[i] }
 		
-		num_nukes = sorted_indices.to_v + 1
-		period = spot.length * num_nukes**-1
+		num_nukes = sorted_indices.map { |e| e + 1 }
+		period = num_nukes.map { |n| spot.length / n }
 		ratio = sorted[0] / sorted[1]
 		mean_period = (period[0]+period[1]) / 2
 		last_freq = [100, p.length-1].min
@@ -125,7 +119,7 @@ File.open(options[:output], 'w') do |f|
 	f.puts "ORF\tChromosome\tStart (+1 Nuc)\tStop (3' Nuc)\tL\tType\tPS1\tNumNuc1\tPeriod1\tPS2\tNumNuc2\tPeriod2\t\tPS values"
 	loci.each do |chr,spots|
 		spots.each do |spot|
-			f.puts "#{spot.id}\t{chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{spot.value}"
+			f.puts "#{spot.id}\t#{chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{spot.value}"
 		end
 	end
 end

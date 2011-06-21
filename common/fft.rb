@@ -79,4 +79,8 @@ end
 
 class Vector
   include FFT
+
+  def to_gslv
+    self
+  end
 end

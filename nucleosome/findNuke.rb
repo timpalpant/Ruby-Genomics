@@ -28,8 +28,6 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'assembly'
-require 'wig'
 require 'bed'
 require 'nucleosome'
 
@@ -45,8 +43,6 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file with nuke calls" ) { |f| options[:input] = f }
-  options[:genome] = 'sacCer2'
-  opts.on( '-g', '--genome ASSEMBLY', "Assembly to use (default: sacCer2)" ) { |g| options[:genome] = g }
   opts.on( '-l', '--loci FILE', :required, "Windows file to find +1 nucleosomes (Bed format)" ) { |f| options[:loci] = f }
   options[:reverse] = false
   opts.on( '-r', '--reverse', "Search from the 3' ends of windows (default: false)" ) { |b| options[:reverse] = b }  
@@ -91,13 +87,23 @@ loci.each do |chr,spots|
 			spots.delete(spot)
 			next
 		end
-		
-		# Reverse the nucleosome calls if searching from the 3' end
-		nukes_in_spot.reverse! if options[:reverse]
-		
+
+
     # Take the position of the first nucleosome
-    spot.value = nukes_in_spot.first.dyad
-	end
+    spot.value = if options[:reverse]
+      if spot.watson?
+        nukes_in_spot.last.dyad
+      else
+        nukes_in_spot.first.dyad
+      end
+    else
+      if spot.watson?
+        nukes_in_spot.first.dyad
+      else
+        nukes_in_spot.last.dyad
+      end
+    end
+  end
 end
 
 puts "No nucleosomes for #{skipped} chromosome(s)" if skipped > 0

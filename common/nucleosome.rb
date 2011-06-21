@@ -47,7 +47,7 @@ class NukeCalls < GenomicData
     calls = self.new
     
     NukeCallsFile.foreach(filename) do |nuke|
-      calls[nuke.chr] ||= Array.nwe
+      calls[nuke.chr] ||= Array.new
       calls[nuke.chr] << nuke
     end
     

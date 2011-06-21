@@ -1,6 +1,6 @@
 <tool id="FindNuke" name="Find +1 nucleosomes" version="1.0.0">
   <description>in windows</description>
-  <command interpreter="ruby1.9">findNuke.rb -i $input -g $dbkey -l $loci $reverse -o $output</command>
+  <command interpreter="ruby1.9">findNuke.rb -i $input -l $loci $reverse -o $output</command>
   <inputs>
 		<param name="input" type="data" format="nukes" label="Nucleosome calls" />
 		<param name="loci" type="data" format="bed" label="List of intervals" />
