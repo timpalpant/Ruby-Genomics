@@ -8,6 +8,11 @@ require 'wig'
 # A GenomicData with values for each Spot, i.e. a micrarray dataset
 ##
 class SpotArray < GenomicData
+
+  ##
+  # STATISTICAL METHODS
+  ##
+
 	# The total number of spots in this SpotArray
   def num_spots
     self.collect { |chr_id,spots| spots.length }.sum
@@ -27,97 +32,43 @@ class SpotArray < GenomicData
 	def stdev(mean = self.mean)
 		self.map { |chr_id,spots| spots.map { |spot| (spot.value-mean)**2 }.sum }.sum / num_spots
 	end
-  
-	# Override Array#uniq, taking the median value of replicate spots
-	# TODO: override Array#uniq!
-	def uniq
-		uniq_spots = self.inject({}) do |hash, spot| 
-		  hash[spot] ||= []
-		  hash[spot] << spot.value
-		  hash
-		end
-		
-		uniq_spots.inject(SpotArray.new) do |spots, spot| 
-			spot.first.value = spot.last.median
-		  spots << spot.first
-		end
-	end
 	
-	# Write this array to GFF
-	def to_gff(filename)
-    File.open(filename,'w') do |f|
-      self.each do |chr,spots|
-      	spots.each do |spot|
-      		f.puts "#{chr}\t" + spot.to_gff
-      	end
-      end
-    end
-	end
+	##
+	# QUERY METHODS
+	##
 	
-	#  Write this array to bed format
-	def to_bed(filename)
-    File.open(filename,'w') do |f|
-  		self.each do |chr,spots|
-  			spots.each do |spot|
-  				f.puts "#{chr}\t" + spot.to_bed
-  			end
-  		end
-  	end
-	end
-	
-	#  Write this array to bedGraph format
-	def to_bedGraph(filename)
-    File.open(filename,'w') do |f|
-  		self.each do |chr,spots|
-  			spots.each do |spot|
-  				f.puts "#{chr}\t" + spot.to_bedGraph
-  			end
-  		end
-  	end
-	end
-	
-	# Write this array to Wig format
-	# Construct a Wig that is the data from all spots
-	# averaged, if multiple spots cover a given base
-	def to_wig(filename, assembly = Assembly.yeast)		
-		# Iterate over each chromosome, mapping all spots and averaging
-		File.open(filename,'w') do |f|
-			# TODO: should be rewritten to intelligently use step size
-      f.puts Wig.track_header(@name, @description) 
-			
-			self.each do |chr,spots|
-				# Skip if this chromosome is not in the specified assembly
-				next unless assembly.include?(chr)
-				
-				# Allocate space for the new Wig chromosomes
-				values = Chromosome.new(assembly[chr])
-				count = Chromosome.new(assembly[chr])
-				
-				spots.each do |spot|
-					# Get the high and low spot coordinates, and clamp to the ends of the chromosome
-					low = [1, spot.low].max
-					high = [spot.high, values.length].min
-					
-					# Skip if the spot is completely outside of the chromosome
-					next if low >= high
-					
-					# Add the spot data to the wig
-					for bp in low-1..high-1
-            values[bp] += spot.value
-            count[bp] += 1
-          end
-				end
-				
-				# Average spots that overlap (NaN where there isn't any data)
-        for i in 0...values.length
-          values[i] /= count[i].to_f unless count[i] == 0
-        end
-			
-				# Write to output file
-				f.puts Wig.fixed_step(chr, values)
-        f.puts values
-			end
-    end
+	# Return values for the given window, with single-bp resolution (even if inferred)
+	def query(chr, start, stop)
+	  low = [start, stop].min
+	  high = [start, stop].max
+	  length = high - low + 1
+	  
+	  total = Array.new(length, 0)
+	  count = Array.new(length, 0)
+	  
+	  self[chr].select { |spot| spot.high >= low and spot.low <= high }.each do |spot|
+			# Get the high and low spot coordinates, and clamp to the ends of the window
+			low = [low, spot.low].max
+			high = [spot.high, high].min
+	  
+	    for bp in spot.low..spot.high
+	      total[bp-low] += spot.value unless spot.value.nil?
+	      count[bp-low] += 1
+	    end
+	  end
+	  
+	  # Map base pairs without data to nil, and take the mean of overlapping probes
+	  med = Array.new(length) do |i|
+	    if count[i] > 0
+	      total[i].to_f / count[i]
+	    else
+	      nil
+	    end
+	  end
+	  
+	  # Allow Crick querying
+	  med.reverse! if start > stop
+	  return med
 	end
 				
 	# Return a value for the given location
@@ -127,12 +78,72 @@ class SpotArray < GenomicData
 		# If only one spot covers the given location, return its value
 		if spots.length == 1
 			return spots.first.value
-		# If multiple spots cover the location, return their average
+		# If multiple spots cover the location, return their median
 		elsif spots.length > 1
-			return spots.collect { |spot| spot.value }.mean
+			return spots.collect { |spot| spot.value }.median
 		# Otherwise return nil
 		else
 			return nil
 		end
+	end
+  
+  ##
+  # OUTPUT-TO-DISK METHODS
+  ##
+	
+	# Write this array to GFF
+	def to_gff(filename)
+    self.to_disk(filename) do |chr,spot|
+      "#{chr}\t" + spot.to_gff
+    end
+	end
+	
+	#  Write this array to bed format
+	def to_bed(filename)
+    self.to_disk(filename) do |chr,spot|
+      "#{chr}\t" + spot.to_bed
+    end
+	end
+	
+	#  Write this array to bedGraph format
+	def to_bedGraph(filename)
+    self.to_disk(filename) do |chr,spot|
+      "#{chr}\t" + spot.to_bedGraph
+    end
+	end
+	
+	# Write this array to Wig format
+	# Construct a Wig that is the data from all spots
+	# averaged, if multiple spots cover a given base
+	def to_wig(filename, assembly)		
+		# Iterate over each chromosome, mapping all spots and averaging
+		File.open(filename,'w') do |f|
+			# TODO: should be rewritten to intelligently use step size
+      f.puts Wig.track_header(@name, @description) 
+			
+			self.chromosomes.each do |chr|
+				# Skip if this chromosome is not in the specified assembly
+				next unless assembly.include?(chr)
+				
+				# Allocate space for the new Wig chromosomes
+				values = query(chr, 1, assembly[chr]).to_chr(1, 1, 1)
+			
+				# Write to output file
+				f.puts Wig.fixed_step(chr, values)
+        f.puts values
+			end
+    end
+	end
+	
+	private
+	
+	def to_disk(filename)
+	  File.open(File.expand_path(filename), 'w') do |f|
+      self.each do |chr,spots|
+      	spots.each do |spot|
+      		f.puts yield(chr, spot)
+      	end
+      end
+    end
 	end
 end
