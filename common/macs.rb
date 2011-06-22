@@ -24,7 +24,7 @@ class MACSEntry < Spot
     return spot
 	end
   
-  dev fold_enrichment
+  def fold_enrichment
     @value
   end
 end
