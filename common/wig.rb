@@ -410,27 +410,11 @@ class WigFile < AbstractWigFile
   def chromosomes
     @index.keys
   end
-<<<<<<< HEAD
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		@index.include?(chr_id)
-	end
-=======
   
   # Does this Wig file include data for chromosome chr?
   def include?(chr_id)
     @index.include?(chr_id)
   end
-    
-  # Load data from disk and return a Vector of values for a given chromosome
-  def chr(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
-  
-    # Call tail and head to get the appropriate lines from the Wig
-    return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
-  end
->>>>>>> 92c234fa0b5b013818a80c781a07dcb24862f229
   
   # Get the starting line for a chromosome
   def chr_start(chr_id)
