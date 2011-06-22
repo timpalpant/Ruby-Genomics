@@ -40,27 +40,27 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input matrix (aligned)" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output matrix (stripped)" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Iterate over the lines in the input matrix, stripping column/row headers
 line_num = 1
 File.open(options[:output],'w') do |out|
-	File.foreach(options[:input]) do |line|
-		entry = line.chomp.split("\t")
-		# Also replace -'s with NaN's for Matlab
-		out.puts entry[1..-1].map { |v| (v=='-') ? 'NaN' : v }.join("\t") unless line_num == 1 or entry.first.start_with?('MARKER')
-		
-		line_num += 1
-		puts line_num if line_num % 1_000 == 0 and ENV['DEBUG']
-	end
+  File.foreach(options[:input]) do |line|
+    entry = line.chomp.split("\t")
+    # Also replace -'s with NaN's for Matlab
+    out.puts entry[1..-1].map { |v| (v=='-') ? 'NaN' : v }.join("\t") unless line_num == 1 or entry.first.start_with?('MARKER')
+    
+    line_num += 1
+    puts line_num if line_num % 1_000 == 0 and ENV['DEBUG']
+  end
 end

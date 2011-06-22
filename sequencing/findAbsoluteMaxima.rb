@@ -4,7 +4,7 @@
 #   Finds the absolute maximum in a list of windows
 #
 # == Usage 
-#  	Finds the peak in the list of ORFS in orfs.bed for the data file data.wig
+#   Finds the peak in the list of ORFS in orfs.bed for the data file data.wig
 #
 #   findMaxima.rb -i data.wig -l orfs.bed -o orfs-peaks.txt
 #
@@ -46,15 +46,15 @@ ARGV.options do |opts|
   opts.on( '-l', '--loci FILE', :required, "Loci to search for peaks in (Bed format)" ) { |f| options[:loci] = f }
   opts.on( '-o', '--output FILE', :required, "Output file (Loci + peak locations)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 

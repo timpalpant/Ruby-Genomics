@@ -13,16 +13,16 @@ require 'gsl'
 include GSL
 
 module Math
-	# Convolve Arrays a and b
-	def self.convolve(a,b)
+  # Convolve Arrays a and b
+  def self.convolve(a,b)
     raise 'Cannot convolve Arrays of unequal length!' if a.length != b.length
   
     # Convolution is multiplication in frequency space
     v1 = a.to_gslv.fft
     v2 = b.to_gslv.fft
  
-		return (v1 * v2).ifft.to_complex.fftshift.real.to_a
-	end
+    return (v1 * v2).ifft.to_complex.fftshift.real.to_a
+  end
   
   # Should only be used if computing a gaussian a few times,
   # otherwise, the filter should be Fourier transformed once
@@ -36,7 +36,7 @@ module Math
     
     # Convolve the array with the Gaussian filter
     convolve(a, padded)
-	end
+  end
 end
 
 class Filter < Array

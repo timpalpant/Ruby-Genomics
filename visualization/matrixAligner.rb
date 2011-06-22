@@ -16,7 +16,7 @@
 #   -i, --input         Input file to align values (BigWig)
 #   -l, --loci          List of loci to align to (chromosome  start  stop  id   alignmentBase)
 #   -o, --output        Output file (matrix with dimensions #(loci) x max(stop-start)
-#		-m, --max						Maximum allowed length for a row (entries outside this value will be truncated)
+#   -m, --max           Maximum allowed length for a row (entries outside this value will be truncated)
 #
 # == Author
 #   Timothy Palpant
@@ -48,17 +48,17 @@ ARGV.options do |opts|
   #options[:threads] = 2
   #opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
-	opts.on( '-m', '--max N', "Maximum allowed row length" ) { |n| options[:max] = n.to_i }
+  opts.on( '-m', '--max N', "Maximum allowed row length" ) { |n| options[:max] = n.to_i }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Set to whatever empty matrix values should be (e.g. NaN, -, '', etc.)
@@ -71,11 +71,11 @@ loci = BedFile.load(options[:loci])
 
 # Validation and default alignment points
 loci.each do |chr,spots|
-	spots.each do |spot|
-		spot.start = 1 if spot.start < 1
-		spot.stop = 1 if spot.stop < 1
-		spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
-	end
+  spots.each do |spot|
+    spot.start = 1 if spot.start < 1
+    spot.stop = 1 if spot.stop < 1
+    spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
+  end
 end
 
 m = loci.num_spots
@@ -88,22 +88,22 @@ puts "Intervals aligned into: #{m}x#{n} matrix"
 left_bound = 0
 right_bound = n-1
 if not options[:max].nil? and options[:max] < n
-	puts "Truncated to #{m}x#{options[:max]}"
-	left_align_distance = alignment_point
-	right_align_distance = n - alignment_point - 1
-	half_max = options[:max] / 2
-	
-	# If there enough room to center the alignment point within the cutoff row length, do that
-	if half_max < left_align_distance and half_max < right_align_distance
-		left_bound = alignment_point - half_max
-		right_bound = alignment_point + half_max
-	else
-		if left_align_distance <= right_align_distance
-			right_bound = options[:max]
-		else
-			left_bound = n - options[:max]
-		end
-	end
+  puts "Truncated to #{m}x#{options[:max]}"
+  left_align_distance = alignment_point
+  right_align_distance = n - alignment_point - 1
+  half_max = options[:max] / 2
+  
+  # If there enough room to center the alignment point within the cutoff row length, do that
+  if half_max < left_align_distance and half_max < right_align_distance
+    left_bound = alignment_point - half_max
+    right_bound = alignment_point + half_max
+  else
+    if left_align_distance <= right_align_distance
+      right_bound = options[:max]
+    else
+      left_bound = n - options[:max]
+    end
+  end
 end
 
 
@@ -149,8 +149,8 @@ puts "#{skipped} spots skipped" if ENV['DEBUG']
 # Write to disk in the original Bed entry order
 puts "Writing aligned matrix to disk" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
-	# Write a header (required by matrix2png)
-	f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
+  # Write a header (required by matrix2png)
+  f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
 
   # Add markers at the top
   marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
@@ -161,15 +161,15 @@ File.open(options[:output],'w') do |f|
   end
   marker_line ="Marker\t" +  marker_line.join("\t")
   10.times { f.puts marker_line }
-	
+  
   # Write them out to the matrix in the orginial order
-	File.foreach(options[:loci]) do |line|
-		next if line.start_with?('#')
-		entry = line.chomp.split("\t")
-		next if entry.length < 4
-		id = entry[3]
-		f.puts id + "\t" + output[id] if output.include?(id)
-	end
+  File.foreach(options[:loci]) do |line|
+    next if line.start_with?('#')
+    entry = line.chomp.split("\t")
+    next if entry.length < 4
+    id = entry[3]
+    f.puts id + "\t" + output[id] if output.include?(id)
+  end
 
   # Add markers at the bottom
   10.times { f.puts marker_line }

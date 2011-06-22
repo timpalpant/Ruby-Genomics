@@ -2,20 +2,20 @@
   <description>peak caller</description>
   <command interpreter="ruby1.9">peakRangerWrapper.rb -s $sample -c $control -o $output --nowig -t 4 -p $fdr -l $ext -r $delta -b $bandwidth</command>
   <inputs>
-		<param name="sample" type="data" format="bam" label="ChIP reads" />
+    <param name="sample" type="data" format="bam" label="ChIP reads" />
     <param name="control" type="data" format="bam" label="Input control reads" />
-		<param name="fdr" type="float" value="1e-4" label="FDR cutoff" />
+    <param name="fdr" type="float" value="1e-4" label="FDR cutoff" />
     <param name="ext" type="integer" value="200" label="Read extension length" />
     <param name="bandwidth" type="integer" value="99" label="Bandwidth" />
     <param name="delta" type="float" value="0.8" label="Delta (must be in the range (0,1))" />
   </inputs>
   <outputs>
-		<data name="output" format="tabular" />
+    <data name="output" format="tabular" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

@@ -14,21 +14,21 @@ require 'stringio'
 class Wig
   # Make a Wig track header with the given name and description
   def self.track_header(name = '', description = '')
-  	"track type=wiggle_0 name=\"#{name}\" description=\"#{description}\" autoScale=\"off\" visibility=\"full\""
+    "track type=wiggle_0 name=\"#{name}\" description=\"#{description}\" autoScale=\"off\" visibility=\"full\""
   end
   
   # Make a Wig fixedStep chromosome header for the given ID and Chromosome
   def self.fixed_step(chr_id, chr = nil)
-  	str = "fixedStep chrom=#{chr_id}"
-  	
-  	# fixedStep parameters
-  	unless chr.nil?
-  	  str << " start=#{chr.start}" if chr.start
-  	  str << " step=#{chr.step}" if chr.step
-	    str << " span=#{chr.span}" if chr.span
-  	end
-  	
-  	return str
+    str = "fixedStep chrom=#{chr_id}"
+    
+    # fixedStep parameters
+    unless chr.nil?
+      str << " start=#{chr.start}" if chr.start
+      str << " step=#{chr.step}" if chr.step
+      str << " span=#{chr.span}" if chr.span
+    end
+    
+    return str
   end
 
   # For converting wigs to BigWigs without having to load (index them) first
@@ -132,18 +132,18 @@ class AbstractWigFile
   def chromosomes
     raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
   end
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
-	end
+  
+  # Does this Wig file include data for chromosome chr?
+  def include?(chr_id)
+    raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+  end
   
   # Enumerate over the chromosomes in this Wig file
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def each
     self.chromosomes.each do |chr_id| 
-			yield [chr_id, chr(chr_id)]
-		end
+      yield [chr_id, chr(chr_id)]
+    end
   end
   
   # Allow indexing Wig files like GenomicDatas and returning entire chromosomes
@@ -317,11 +317,11 @@ class BigWigFile < AbstractWigFile
   def chromosomes
     @chromosomes.keys
   end
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		@chromosomes.include?(chr_id)
-	end
+  
+  # Does this Wig file include data for chromosome chr?
+  def include?(chr_id)
+    @chromosomes.include?(chr_id)
+  end
   
   # Load data from disk and return a Vector of values for a given chromosome
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
@@ -418,9 +418,9 @@ class WigFile < AbstractWigFile
     # Call grep to load the chromosome information:
     # Store hash of what chromosomes are available and what line they start at
     @index = Hash.new
-		
-		# Find chromosome header lines and index (ghetto B-tree index)
-		puts 'Indexing chromosome header lines' if ENV['DEBUG']
+    
+    # Find chromosome header lines and index (ghetto B-tree index)
+    puts 'Indexing chromosome header lines' if ENV['DEBUG']
     File.grep_with_linenum(@data_file, 'chrom').each do |line|
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
@@ -438,20 +438,20 @@ class WigFile < AbstractWigFile
         end
       end
     end
-	
-		# Raise an error if no chromosomes were found
-		raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
+  
+    # Raise an error if no chromosomes were found
+    raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
   end
   
   # Return an array of all chromosomes in this WigFile file
   def chromosomes
     @index.keys
   end
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		@index.include?(chr_id)
-	end
+  
+  # Does this Wig file include data for chromosome chr?
+  def include?(chr_id)
+    @index.include?(chr_id)
+  end
     
   # Load data from disk and return a Vector of values for a given chromosome
   def chr(chr_id)
@@ -512,7 +512,7 @@ class WigFile < AbstractWigFile
     return parsed
   end
   
-	# Output a summary about this WigFile
+  # Output a summary about this WigFile
   def to_s
     str = "WigFile: connected to file #{@data_file}\n"
     @index.each do |chr,line|

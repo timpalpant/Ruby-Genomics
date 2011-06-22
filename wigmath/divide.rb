@@ -50,15 +50,15 @@ ARGV.options do |opts|
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Initialize WigFile files

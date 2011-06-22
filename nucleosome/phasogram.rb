@@ -48,15 +48,15 @@ ARGV.options do |opts|
   opts.on( '-r', '--range LOW:HIGH', :required, "Histogram range (bp)" ) { |s| options[:range] = s }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -94,7 +94,7 @@ wig.chromosomes.each do |chr|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
   
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   
   chr_hist = Array.new(num_bins, 0)
   chunk_start = 1

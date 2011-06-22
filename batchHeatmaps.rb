@@ -51,15 +51,15 @@ ARGV.options do |opts|
   opts.on( '-r', '--range MIN:MAX', "Range to use for heatmaps (default: -3:3)" ) { |s| options[:range] = s }
   opts.on( '-o', '--output DIR', "Output directory (default: loci directory)" ) { |f| options[:output] = File.expand_path(f) }
   
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
   
   # Default output directory is the directory with the alignment loci
   options[:output] = options[:loci] if options[:output].nil?

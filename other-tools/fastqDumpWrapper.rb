@@ -12,7 +12,7 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input					Input SRA archive
+#   -i, --input         Input SRA archive
 #   -o, --output        Output FASTQ reads
 #
 # == Author
@@ -40,18 +40,18 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-	opts.on( '-i', '--input FILE', :required, "Input SRA archive" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input SRA archive" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output FASTQ sequences" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Get the base directory of the output file

@@ -2,8 +2,8 @@
 
 # == Synopsis 
 #   Find patterns in sequencing files by averaging the values in a list of Bed windows
-#		Essentially matrixAligner, but keep only the average value and not the whole matrix	
-#		Can also average multiple files at once to the same loci
+#   Essentially matrixAligner, but keep only the average value and not the whole matrix 
+#   Can also average multiple files at once to the same loci
 #
 # == Usage 
 #   Average readcount.wig to loci specified in TSS.bed and output
@@ -45,16 +45,16 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-l', '--loci FILE', :required, "List of loci to align to (Bed format)" ) { |f| options[:loci] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
-  	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches? or ARGV.length < 1
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+    
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches? or ARGV.length < 1
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -64,11 +64,11 @@ loci = BedFile.load(options[:loci])
 
 # Validation and default alignment points
 loci.each do |chr,spots|
-	spots.each do |spot|
-		spot.start = 1 if spot.start < 1
-		spot.stop = 1 if spot.stop < 1
-		spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
-	end
+  spots.each do |spot|
+    spot.start = 1 if spot.start < 1
+    spot.stop = 1 if spot.stop < 1
+    spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
+  end
 end
 
 puts "\nComputing alignment dimensions\n" if ENV['DEBUG']
@@ -86,44 +86,44 @@ wigs = ARGV.map { |input_file| BigWigFile.new(input_file) }
 puts "\nBeginning averaging\n" if ENV['DEBUG']
 averages = Array.new
 wigs.each do |wig|
-	# Align and average values from all loci
-	puts "\nAveraging values for: #{File.basename(wig.data_file)}" if ENV['DEBUG']
-	sum = Array.new(n, 0)
-	count = Array.new(n, 0)
-	loci.each do |chr,spots|
-		spots.each do |spot|
-			begin
-				values = wig.query(chr, spot.start, spot.stop)
-			rescue GenomicIndexError
-				next
-			end
-		  
-		  # Locus alignment point (spot.value) should be positioned over
-		  # the matrix alignment point (alignment_point)
-		  n1 = alignment_point - (spot.value - spot.start).abs.to_i
-		  n2 = alignment_point + (spot.value - spot.stop).abs.to_i
-		  # length we are trying to insert should equal the length we are replacing
-			raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
-		
-		  # Add values to the sum and add one to the count for those bases
+  # Align and average values from all loci
+  puts "\nAveraging values for: #{File.basename(wig.data_file)}" if ENV['DEBUG']
+  sum = Array.new(n, 0)
+  count = Array.new(n, 0)
+  loci.each do |chr,spots|
+    spots.each do |spot|
+      begin
+        values = wig.query(chr, spot.start, spot.stop)
+      rescue GenomicIndexError
+        next
+      end
+      
+      # Locus alignment point (spot.value) should be positioned over
+      # the matrix alignment point (alignment_point)
+      n1 = alignment_point - (spot.value - spot.start).abs.to_i
+      n2 = alignment_point + (spot.value - spot.stop).abs.to_i
+      # length we are trying to insert should equal the length we are replacing
+      raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+    
+      # Add values to the sum and add one to the count for those bases
       for bp in n1..n2
         sum[bp] += values[bp-n1]
         count[bp] += 1
       end
-		end
-	end
+    end
+  end
 
-	puts 'Computing average' if ENV['DEBUG']
+  puts 'Computing average' if ENV['DEBUG']
   avg = Array.new(sum.length, 'NaN')
   for i in 0...sum.length
     avg[i] = sum[i] / count[i] unless count[i] == 0
   end
-	averages << avg
+  averages << avg
 end
 
 puts 'Writing averages to disk' if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
-	for i in 0...averages[0].length
-		f.puts "#{indices[i]}\t#{averages.collect { |avg| avg[i] }.join("\t")}"
-	end
+  for i in 0...averages[0].length
+    f.puts "#{indices[i]}\t#{averages.collect { |avg| avg[i] }.join("\t")}"
+  end
 end

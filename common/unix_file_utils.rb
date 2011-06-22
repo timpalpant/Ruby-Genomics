@@ -1,31 +1,31 @@
 # Encapsulate methods in the File class 
 # that call native Unix command-line utilities
 # such as wc, grep, head, tail...
-class File	
+class File  
   # Get the number of lines in a file using wc -l
   def self.num_lines(filename)
-		if File.directory?(filename)
-			# Recurse directories
-			total = 0
-			Dir.glob(filename + '/*').each do |f2|
-				total += File.num_lines(f2)
-			end
-			return total
-		end
-		
+    if File.directory?(filename)
+      # Recurse directories
+      total = 0
+      Dir.glob(filename + '/*').each do |f2|
+        total += File.num_lines(f2)
+      end
+      return total
+    end
+    
     # Add 1 because wc counts line breaks
     %x[ wc -l #{filename} ].split(' ').first.to_i + 1
   end
 
-	# Get the number of characters in a file using wc -c
-	def self.num_chars(filename)
-		%x[ wc -c #{filename} ].split(' ').first.to_i
-	end
+  # Get the number of characters in a file using wc -c
+  def self.num_chars(filename)
+    %x[ wc -c #{filename} ].split(' ').first.to_i
+  end
 
-	# Get the number of words in a file using wc -c
-	def self.num_words(filename)
-		%x[ wc -w #{filename} ].split(' ').first.to_i
-	end
+  # Get the number of words in a file using wc -c
+  def self.num_words(filename)
+    %x[ wc -w #{filename} ].split(' ').first.to_i
+  end
   
   # Return an array of strings resulting from the output of grep -v
   # Alternatively, get all lines and then use Array#select
@@ -65,23 +65,23 @@ class File
     %x[ tail -n#{num_lines} #{filename} ].split("\n")
   end
 
-	# GZip a file
-	def self.gzip(filename)
-		%x[ gzip #{filename} ]
-	end
+  # GZip a file
+  def self.gzip(filename)
+    %x[ gzip #{filename} ]
+  end
 
-	# Cross-platform way of finding an executable in the $PATH
-	def self.which(cmd)
-		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-		ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
-			exts.each do |ext|
-				exe = "#{path}/#{cmd}#{ext}"
-				return exe if File.executable? exe
-			end
-		end
+  # Cross-platform way of finding an executable in the $PATH
+  def self.which(cmd)
+    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+    ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+      exts.each do |ext|
+        exe = "#{path}/#{cmd}#{ext}"
+        return exe if File.executable? exe
+      end
+    end
 
-		return nil
-	end
+    return nil
+  end
   
   # Concatenate files
   def self.cat(input_files, output_file)

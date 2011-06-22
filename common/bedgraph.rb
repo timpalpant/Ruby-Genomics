@@ -6,19 +6,19 @@ require 'spot'
 # An entry in a bedGraph file
 ##
 class BedGraphEntry < Spot
-	def self.parse(line)
-	  entry = line.chomp.split("\t")
+  def self.parse(line)
+    entry = line.chomp.split("\t")
       
-		raise BedGraphError, "Invalid BedGraph entry!" if entry.length < 3
-			
+    raise BedGraphError, "Invalid BedGraph entry!" if entry.length < 3
+      
     spot = self.new
-		spot.chr = entry[0]
+    spot.chr = entry[0]
     spot.start = entry[1].to_i
     spot.stop = entry[2].to_i
     spot.value = entry[3].to_f if entry.length >= 4
       
-		return spot
-	end
+    return spot
+  end
 end
 
 ##
@@ -38,8 +38,8 @@ class BedGraphFile < TextEntryFile
 
   private
   
-	# Define how to parse BedGraph entries
-	def parse(line)
+  # Define how to parse BedGraph entries
+  def parse(line)
     BedGraphEntry.parse(line)
   end
 end

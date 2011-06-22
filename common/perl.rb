@@ -18,7 +18,7 @@ module Perl
       raise "Cannot find Perl script: #{script}" unless File.exists?(script)
     end
 
-		raise "Cannot find Perl interpreter in $PATH" if File.which('perl').nil?
+    raise "Cannot find Perl interpreter in $PATH" if File.which('perl').nil?
     
     # Execute the Perl script and return the results
     %x[ perl -I#{PERLSCRIPTS} #{script} #{args} ]

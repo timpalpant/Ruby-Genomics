@@ -2,20 +2,20 @@
   <description>of BigWig data</description>
   <command interpreter="ruby1.9">extractRegions.rb -i $input -w $window -o $output</command>
   <inputs>
-		<param name="input" type="data" format="bigwig" label="BigWig data" />
-		<param name="window" type="data" format="bed" label="Windows to extract" />
+    <param name="input" type="data" format="bigwig" label="BigWig data" />
+    <param name="window" type="data" format="bed" label="Windows to extract" />
   </inputs>
   <outputs>
-		<data name="output" format="tabular" />
+    <data name="output" format="tabular" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool requires input data in Wig format. Regions should be specified as Bed windows (chr   start   stop)
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool requires input data in Wig format. Regions should be specified as Bed windows (chr   start   stop)
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

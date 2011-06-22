@@ -15,8 +15,8 @@ module UCSCTools
     # Execute the program and return the results
     %x[ #{program} #{args} ]
   end
-	
-	def self.wig_correlate(files)
-		run("wigCorrelate #{files.join(' ')}")
-	end
+  
+  def self.wig_correlate(files)
+    run("wigCorrelate #{files.join(' ')}")
+  end
 end

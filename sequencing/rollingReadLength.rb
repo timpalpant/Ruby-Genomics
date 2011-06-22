@@ -54,15 +54,15 @@ ARGV.options do |opts|
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -82,19 +82,19 @@ assembly.each do |chr, chr_length|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
   
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   
-	# Write the chromosome fixedStep header
-	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
-	end
-	
-	chunk_start = 1
-	while chunk_start < chr_length		
-		# Allocate memory for this chunk
-		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
+  # Write the chromosome fixedStep header
+  File.open(options[:output]+'.'+chr, 'w') do |f|
+    f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
+  end
+  
+  chunk_start = 1
+  while chunk_start < chr_length    
+    # Allocate memory for this chunk
+    chunk_stop = [chunk_start+options[:step]-1, chr_length].min
     chunk_size = chunk_stop - chunk_start + 1
-		total = Array.new(chunk_size, 0)
+    total = Array.new(chunk_size, 0)
     read_count = Array.new(chunk_size, 0)
     
     # Pad the query because SAMTools only returns reads that physically overlap the given window
@@ -117,7 +117,7 @@ assembly.each do |chr, chr_length|
       redo
     end
     
-		# Get all aligned reads for this chunk and map the dyads
+    # Get all aligned reads for this chunk and map the dyads
     SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|      
       # Also clamp to the chunk
       low = [entry.low-chunk_start, 0].max
@@ -153,8 +153,8 @@ pm.wait_all_children
 # Write the Wiggle track header
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
-	name = "Mean Read Length #{File.basename(options[:input])}"
-	f.puts Wig.track_header(name, name)
+  name = "Mean Read Length #{File.basename(options[:input])}"
+  f.puts Wig.track_header(name, name)
 end
 
 # Concatenate all of the individual chromosomes into the output file

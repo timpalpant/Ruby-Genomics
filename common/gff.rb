@@ -8,12 +8,12 @@ require 'spot'
 ##
 class GFFEntry < Spot
   attr_accessor :source, :feature, :frame
-	
-	def self.parse(line)
-	  record = line.chomp.split("\t")
-		
+  
+  def self.parse(line)
+    record = line.chomp.split("\t")
+    
     spot = self.new
-		spot.chr = record[0]
+    spot.chr = record[0]
     spot.source = record[1]
     spot.feature = record[2]
     spot.start = record[3].to_i
@@ -36,8 +36,8 @@ class GFFEntry < Spot
       spot.stop = tmp_low
     end
       
-		return spot
-	end
+    return spot
+  end
   
   def seqname
     @chr
@@ -60,8 +60,8 @@ class GFFFile < TextEntryFile
 
   private
   
-	# Define how to parse GFF entries
-	def parse(line)
+  # Define how to parse GFF entries
+  def parse(line)
     GFFEntry.parse(line)
   end
 end

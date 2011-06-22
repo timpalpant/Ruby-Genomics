@@ -20,8 +20,8 @@ class Vector
     for i in half_window...self.length-half_window
       window = self[i-half_window..i+half_window]
       smooth[i] = (window * gaussian).sum
-			# Hack to force GC
-			GC.start if i % 500 == 0 # be a little less aggressive about GC
+      # Hack to force GC
+      GC.start if i % 500 == 0 # be a little less aggressive about GC
     end
   
     return smooth

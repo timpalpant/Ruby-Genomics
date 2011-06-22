@@ -3,7 +3,7 @@
   <command interpreter="ruby1.9">markBindingSites.rb -i $input -l $loci -o $output</command>
   <inputs>
       <param name="input" type="data" format="tabular" label="Binding sites (MACS peak calls file)" />
-			<param name="loci" type="data" format="bed" label="Loci to align to" />
+      <param name="loci" type="data" format="bed" label="Loci to align to" />
   </inputs>
   <outputs>
       <data name="output" format="tabular" />

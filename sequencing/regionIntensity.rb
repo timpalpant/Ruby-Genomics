@@ -46,15 +46,15 @@ ARGV.options do |opts|
   opts.on( '-w', '--window FILE', :required, "List of windows to average (in Bed format)" ) { |f| options[:windows] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
   
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches? or ARGV.length < 1
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches? or ARGV.length < 1
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Load the BigWig files

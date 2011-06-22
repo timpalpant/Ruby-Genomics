@@ -2,20 +2,20 @@
   <description>in windows</description>
   <command interpreter="ruby1.9">findAbsoluteMaxima.rb -i $input -l $window -o $output</command>
   <inputs>
-		<param name="input" type="data" format="bigwig" label="Wig data" />
-		<param name="window" type="data" format="bed" label="Windows to find maxima in" />
+    <param name="input" type="data" format="bigwig" label="Wig data" />
+    <param name="window" type="data" format="bed" label="Windows to find maxima in" />
   </inputs>
   <outputs>
-		<data name="output" format="tabular" />
+    <data name="output" format="tabular" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool requires input data in Wig format. Regions should be specified as Bed windows (chr   start   stop)
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool requires input data in Wig format. Regions should be specified as Bed windows (chr   start   stop)
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

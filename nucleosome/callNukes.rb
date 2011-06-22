@@ -49,15 +49,15 @@ ARGV.options do |opts|
   opts.on( '-n', '--nuke-size BP', "Assumed size of a nucleosome (in base pairs)" ) { |num| options[:nuke] = num.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (Nucleosome centers)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -98,7 +98,7 @@ File.open(options[:output],'w') do |f|
           weighted_sum += absolute_chr[bp] * bp
           smoothed_sum += smoothed_chr[bp]
         end
-				nuke.occupancy = nuke.occupancy.to_i
+        nuke.occupancy = nuke.occupancy.to_i
 
         if nuke.occupancy > 0
           nuke.dyad_mean = (weighted_sum / nuke.occupancy).to_i
@@ -115,8 +115,8 @@ File.open(options[:output],'w') do |f|
           
           # Set 147bp (nuke size) surrounding current bp on either side to 0
           # This is the region in which another nuke cannot be called
-		  		low = Math.max(i-options[:nuke], 0)
-		  		high = Math.min(i+options[:nuke], smoothed_chr.length-1)
+          low = Math.max(i-options[:nuke], 0)
+          high = Math.min(i+options[:nuke], smoothed_chr.length-1)
           for bp in low..high
             smoothed_chr[bp] = 0
           end

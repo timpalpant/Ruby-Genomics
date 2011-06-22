@@ -47,18 +47,18 @@ ARGV.options do |opts|
   opts.on( '-s', '--statistic S', "Statistic to compute for each window (default: mean)") { |s| options[:stat] = s }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches? or ARGV.length < 1
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
-	
-	# By default, compute the mean
-	options[:stat] ||= 'mean'
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches? or ARGV.length < 1
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
+  
+  # By default, compute the mean
+  options[:stat] ||= 'mean'
 end
 
 # Load the BigWig files

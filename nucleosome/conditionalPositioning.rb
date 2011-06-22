@@ -45,15 +45,15 @@ ARGV.options do |opts|
   opts.on( '-i', '--input FILE', :required, "Input file with dyads (Wig)" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -64,14 +64,14 @@ wig = WigFile.new(options[:input])
 
 puts "Computing conditional positioning" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
-	name = "#{options[:input]} Conditional Positioning"
+  name = "#{options[:input]} Conditional Positioning"
   f.write Wig.track_header(name, name)
   f.puts " viewLimits=0:1"
   wig.each do |chr_id,chr|
     puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
     conditional = Chromosome.new(chr.length,73)
     for bp in 1...chr.length-147
-    	window = chr.bases(bp, bp+147)
+      window = chr.bases(bp, bp+147)
       conditional[bp] = window[73] / window.sum
     end
     
