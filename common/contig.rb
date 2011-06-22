@@ -3,7 +3,7 @@ require 'genomic_index_error'
 require 'unix_file_utils'
 
 ##
-# Represents a contiguous block of single-bp genomic data
+# Represents a contiguous block of genomic data values
 # Returned when querying a WigFile / SpotArray with WigFile#chr(num)
 # or iterating over the chromosomes of a GenomicData
 #

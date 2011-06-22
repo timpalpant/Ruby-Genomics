@@ -3,6 +3,7 @@ require 'stats'
 require 'genomic_data'
 require 'assembly'
 require 'wig'
+require 'ucsc_tools'
 
 ##
 # A GenomicData with values for each Spot, i.e. a microarray dataset
@@ -113,7 +114,8 @@ class SpotArray < GenomicData
 		# Iterate over each chromosome, mapping all spots and averaging
 		File.open(filename,'w') do |f|
 			# TODO: should be rewritten to intelligently use step size
-      f.puts Wig.track_header(@name, @description) 
+      f.puts UCSCTools.track_header(:name => @name, 
+                                    :description => @description) 
 			
 			self.chromosomes.each do |chr|
 				# Skip if this chromosome is not in the specified assembly
@@ -123,7 +125,7 @@ class SpotArray < GenomicData
 				values = query(chr, 1, assembly[chr]).to_contig(1, 1, 1)
 			
 				# Write to output file
-				f.puts Wig.fixed_step(chr, values)
+				f.puts WigFile.fixed_step(chr, values)
         f.puts values
 			end
     end

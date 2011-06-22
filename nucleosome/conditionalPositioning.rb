@@ -30,6 +30,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'wig'
 require 'stats'
+require 'ucsc_tools'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -65,8 +66,8 @@ wig = WigFile.new(options[:input])
 puts "Computing conditional positioning" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
 	name = "#{options[:input]} Conditional Positioning"
-  f.write Wig.track_header(name, name)
-  f.puts " viewLimits=0:1"
+  f.write UCSCTools.track_header(:name => name,
+                                 :limits => '0:1e-7')
   wig.each do |chr_id,chr|
     puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
     conditional = Chromosome.new(chr.length,73)
@@ -76,7 +77,7 @@ File.open(options[:output],'w') do |f|
     end
     
     puts "Writing to disk" if ENV['DEBUG']
-    f.puts Wig.fixed_step(chr_id, conditional)
+    f.puts WigFile.fixed_step(chr_id, conditional)
     f.puts conditional
   end
 end

@@ -8,98 +8,6 @@ require 'forkmanager'
 require 'assembly'
 require 'stringio'
 
-##
-# Shouldn't ever load a Wig file completely into memory, so just methods to convert and create Wig files
-##
-class Wig
-  # Make a Wig track header with the given name and description
-  def self.track_header(name = '', description = '')
-  	"track type=wiggle_0 name=\"#{name}\" description=\"#{description}\" autoScale=\"off\" visibility=\"full\""
-  end
-  
-  # Make a Wig fixedStep chromosome header for the given ID and Chromosome
-  def self.fixed_step(chr_id, chr = nil)
-  	str = "fixedStep chrom=#{chr_id}"
-  	
-  	# fixedStep parameters
-  	unless chr.nil?
-  	  str << " start=#{chr.start}" if chr.start
-  	  str << " step=#{chr.step}" if chr.step
-	    str << " span=#{chr.span}" if chr.span
-  	end
-  	
-  	return str
-  end
-
-  # For converting wigs to BigWigs without having to load (index them) first
-  def self.to_bigwig(input_file, output_file, assembly)
-    puts "Converting Wig file (#{File.basename(input_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
-  end
-  
-  # For converting wigs to BedGraph without having to load (index them) first
-  # Also creates the most compact BedGraph possible by joining equal neighbors
-  def self.to_bedGraph(input_file, output_file)
-    puts "Converting Wig file #{File.basename(input_file)} to BedGraph #{File.basename(output_file)}" if ENV['DEBUG']
-    File.open(File.expand_path(output_file), 'w') do |f|
-      chr, current, step, span = nil, 1, 1, 1
-      start, prev_value = 1, 0
-      File.foreach(File.expand_path(input_file)) do |line|
-        if line.start_with?('track')
-          next
-        elsif line.start_with?('variable')
-          raise WigError, "Only fixedStep-format Wig files are supported at this time"
-        elsif line.start_with?('fixed')
-          line.split(' ').each do |opt|
-            keypair = opt.split('=')
-            key = keypair.first
-            value = keypair.last
-            
-            if key == 'chrom'
-              chr = value
-              puts "Processing chromosome #{chr}" if ENV['DEBUG']
-            elsif key == 'start'
-              current = value.to_i
-            elsif key == 'step'
-              step = value.to_i
-            elsif key == 'span'
-              span = value.to_i
-            end
-          end        
-        else
-          value = line.chomp.to_f
-          if value == prev_value
-            current += step
-          else
-            f.puts "#{chr}\t#{start}\t#{current+span-1}\t#{prev_value}"
-            current += step
-            start = current
-            prev_value = value
-          end
-        end
-      end
-    end
-  end
-end
-
-##
-# Shouldn't load BigWig files into memory since they can be randomly accessed
-# so just methods to convert them into other things
-##
-class BigWig
-  # Write a BigWigFile to a Wig file
-  def self.to_wig(input_file, output_file)
-    puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
-  end
-
-  # Write this BigWig to a BedGraph
-  def self.to_bedGraph(input_file, output_file)
-  puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
-  %x[ bigWigToBedGraph #{input_file} #{output_file} ]
-  end
-end
-
 class WigError < StandardError
 end
 
@@ -113,6 +21,10 @@ class AbstractWigFile
   @@pm = Parallel::ForkManager.new(2, {'tempdir' => Dir.tmpdir})
   @@default_chunk_size = 200_000
   
+  ##
+  # CLASS METHODS
+  ##
+  
   # Set the total number of computation processes for all Wig files (default = 2)
   def self.max_threads=(n)
     @@pm = Parallel::ForkManager.new(n.to_i, {'tempdir' => Dir.tmpdir})
@@ -123,20 +35,14 @@ class AbstractWigFile
     @@default_chunk_size = n
   end
   
+  ##
+  # INSTANCE METHODS
+  ##
+  
   # Open a Wig file and parse its track/chromosome information
   def initialize(filename)
     @data_file = File.expand_path(filename)
   end
-  
-  # Return an array of all chromosomes in this WigFile file
-  def chromosomes
-    raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
-  end
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
-	end
   
   # Enumerate over the chromosomes in this Wig file
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
@@ -151,6 +57,20 @@ class AbstractWigFile
   def [](chr_id)
     chr(chr_id)
   end
+  
+  ##
+  # ABSTRACT METHODS
+  ##
+  
+  # Return an array of all chromosomes in this WigFile file
+  def chromosomes
+    raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+  end
+	
+	# Does this Wig file include data for chromosome chr?
+	def include?(chr_id)
+		raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+	end
     
   # Load data from disk and return a Vector of values for a given chromosome
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
@@ -167,6 +87,10 @@ class AbstractWigFile
   def query(chr, start, stop)
     raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
   end
+  
+  ##
+  # STATISTICAL METHODS
+  ##
   
   # Number of values in the Wig file
   def num_values
@@ -195,6 +119,10 @@ class AbstractWigFile
     
     Math.sqrt(chr_deviances.sum / num_values)
   end
+  
+  ##
+  # PARALLELIZATION METHODS
+  ##
   
   # Run a given block for each chromosome
   # (parallel each)
@@ -285,6 +213,7 @@ class AbstractWigFile
   end
 end
 
+
 ##
 # For documentation, see: http://genome.ucsc.edu/goldenPath/help/bigWig.html
 # Analogous to WigFile, but for compressed BigWigs
@@ -312,6 +241,10 @@ class BigWigFile < AbstractWigFile
     @min = info[-3].chomp.split(':').last.to_f
     @max = info[-2].chomp.split(':').last.to_f
   end
+  
+  ##
+  # CHROMOSOME INFO METHODS
+  ##
 
   # Return an array of all chromosomes in this WigFile file
   def chromosomes
@@ -323,19 +256,23 @@ class BigWigFile < AbstractWigFile
 		@chromosomes.include?(chr_id)
 	end
   
-  # Load data from disk and return a Vector of values for a given chromosome
-  # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
-  def chr(chr_id)
-    query(chr_id, 1, chr_length(chr_id))
-  end
-  
   # Get the length of a chromosome from the index
   def chr_length(chr_id)
     @chromosomes[chr_id]
   end
   
-  # Return single-bp data from the specified region
-  def query(chr, start, stop)
+  ##
+  # QUERY METHODS
+  ##
+  
+  # Load data from disk and return a Contig of values for a given chromosome
+  # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
+  def chr(chr_id)
+    query(chr_id, 1, chr_length(chr_id))
+  end
+  
+  # Return a Contig of data from the specified region
+  def query(chr, start, stop, step = 1)
     # Don't query off the ends of chromosomes
     raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)
 
@@ -349,7 +286,8 @@ class BigWigFile < AbstractWigFile
     result = StringIO.new
     while query_start <= high-1
       query_stop = [query_start+@@default_chunk_size-1, high-1].min
-      chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{query_stop-query_start+1} 2>&1 ]
+      num_values = (query_stop-query_start+1) / step
+      chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
       raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
       result << ' ' << chunk
       query_start = query_stop + 1
@@ -357,7 +295,7 @@ class BigWigFile < AbstractWigFile
 
     values = result.string.split(' ').map { |v| v.to_f }
     values.reverse! if start > stop
-    return values.to_contig(start, 1, 1)
+    return values.to_contig(start, step, step)
   end
 
   # Return the average value for the specified region
@@ -371,21 +309,42 @@ class BigWigFile < AbstractWigFile
     %x[ bigWigSummary #{@data_file} #{chr} #{low-1} #{high-1} 1 ].to_f
   end
   
+  ##
+  # SUMMARY / STRING METHODS
+  ##
+  
   # Output a summary about this BigWigFile
   def to_s
-    str = "BigWigFile: connected to file #{@data_file}\n"
+    str = StringIO.new("BigWigFile: connected to file #{@data_file}\n")
     @chromosomes.each do |chr,chr_size|
-      str += "\t#{chr} (bases covered: #{chr_size})\n"
+      str << "\t#{chr} (bases covered: #{chr_size})\n"
     end
     
-    str += "Mean:\t#{mean}\n"
-    str += "Standard deviation:\t#{stdev}\n"
-    str += "Min:\t#{@min}\n"
-    str += "Max:\t#{@max}\n"
+    str << "Mean:\t#{mean}\n"
+    str << "Standard deviation:\t#{stdev}\n"
+    str << "Min:\t#{@min}\n"
+    str << "Max:\t#{@max}\n"
     
-    return str
+    return str.string
+  end
+  
+  ##
+  # OUTPUT METHODS
+  ##
+  
+  # Write a BigWigFile to a Wig file
+  def self.to_wig(input_file, output_file)
+    puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
+  end
+
+  # Write this BigWig to a BedGraph
+  def self.to_bedgraph(input_file, output_file)
+    puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ bigWigToBedGraph #{input_file} #{output_file} ]
   end
 end
+
 
 ##
 # Lazy-load a Wig file, reading data into memory by chromosome
@@ -443,6 +402,10 @@ class WigFile < AbstractWigFile
 		raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
   end
   
+  ##
+  # CHROMOSOME INFO METHODS
+  ##
+  
   # Return an array of all chromosomes in this WigFile file
   def chromosomes
     @index.keys
@@ -452,14 +415,6 @@ class WigFile < AbstractWigFile
 	def include?(chr_id)
 		@index.include?(chr_id)
 	end
-    
-  # Load data from disk and return a Vector of values for a given chromosome
-  def chr(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
-  
-    # Call tail and head to get the appropriate lines from the Wig
-    return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
-  end
   
   # Get the starting line for a chromosome
   def chr_start(chr_id)
@@ -484,6 +439,18 @@ class WigFile < AbstractWigFile
   def chr_length(chr_id)
     raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     chr_stop(chr_id) - chr_start(chr_id)
+  end
+  
+  ##
+  # QUERY METHODS
+  ##
+  
+  # Load data from disk and return a Vector of values for a given chromosome
+  def chr(chr_id)
+    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+  
+    # Call tail and head to get the appropriate lines from the Wig
+    return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
   end
   
   # Return single-bp data from the specified region
@@ -512,23 +479,95 @@ class WigFile < AbstractWigFile
     return parsed
   end
   
+  ##
+  # SUMMARY / STRING METHODS
+  ##
+  
 	# Output a summary about this WigFile
   def to_s
-    str = "WigFile: connected to file #{@data_file}\n"
+    str = StringIO.new("WigFile: connected to file #{@data_file}\n")
     @index.each do |chr,line|
-      str += "\tChromosome #{chr} (lines: #{line}..#{chr_stop(chr)})\n"
+      str << "\tChromosome #{chr} (lines: #{line}..#{chr_stop(chr)})\n"
     end
     
-    return str
+    return str.string
   end
+  
+  # Make a Wig fixedStep header for the given ID and Contig
+  def self.fixed_step(chr_id, contig = nil)
+  	str = StringIO.new("fixedStep chrom=#{chr_id}")
+  	
+  	# fixedStep parameters
+  	unless contig.nil?
+  	  str << " start=#{contig.start}" if contig.start
+  	  str << " step=#{contig.step}" if contig.step
+	    str << " span=#{contig.span}" if contig.span
+  	end
+  	
+  	return str.string
+  end
+  
+  ##
+  # OUTPUT METHODS
+  ##
   
   # Convert this WigFile to a BigWigFile
   def to_bigwig(output_file, assembly)
-    Wig.to_bigwig(@datafile, output_file, assembly)
+    WigFile.to_bigwig(@datafile, output_file, assembly)
   end
 
   # Convert this WigFile to a BedGraph
   def to_bedgraph(output_file)
-    Wig.to_bedGraph(@datafile, output_file)
+    WigFile.to_bedGraph(@datafile, output_file)
+  end
+  
+  # For converting wigs to BigWigs without having to load (index them) first
+  def self.to_bigwig(input_file, output_file, assembly)
+    puts "Converting Wig file (#{File.basename(input_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
+    %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
+  end
+  
+  # For converting wigs to BedGraph without having to load (index them) first
+  # Also creates the most compact BedGraph possible by joining equal neighbors
+  def self.to_bedgraph(input_file, output_file)
+    puts "Converting Wig file #{File.basename(input_file)} to BedGraph #{File.basename(output_file)}" if ENV['DEBUG']
+    File.open(File.expand_path(output_file), 'w') do |f|
+      chr, current, step, span = nil, 1, 1, 1
+      start, prev_value = 1, 0
+      File.foreach(File.expand_path(input_file)) do |line|
+        if line.start_with?('track')
+          next
+        elsif line.start_with?('variable')
+          raise WigError, "Only fixedStep-format Wig files are supported at this time"
+        elsif line.start_with?('fixed')
+          line.split(' ').each do |opt|
+            keypair = opt.split('=')
+            key = keypair.first
+            value = keypair.last
+            
+            if key == 'chrom'
+              chr = value
+              puts "Processing chromosome #{chr}" if ENV['DEBUG']
+            elsif key == 'start'
+              current = value.to_i
+            elsif key == 'step'
+              step = value.to_i
+            elsif key == 'span'
+              span = value.to_i
+            end
+          end        
+        else
+          value = line.chomp.to_f
+          if value == prev_value
+            current += step
+          else
+            f.puts "#{chr}\t#{start}\t#{current+span-1}\t#{prev_value}"
+            current += step
+            start = current
+            prev_value = value
+          end
+        end
+      end
+    end
   end
 end

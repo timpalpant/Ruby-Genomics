@@ -10,6 +10,7 @@
 require 'fileutils'
 require 'tmpdir'
 require 'forkmanager'
+require 'ucsc_tools'
 
 class Parallelizer
   def initialize(max_threads = 2)
@@ -32,7 +33,8 @@ class WigComputationParallelizer < Parallelizer
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
-      f.puts Wig.track_header(@output, @output)
+      f.puts UCSCTools.track_header(:name => @output, 
+                                    :description => @output)
     end
 
     # Keep track of all the temporary intermediate files (header first)
@@ -49,7 +51,7 @@ class WigComputationParallelizer < Parallelizer
 
       # Write the chromosome fixedStep header
       File.open(chr_temp_file, 'w') do |f|
-        f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
+        f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
       end
       
       chunk_start = 1

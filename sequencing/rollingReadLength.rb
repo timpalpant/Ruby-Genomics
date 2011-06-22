@@ -86,7 +86,7 @@ assembly.each do |chr, chr_length|
   
 	# Write the chromosome fixedStep header
 	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
+		f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
 	end
 	
 	chunk_start = 1
@@ -154,7 +154,7 @@ pm.wait_all_children
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
 	name = "Mean Read Length #{File.basename(options[:input])}"
-	f.puts Wig.track_header(name, name)
+	f.puts UCSCTools.track_header(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
