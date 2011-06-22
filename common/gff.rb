@@ -65,7 +65,7 @@ class GFFFile < TextEntryFile
   
   CHR_COL = 1
   START_COL = 4
-  STOP_COL = 5
+  END_COL = 5
   
   def initialize(filename)
     super(filename, CHR_COL, START_COL, END_COL)

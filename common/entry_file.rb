@@ -34,9 +34,9 @@ class EntryFile
   
   # Iterate over each of the entries in an EntryFile
   def self.foreach(filename, chr = nil, start = nil, stop = nil)
-    entry_file = self.new(filename)
-    entry_file.each(chr, start, stop) { |entry| yield entry }
-    entry_file.close
+    self.open(filename) do |f|
+      f.each(chr, start, stop) { |entry| yield entry }
+    end
   end
   
   # Make entry files enumerable

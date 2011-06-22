@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'sam'
 
 TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
+TEST_BAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bam')
 
 describe SAMEntry do
   context "single-end entry" do
@@ -95,28 +96,32 @@ describe SAMEntry do
 end
 
 describe SAMFile do
+  before do
+    @test_file = TEST_SAM
+  end
+  
   context "iterating over entries" do
     it "should correctly skip comment lines" do
       count = 0
-      SAMFile.foreach(TEST_SAM) { |entry| count += 1 if entry.qname.start_with?('@') }
+      SAMFile.foreach(@test_file) { |entry| count += 1 if entry.qname.start_with?('@') }
       count.should == 0
     end
     
     it "has 69 entries" do
       count = 0
-      SAMFile.foreach(TEST_SAM) { |entry| count += 1 }
+      SAMFile.foreach(@test_file) { |entry| count += 1 }
       count.should == 69
     end
     
     it "has 43 single-end entries" do
       count = 0
-      SAMFile.foreach(TEST_SAM) { |entry| count += 1 if entry.single? }
+      SAMFile.foreach(@test_file) { |entry| count += 1 if entry.single? }
       count.should == 43
     end
     
     it "has 26 paired-end entries" do
       count = 0
-      SAMFile.foreach(TEST_SAM) { |entry| count += 1 if entry.paired? }
+      SAMFile.foreach(@test_file) { |entry| count += 1 if entry.paired? }
       count.should == 26
     end
   end
@@ -124,13 +129,59 @@ describe SAMFile do
   context "iterating over reads" do   
     it "should correctly skip comment lines" do
       count = 0
-      SAMFile.foreach_read(TEST_SAM) { |read| count += 1 if read.qname.start_with?('@') }
+      SAMFile.foreach_read(@test_file) { |read| count += 1 if read.qname.start_with?('@') }
       count.should == 0
     end
     
     it "has 56 reads" do
       count = 0
-      SAMFile.foreach_read(TEST_SAM) { |read| count += 1 }
+      SAMFile.foreach_read(@test_file) { |read| count += 1 }
+      count.should == 56
+    end
+  end
+end
+
+describe BAMFile do
+  before do
+    @test_file = TEST_BAM
+  end
+  
+  context "iterating over entries" do
+    it "should correctly skip comment lines" do
+      count = 0
+      BAMFile.foreach(@test_file) { |entry| count += 1 if entry.qname.start_with?('@') }
+      count.should == 0
+    end
+    
+    it "has 69 entries" do
+      count = 0
+      BAMFile.foreach(@test_file) { |entry| count += 1 }
+      count.should == 69
+    end
+    
+    it "has 43 single-end entries" do
+      count = 0
+      BAMFile.foreach(@test_file) { |entry| count += 1 if entry.single? }
+      count.should == 43
+    end
+    
+    it "has 26 paired-end entries" do
+      count = 0
+      BAMFile.foreach(@test_file) { |entry| count += 1 if entry.paired? }
+      count.should == 26
+    end
+  end
+  
+  context "iterating over reads" do   
+    it "should correctly skip comment lines" do
+      count = 0
+      BAMFile.foreach_read(@test_file) { |read| count += 1 if read.qname.start_with?('@') }
+      count.should == 0
+    end
+    
+    it "has 56 reads" do
+      count = 0
+      BAMFile.foreach_read(@test_file) { |read| count += 1 }
       count.should == 56
     end
   end

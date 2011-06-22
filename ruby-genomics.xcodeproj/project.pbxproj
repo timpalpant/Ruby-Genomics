@@ -25,6 +25,10 @@
 		1F3E322613B2A3A7009386F6 /* spot_file.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = spot_file.rb; sourceTree = "<group>"; };
 		1F3E322713B2A3BE009386F6 /* dumpBigWig.rb */ = {isa = PBXFileReference; fileEncoding = 4; path = dumpBigWig.rb; sourceTree = "<group>"; };
 		1F3E322813B2A3BE009386F6 /* dumpBigWig.xml */ = {isa = PBXFileReference; fileEncoding = 4; path = dumpBigWig.xml; sourceTree = "<group>"; };
+		1F3E322913B2B192009386F6 /* entry_file_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = entry_file_spec.rb; sourceTree = "<group>"; };
+		1F3E322A13B2B1A3009386F6 /* gff_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = gff_spec.rb; sourceTree = "<group>"; };
+		1F3E322B13B2B1B5009386F6 /* macs_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = macs_spec.rb; sourceTree = "<group>"; };
+		1F3E322C13B2B4AD009386F6 /* nucleosome_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = nucleosome_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA31395C45000441DD7 /* affy_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = affy_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA41395C50200441DD7 /* stats_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = stats_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA61395C54600441DD7 /* tabix_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = tabix_spec.rb; sourceTree = "<group>"; };
@@ -432,6 +436,10 @@
 				1FBFEFA31395C45000441DD7 /* affy_spec.rb */,
 				1FBFEFA41395C50200441DD7 /* stats_spec.rb */,
 				1FBFEFA61395C54600441DD7 /* tabix_spec.rb */,
+				1F3E322913B2B192009386F6 /* entry_file_spec.rb */,
+				1F3E322A13B2B1A3009386F6 /* gff_spec.rb */,
+				1F3E322B13B2B1B5009386F6 /* macs_spec.rb */,
+				1F3E322C13B2B4AD009386F6 /* nucleosome_spec.rb */,
 			);
 			path = spec;
 			sourceTree = "<group>";

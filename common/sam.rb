@@ -132,7 +132,7 @@ class SAMFile < TextEntryFile
   
   CHR_COL = 3
   START_COL = 4
-  STOP_COL = 4
+  END_COL = 4
   
   def initialize(filename)
     super(filename, CHR_COL, START_COL, END_COL)
@@ -176,7 +176,7 @@ class BAMFile < BinaryEntryFile
     "samtools view #{@data_file} #{query_string(chr, start, stop)}"
   end
 
-  def self.query_string(chr = nil, start = nil, stop = nil)
+  def query_string(chr = nil, start = nil, stop = nil)
     query = StringIO.new
     query << chr.to_s if chr
     query << ':' << start.to_s if start

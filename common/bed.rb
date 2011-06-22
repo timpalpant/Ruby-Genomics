@@ -54,7 +54,7 @@ class BedFile < TextEntryFile
   
   CHR_COL = 1
   START_COL = 2
-  STOP_COL = 3
+  END_COL = 3
   
   def initialize(filename)
     super(filename, CHR_COL, START_COL, END_COL)
