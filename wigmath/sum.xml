@@ -1,15 +1,15 @@
 <tool id="WigSum" name="Add" version="1.0.0">
   <description>multiple BigWig files</description>
   <command interpreter="ruby1.9">
-		sum.rb -g $dbkey -p 4 -o $output
-			#for $input in $inputs
-				${input.file}
-			#end for
-	</command>
+    sum.rb -g $dbkey -p 4 -o $output
+      #for $input in $inputs
+        ${input.file}
+      #end for
+  </command>
   <inputs>
-			<repeat name="inputs" title="Wig file">
-				<param name="file" type="data" format="bigwig" />
-			</repeat>
+      <repeat name="inputs" title="Wig file">
+        <param name="file" type="data" format="bigwig" />
+      </repeat>
   </inputs>
   <outputs>
       <data format="input" name="output" />

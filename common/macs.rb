@@ -6,13 +6,13 @@ require 'spot'
 # An entry in a MACS output file
 ##
 class MACSEntry < Spot
-	attr_accessor :summit, :tags, :pvalue, :fdr
-	
-	def self.parse(line)
+  attr_accessor :summit, :tags, :pvalue, :fdr
+  
+  def self.parse(line)
     entry = line.chomp.split("\t")
 
     spot = self.new
-		spot.chr = entry[0]
+    spot.chr = entry[0]
     spot.start = entry[1].to_i
     spot.stop = entry[2].to_i
     spot.summit = spot.start + entry[4].to_i
@@ -22,7 +22,7 @@ class MACSEntry < Spot
     spot.fdr = entry[8].to_f
       
     return spot
-	end
+  end
   
   def fold_enrichment
     @value

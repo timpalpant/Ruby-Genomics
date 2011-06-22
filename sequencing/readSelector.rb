@@ -45,15 +45,15 @@ ARGV.options do |opts|
   opts.on( '-n', '--number N', :required, "Number of reads to randomly select" ) { |n| options[:num] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file with dumped read lengths (txt)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -62,29 +62,29 @@ raise "Number of lines in file is less than number to be selected! Exiting..." i
 
 # If we are selecting more than half of the lines, invert our question
 if options[:num] > num_lines / 2
-	rejecting = true
-	n = num_lines - options[:num]
+  rejecting = true
+  n = num_lines - options[:num]
 else
-	selecting = true
-	n = options[:num]
+  selecting = true
+  n = options[:num]
 end
-	  
+    
 selected = (0...num_lines).to_a.sample(n).sort
   
 output_line = current_reject = 0
 File.open(options[:output],'w') do |output|
-	line_num = 0
+  line_num = 0
   File.foreach(options[:input]) do |line|
-  	if output_line < options[:num] and current_reject < n
+    if output_line < options[:num] and current_reject < n
       if (selecting and selected[output_line] == line_num) or (rejecting and selected[current_reject] != line_num)
-  			output.write line
-  			output_line += 1
-  			puts output_line if output_line % 1_000_000 == 0 and ENV['DEBUG']
+        output.write line
+        output_line += 1
+        puts output_line if output_line % 1_000_000 == 0 and ENV['DEBUG']
       else
-      	current_reject += 1
+        current_reject += 1
       end
-		end
-		
-		line_num += 1
+    end
+    
+    line_num += 1
   end
 end

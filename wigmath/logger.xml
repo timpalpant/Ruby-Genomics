@@ -2,20 +2,20 @@
   <description>a BigWig file</description>
   <command interpreter="ruby1.9">logger.rb -i $input -b $base -g $dbkey -p 4 -o $output</command>
   <inputs>
-		<param format="bigwig" name="input" type="data" label="BigWig file" />
-		<param name="base" type="integer" value="2" label="Logarithm base" />
+    <param format="bigwig" name="input" type="data" label="BigWig file" />
+    <param name="base" type="integer" value="2" label="Logarithm base" />
   </inputs>
   <outputs>
-		<data format="input" name="output" metadata_source="input" />
+    <data format="input" name="output" metadata_source="input" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

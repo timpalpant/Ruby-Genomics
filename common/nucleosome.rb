@@ -43,7 +43,7 @@ end
 # Lists of Nucleosome Calls
 ##
 class NukeCalls
-	HEADER = "#Chromosome\tNuke Start\tNuke Stop\tDyad\tDyad StDev\tSmoothed Position\tDyad Mean\tDyad Count"
+  HEADER = "#Chromosome\tNuke Start\tNuke Stop\tDyad\tDyad StDev\tSmoothed Position\tDyad Mean\tDyad Count"
 end
 
 ##
@@ -54,7 +54,7 @@ class NukeCallsFile < TextEntryFile
 
   private
   
-	def parse(line)
+  def parse(line)
     Nucleosome.parse(line)
   end
 end

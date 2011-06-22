@@ -12,5 +12,5 @@ require 'samtools'
 TEST_BAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bam')
 
 describe SAMTools do
-	it "should have the correct number alignments for each chromosome"
+  it "should have the correct number alignments for each chromosome"
 end

@@ -59,20 +59,20 @@ ARGV.options do |opts|
       
   # Parse the command-line arguments
   opts.parse!
-	
+  
   # Validate the required parameters
   if opts.missing_switches?
     puts opts.missing_switches
     puts opts
     exit
-  end	
+  end 
 end
 
 
 # Warning if using manual offset
 if options[:length]
-	offset = options[:length] / 2
-	puts "Using fixed offset of #{offset} from read starts (5' end)" if ENV['DEBUG']
+  offset = options[:length] / 2
+  puts "Using fixed offset of #{offset} from read starts (5' end)" if ENV['DEBUG']
 end
 
 # Index the BAM file for random lookup
@@ -101,7 +101,7 @@ assembly.each do |chr, chr_length|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
 
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   unmapped = 0
 
 	# Write the chromosome fixedStep header
@@ -114,7 +114,7 @@ assembly.each do |chr, chr_length|
 		# Allocate memory for this chunk
 		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
     chunk_size = chunk_stop - chunk_start + 1
-		mapped_starts = Array.new(chunk_size, 0)
+    mapped_starts = Array.new(chunk_size, 0)
     
     # Pad the query because SAMTools only returns reads that physically overlap the given window
     # It is likely that our 36bp reads may be physically outside the chunk window
@@ -135,33 +135,33 @@ assembly.each do |chr, chr_length|
       puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
       redo
     end
-	
-		# Get all aligned reads for this chunk and map the dyads
-		SAMTools.view(options[:input], chr, query_start, query_stop).each do |read|
-			center = if options[:length]
-				if read.watson?
-					read.start + offset
-				else
-					read.start - offset
-				end
-			else
-				read.center
-			end
-				
-			begin
-				mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center <= chunk_stop
-			rescue
-				unmapped += 1
-			end
-		end
-		
-		# Write this chunk to disk
-		File.open(options[:output]+'.'+chr, 'a') do |f|
-			f.puts mapped_starts.join("\n")
-		end
-		
-		chunk_start = chunk_stop + 1
-	end
+  
+    # Get all aligned reads for this chunk and map the dyads
+    SAMTools.view(options[:input], chr, query_start, query_stop).each do |read|
+      center = if options[:length]
+        if read.watson?
+          read.start + offset
+        else
+          read.start - offset
+        end
+      else
+        read.center
+      end
+        
+      begin
+        mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center <= chunk_stop
+      rescue
+        unmapped += 1
+      end
+    end
+    
+    # Write this chunk to disk
+    File.open(options[:output]+'.'+chr, 'a') do |f|
+      f.puts mapped_starts.join("\n")
+    end
+    
+    chunk_start = chunk_stop + 1
+  end
   
   # Send the number of unmapped reads on this chromosome back to the parent process
   puts "#{unmapped} unmapped dyads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']

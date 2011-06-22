@@ -2,21 +2,21 @@
   <description>of paired-end sequencing reads</description>
   <command interpreter="ruby1.9">distogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
   <inputs>
-		<param name="input" type="data" format="bam" label="Sequencing reads" />
-		<param name="low" type="integer" value="100" label="Low end of read length range" />
+    <param name="input" type="data" format="bam" label="Sequencing reads" />
+    <param name="low" type="integer" value="100" label="Low end of read length range" />
     <param name="high" type="integer" value="200" label="High end of read length range" />
   </inputs>
   <outputs>
-		<data name="output" format="tabular" />
+    <data name="output" format="tabular" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool requires sequencing reads in BAM format.
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool requires sequencing reads in BAM format.
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

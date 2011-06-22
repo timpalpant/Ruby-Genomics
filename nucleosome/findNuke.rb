@@ -4,7 +4,7 @@
 #   Finds the first nucleosome from either the 5' or 3' end of a window (such as an ORF)
 #
 # == Usage 
-#  	Finds the first nucleosome for the spots in orfs.bed for the nukes in nukes.txt
+#   Finds the first nucleosome for the spots in orfs.bed for the nukes in nukes.txt
 #
 #   findNuke.rb -i nukes.txt -l orfs.bed -o orfs.nukes.bed
 #
@@ -47,16 +47,16 @@ ARGV.options do |opts|
   options[:reverse] = false
   opts.on( '-r', '--reverse', "Search from the 3' ends of windows (default: false)" ) { |b| options[:reverse] = b }  
   opts.on( '-o', '--output FILE', :required, "Output file (nuke calls for loci)" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -74,19 +74,19 @@ puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
 skipped = 0
 invalid_coordinates = 0
 loci.each do |chr,spots|
-	if not calls.chromosomes.include?(chr)
-		skipped += 1
-		loci.delete(chr)
-		next
-	end
-	
-	spots.each do |spot|
+  if not calls.chromosomes.include?(chr)
+    skipped += 1
+    loci.delete(chr)
+    next
+  end
+  
+  spots.each do |spot|
     nukes_in_spot = calls[chr].select { |nuke| nuke.dyad >= spot.low and nuke.dyad <= spot.high }
     if nukes_in_spot.length < 1
-			invalid_coordinates += 1
-			spots.delete(spot)
-			next
-		end
+      invalid_coordinates += 1
+      spots.delete(spot)
+      next
+    end
 
 
     # Take the position of the first nucleosome

@@ -2,20 +2,20 @@
   <description>two BigWig files</description>
   <command interpreter="ruby1.9">divide.rb -1 $dividend -2 $divisor -g $dbkey -p 4 -o $output</command>
   <inputs>
-		<param format="bigwig" name="dividend" type="data" label="File 1 (dividend)" />
-		<param format="bigwig" name="divisor" type="data" label="File 2 (divisor)" />
+    <param format="bigwig" name="dividend" type="data" label="File 1 (dividend)" />
+    <param format="bigwig" name="divisor" type="data" label="File 2 (divisor)" />
   </inputs>
   <outputs>
-		<data format="input" name="output" metadata_source="dividend" />
+    <data format="input" name="output" metadata_source="dividend" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
+  <help>
+    .. class:: warningmark
 
     This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

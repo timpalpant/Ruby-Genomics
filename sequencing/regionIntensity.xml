@@ -1,11 +1,11 @@
 <tool id="RegionIntensity" name="Compute mean intensity" version="1.0.0">
   <description>relative to TSS/TTS</description>
   <command interpreter="ruby1.9">
-		regionIntensity.rb -w $windows -o $output
+    regionIntensity.rb -w $windows -o $output
     #for $input in $inputs
       ${input.file}
     #end for
-	</command>
+  </command>
   <inputs>
     <repeat name="inputs" title="BigWig file">
       <param name="file" type="data" format="bigwig" />

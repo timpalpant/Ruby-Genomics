@@ -10,8 +10,8 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#		-i, --input					Input GFF to Z-score
-#		-o, --output				Output Z-scored GFF
+#   -i, --input         Input GFF to Z-score
+#   -o, --output        Output Z-scored GFF
 #
 # == Author
 #   Timothy Palpant
@@ -30,8 +30,8 @@ require 'pickled_optparse'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-	# Banner at the top of the help screen
-	opts.banner = "Usage: #{__FILE__} -i input.gff -o output.gff"
+  # Banner at the top of the help screen
+  opts.banner = "Usage: #{__FILE__} -i input.gff -o output.gff"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -39,18 +39,18 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-	opts.on( '-i', '--input FILE', :required, "Input GFF" ) { |f| options[:input] = f }
-	opts.on( '-o', '--output FILE', :required, "Output GFF" ) { |f| options[:output] = f }
-		
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  opts.on( '-i', '--input FILE', :required, "Input GFF" ) { |f| options[:input] = f }
+  opts.on( '-o', '--output FILE', :required, "Output GFF" ) { |f| options[:output] = f }
+    
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -68,14 +68,14 @@ raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 # Copy the GFF input file to output, replacing values with Z-scores
 print 'Computing Z-scores for each spot...' if ENV['DEBUG']
 File.open(options[:output], 'w') do |out|
-	File.foreach(options[:input]) do |line|
-		# Copy comment lines
-		if line.start_with?('#')
-			out.write line
-  	else
-			record = line.chomp.split("\t")
-			record[5] = (record[5].to_f-avg) / stdev
-			out.puts record.join("\t")
-  	end
-	end
+  File.foreach(options[:input]) do |line|
+    # Copy comment lines
+    if line.start_with?('#')
+      out.write line
+    else
+      record = line.chomp.split("\t")
+      record[5] = (record[5].to_f-avg) / stdev
+      out.puts record.join("\t")
+    end
+  end
 end

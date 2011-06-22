@@ -16,7 +16,7 @@
 #   -i, --input         Input file with mapped reads (BAM)
 #   -o, --output        Output file with occupancy (BigWig)
 #   -g, --genome        Genome assembly to use
-#		-x, --extend				In silico artificial extension
+#   -x, --extend        In silico artificial extension
 #
 # == Author
 #   Timothy Palpant
@@ -57,15 +57,15 @@ ARGV.options do |opts|
   opts.on( '-x', '--extend N', "In silico extension (default: read length)") { |n| options[:x] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Pad queries to SAMTools
@@ -101,7 +101,7 @@ assembly.each do |chr, chr_length|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
 
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   unmapped = 0
 
 	# Write the chromosome fixedStep header
@@ -114,7 +114,7 @@ assembly.each do |chr, chr_length|
 		# Allocate memory for this chunk
 		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
     chunk_size = chunk_stop - chunk_start + 1
-		occupancy = Array.new(chunk_size, 0)
+    occupancy = Array.new(chunk_size, 0)
     
     # Pad the query because SAMTools only returns reads that physically overlap the given window
     # It is possible that our 36bp reads may be physically outside the chunk window
@@ -135,9 +135,9 @@ assembly.each do |chr, chr_length|
       puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
       redo
     end
-	
-		# Get all aligned reads for this chunk and map the dyads
-		SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|
+  
+    # Get all aligned reads for this chunk and map the dyads
+    SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|
       # Calculate the read stop based on specified in silico extension
       # or the read length
       stop = if not options[:x].nil? and options[:x] != 0
@@ -163,15 +163,15 @@ assembly.each do |chr, chr_length|
       rescue
         unmapped += 1
       end
-		end
-		
-		# Write this chunk to disk
-		File.open(options[:output]+'.'+chr, 'a') do |f|
-			f.puts occupancy.join("\n")
-		end
-		
-		chunk_start = chunk_stop + 1
-	end
+    end
+    
+    # Write this chunk to disk
+    File.open(options[:output]+'.'+chr, 'a') do |f|
+      f.puts occupancy.join("\n")
+    end
+    
+    chunk_start = chunk_stop + 1
+  end
   
   # Send the number of unmapped reads on this chromosome back to the parent process
   puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
@@ -186,8 +186,13 @@ puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 # Write the Wiggle track header
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
+<<<<<<< HEAD
 	name = "Mapped Coverage #{File.basename(options[:input])}"
 	f.puts UCSCTools.track_header(:name => name)
+=======
+  name = "Mapped Coverage #{File.basename(options[:input])}"
+  f.puts Wig.track_header(name, name)
+>>>>>>> 92c234fa0b5b013818a80c781a07dcb24862f229
 end
 
 # Concatenate all of the individual chromosomes into the output file

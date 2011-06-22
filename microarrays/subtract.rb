@@ -10,9 +10,9 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#		-m, --minuend				Original GFF
-#		-s, --subtrahend		Subtract the values of this GFF
-#		-o, --output				Output GFF
+#   -m, --minuend       Original GFF
+#   -s, --subtrahend    Subtract the values of this GFF
+#   -o, --output        Output GFF
 #
 # == Author
 #   Timothy Palpant
@@ -29,8 +29,8 @@ require 'pickled_optparse'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-	# Banner at the top of the help screen
-	opts.banner = "Usage: subtract.rb -m input.gff -s input2.gff -o difference.gff"
+  # Banner at the top of the help screen
+  opts.banner = "Usage: subtract.rb -m input.gff -s input2.gff -o difference.gff"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -38,41 +38,41 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-	opts.on( '-m', '--minuend FILE', :required, "GFF for original values" ) { |f| options[:m] = f }
-	opts.on( '-s', '--subtrahend FILE', :required, "GFF for subtraction values" ) { |f| options[:s] = f }
-	opts.on( '-o', '--output FILE', :required, "Output GFF" ) { |f| options[:output] = f }
-		
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  opts.on( '-m', '--minuend FILE', :required, "GFF for original values" ) { |f| options[:m] = f }
+  opts.on( '-s', '--subtrahend FILE', :required, "GFF for subtraction values" ) { |f| options[:s] = f }
+  opts.on( '-o', '--output FILE', :required, "Output GFF" ) { |f| options[:output] = f }
+    
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
 # Read subtraction values in manually so we can hash lookup matches quickly
 s = Hash.new
 File.foreach(options[:s]) do |line|
-	next if line[0] == '#'
-	record = line.chomp.split("\t")
-	s[record[8]] = record[5].to_f
+  next if line[0] == '#'
+  record = line.chomp.split("\t")
+  s[record[8]] = record[5].to_f
 end
 
 # Copy the GFF input file to output, subtracting values
 File.open(options[:output], 'w') do |out|
-	File.foreach(options[:m]) do |line|
-		# Copy comment lines
-		if line[0] == '#'
-			out.write line
-  	else
-			record = line.chomp.split("\t")
-			next unless s.include?(record[8])
-			record[5] = record[5].to_f - s[record[8]]
-			out.puts record.join("\t")
-  	end
-	end
+  File.foreach(options[:m]) do |line|
+    # Copy comment lines
+    if line[0] == '#'
+      out.write line
+    else
+      record = line.chomp.split("\t")
+      next unless s.include?(record[8])
+      record[5] = record[5].to_f - s[record[8]]
+      out.puts record.join("\t")
+    end
+  end
 end

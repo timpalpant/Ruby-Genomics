@@ -12,7 +12,7 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input BigWig file to Z-score
-#		-b, --base					Logarithm base (default: 2)
+#   -b, --base          Logarithm base (default: 2)
 #   -o, --output        Output Z-scored BigWig file
 #
 # == Author
@@ -41,8 +41,8 @@ ARGV.options do |opts|
   
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
-	options[:base] = 2
-	opts.on( '-b', '--base N', "Logarithm base (default: 2)" ) { |n| options[:base] = n.to_i }
+  options[:base] = 2
+  opts.on( '-b', '--base N', "Logarithm base (default: 2)" ) { |n| options[:base] = n.to_i }
   options[:step] = 500_000
   opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2

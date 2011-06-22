@@ -16,11 +16,6 @@ module UCSCTools
     %x[ #{program} #{args} ]
   end
 	
-  # Correlate multiple Wiggle files
-	def self.wig_correlate(files)
-		run("wigCorrelate #{files.join(' ')}")
-	end
-  
   # Construct a track line for the UCSC Genome Browser
   # TODO: Validate that the arguments are valid
   def self.track_header(opts = {})
@@ -37,5 +32,8 @@ module UCSCTools
     str << " viewLimits=#{opts[:limits]}" if opts[:limits]
     
     return str.string
+  
+  def self.wig_correlate(files)
+    run("wigCorrelate #{files.join(' ')}")
   end
 end

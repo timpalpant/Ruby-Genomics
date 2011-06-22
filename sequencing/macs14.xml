@@ -93,9 +93,9 @@
 
   <help>
 .. class:: warningmark
-		
+    
 This tool was contributed by Timothy Palpant.
-	
+  
 **What it does**
 
 This tool allows ChIP-seq peak calling using MACS.

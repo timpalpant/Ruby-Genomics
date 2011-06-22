@@ -2,15 +2,15 @@
   <description></description>
   <command>bigWigToWig $input $output</command>
   <inputs>
-		<param name="input" type="data" format="bigwig" label="Input BigWig file" />
+    <param name="input" type="data" format="bigwig" label="Input BigWig file" />
   </inputs>
   <outputs>
-		<data name="output" format="wig" metadata_source="input" />
+    <data name="output" format="wig" metadata_source="input" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

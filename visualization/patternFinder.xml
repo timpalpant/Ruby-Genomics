@@ -1,16 +1,16 @@
 <tool id="PatternFinder" name="Find patterns" version="1.0.0">
   <description>in Wig files</description>
   <command interpreter="ruby1.9">
-		patternFinder.rb -l $loci -o $output
-			#for $input in $inputs
-				${input.file}
-			#end for
-	</command>
+    patternFinder.rb -l $loci -o $output
+      #for $input in $inputs
+        ${input.file}
+      #end for
+  </command>
   <inputs>
-			<param name="loci" type="data" format="bed" label="Loci to align to" />
-			<repeat name="inputs" title="BigWig file">
-				<param name="file" type="data" format="bigwig" />
-			</repeat>
+      <param name="loci" type="data" format="bed" label="Loci to align to" />
+      <repeat name="inputs" title="BigWig file">
+        <param name="file" type="data" format="bigwig" />
+      </repeat>
   </inputs>
   <outputs>
       <data format="tabular" name="output" />

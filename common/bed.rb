@@ -5,16 +5,16 @@ require 'spot'
 ##
 # An entry in a Bed file
 ##
-class BedEntry < Spot	
+class BedEntry < Spot 
   attr_accessor :strand, :thick_start, :thick_end, :item_rgb, :block_count, :block_sizes, :block_starts
 
-	def self.parse(line)
-		entry = line.chomp.split("\t")
+  def self.parse(line)
+    entry = line.chomp.split("\t")
       
-		raise BedError, "Invalid Bed Entry!" if entry.length < 3
-			
+    raise BedError, "Invalid Bed Entry!" if entry.length < 3
+      
     spot = self.new
-		spot.chr = entry[0]
+    spot.chr = entry[0]
     spot.start = entry[1].to_i
     spot.stop = entry[2].to_i
     spot.id = entry[3] if entry.length >= 4
@@ -26,9 +26,9 @@ class BedEntry < Spot
     spot.block_count = entry[9] if entry.length >= 10
     spot.block_sizes = entry[10] if entry.length >= 11
     spot.block_starts = entry[11] if entry.length >= 12
-		
-		return spot
-	end
+    
+    return spot
+  end
   
   def name
     @id
@@ -49,8 +49,8 @@ class BedFile < TextEntryFile
 
   private
   
-	# Define how to parse Bed entries
-	def parse(line)
+  # Define how to parse Bed entries
+  def parse(line)
     BedEntry.parse(line)
   end
 end

@@ -40,19 +40,19 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-	opts.on( '-s', '--sample FILE', :required, "ChIP (BAM)" ) { |f| options[:sample] = f }
-	opts.on( '-c', '--control FILE', :required, "Control (BAM)" ) { |f| options[:control] = f }
-	opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  opts.on( '-s', '--sample FILE', :required, "ChIP (BAM)" ) { |f| options[:sample] = f }
+  opts.on( '-c', '--control FILE', :required, "Control (BAM)" ) { |f| options[:control] = f }
+  opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 # Call ranger and swallow the output

@@ -3,28 +3,28 @@
 # Subclasses: Spot, Read
 ##
 class GenomicInterval
-	attr_accessor :chr, :start, :stop
-	
-	def initialize(chr = nil, start = nil, stop = nil)
+  attr_accessor :chr, :start, :stop
+  
+  def initialize(chr = nil, start = nil, stop = nil)
     @chr = chr
-		@start = start
-		@stop = stop
-	end
-	
+    @start = start
+    @stop = stop
+  end
+  
   # Output this genomic interval as a string (the format is suitable
   # for UCSC or samtools)
   def to_s
     "#{chr}:#{start}-#{stop}"
   end
   
-	def center
-		(@start + @stop) / 2 if @start and @stop
-	end
-	
-	def length
-		(@stop - @start).abs + 1 if @start and @stop
-	end
-	
+  def center
+    (@start + @stop) / 2 if @start and @stop
+  end
+  
+  def length
+    (@stop - @start).abs + 1 if @start and @stop
+  end
+  
   # Whether this spot includes (encompasses) a given locus
   def include?(base)
     low <= base and high >= base
@@ -33,7 +33,7 @@ class GenomicInterval
   # The minimum chromosomal coordinate, regardless of strand
   def low
     # Cache for performance
-		@low = [@start, @stop].min if @low.nil?
+    @low = [@start, @stop].min if @low.nil?
     
     return @low
   end
@@ -41,7 +41,7 @@ class GenomicInterval
   # The maximum chromosomal coordinate, regardless of strand
   def high
     # Cache for performance
-		@high = [@start, @stop].max if @high.nil?
+    @high = [@start, @stop].max if @high.nil?
     
     return @high
   end
@@ -58,9 +58,9 @@ class GenomicInterval
   def strand
     watson? ? '+' : '-'
   end
-	
-	# TODO: Other conditions for being valid?
-	def valid?
-		@start > 0 and @stop > 0
-	end
+  
+  # TODO: Other conditions for being valid?
+  def valid?
+    @start > 0 and @stop > 0
+  end
 end

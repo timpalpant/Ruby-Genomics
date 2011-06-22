@@ -48,8 +48,8 @@ class AbstractWigFile
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def each
     self.chromosomes.each do |chr_id| 
-			yield [chr_id, chr(chr_id)]
-		end
+      yield [chr_id, chr(chr_id)]
+    end
   end
   
   # Allow indexing Wig files like GenomicDatas and returning entire chromosomes
@@ -250,11 +250,11 @@ class BigWigFile < AbstractWigFile
   def chromosomes
     @chromosomes.keys
   end
-	
-	# Does this Wig file include data for chromosome chr?
-	def include?(chr_id)
-		@chromosomes.include?(chr_id)
-	end
+  
+  # Does this Wig file include data for chromosome chr?
+  def include?(chr_id)
+    @chromosomes.include?(chr_id)
+  end
   
   # Get the length of a chromosome from the index
   def chr_length(chr_id)
@@ -377,9 +377,9 @@ class WigFile < AbstractWigFile
     # Call grep to load the chromosome information:
     # Store hash of what chromosomes are available and what line they start at
     @index = Hash.new
-		
-		# Find chromosome header lines and index (ghetto B-tree index)
-		puts 'Indexing chromosome header lines' if ENV['DEBUG']
+    
+    # Find chromosome header lines and index (ghetto B-tree index)
+    puts 'Indexing chromosome header lines' if ENV['DEBUG']
     File.grep_with_linenum(@data_file, 'chrom').each do |line|
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
@@ -397,9 +397,9 @@ class WigFile < AbstractWigFile
         end
       end
     end
-	
-		# Raise an error if no chromosomes were found
-		raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
+  
+    # Raise an error if no chromosomes were found
+    raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
   end
   
   ##
@@ -410,11 +410,27 @@ class WigFile < AbstractWigFile
   def chromosomes
     @index.keys
   end
+<<<<<<< HEAD
 	
 	# Does this Wig file include data for chromosome chr?
 	def include?(chr_id)
 		@index.include?(chr_id)
 	end
+=======
+  
+  # Does this Wig file include data for chromosome chr?
+  def include?(chr_id)
+    @index.include?(chr_id)
+  end
+    
+  # Load data from disk and return a Vector of values for a given chromosome
+  def chr(chr_id)
+    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+  
+    # Call tail and head to get the appropriate lines from the Wig
+    return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
+  end
+>>>>>>> 92c234fa0b5b013818a80c781a07dcb24862f229
   
   # Get the starting line for a chromosome
   def chr_start(chr_id)

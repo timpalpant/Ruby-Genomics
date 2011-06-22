@@ -1,18 +1,18 @@
 <tool id="WindowAverager" name="Compute window statistics" version="1.0.0">
   <description>on data in a Wiggle file</description>
   <command interpreter="ruby1.9">
-		windowStats.rb -w $windows -s $stat -o $output
-			#for $input in $inputs
-				${input.file}
-			#end for
-	</command>
+    windowStats.rb -w $windows -s $stat -o $output
+      #for $input in $inputs
+        ${input.file}
+      #end for
+  </command>
   <inputs>
-			<repeat name="inputs" title="BigWig file">
-				<param name="file" type="data" format="bigwig" />
-			</repeat>
+      <repeat name="inputs" title="BigWig file">
+        <param name="file" type="data" format="bigwig" />
+      </repeat>
       <param format="bed" name="windows" type="data" label="List of intervals" />
       <param name="stat" type="select" optional="true" label="For each window, compute the">
-      	<option value="mean">Mean</option>
+        <option value="mean">Mean</option>
         <option value="median">Median</option>
         <option value="max">Max</option>
         <option value="min">Min</option>

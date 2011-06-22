@@ -1,33 +1,33 @@
 <tool id="MEMEMarkov" name="Generate background model" version="1.0.0">
   <description>from sequences</description>
-	<requirement type='package'>meme</requirement>
+  <requirement type='package'>meme</requirement>
   <command interpreter="ruby1.9">memeMarkovWrapper.rb -i $input -m $order -o $output</command>
   <inputs>
-		<param name="input" type="data" format="fasta" label="Input sequences" />
-		<param name="order" type="integer" value="1" label="Markov model order" />
+    <param name="input" type="data" format="fasta" label="Input sequences" />
+    <param name="order" type="integer" value="1" label="Markov model order" />
   </inputs>
   <outputs>
-		<data name="output" format="text" />
+    <data name="output" format="text" />
   </outputs>
   
-	<help>
-		.. class:: warningmark
-		
-		This tool requires FASTA formatted data. For more information and usage instructions, see http://metameme.sdsc.edu/doc/bfile-format.html
-		
-		.. class:: warningmark
-		
-		Typically, you should not specify an order larger than 3 for DNA sequences, or larger than 2 for protein sequences. However, if your input sequences contain higher-order non-random effects that are getting in the way of motif finding, you can follow the following "rules of thumb": 
-		* Use a background model at least four orders less than the shortest motifs you are looking for. So, if you want to find motifs as short as six, I wouldn't use a model higher than order two. 
-		* For an accurate model of order N, you need to use a FASTA file as input to fasta-get-markov with at least 10 times 4**(N+1) DNA characters in it. So,
-		
-		order-3 requires 2560 characters 
-		order 4 requires 10240 characters 
-		order 5 requires 40960 characters 
-		etc.
-		
-		.. class:: warningmark
-		
-		This tool was contributed by Timothy Palpant.
-	</help>
+  <help>
+    .. class:: warningmark
+    
+    This tool requires FASTA formatted data. For more information and usage instructions, see http://metameme.sdsc.edu/doc/bfile-format.html
+    
+    .. class:: warningmark
+    
+    Typically, you should not specify an order larger than 3 for DNA sequences, or larger than 2 for protein sequences. However, if your input sequences contain higher-order non-random effects that are getting in the way of motif finding, you can follow the following "rules of thumb": 
+    * Use a background model at least four orders less than the shortest motifs you are looking for. So, if you want to find motifs as short as six, I wouldn't use a model higher than order two. 
+    * For an accurate model of order N, you need to use a FASTA file as input to fasta-get-markov with at least 10 times 4**(N+1) DNA characters in it. So,
+    
+    order-3 requires 2560 characters 
+    order 4 requires 10240 characters 
+    order 5 requires 40960 characters 
+    etc.
+    
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
 </tool>

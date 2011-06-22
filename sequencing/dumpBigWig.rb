@@ -47,15 +47,15 @@ ARGV.options do |opts|
   opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -71,8 +71,8 @@ wig.chromosomes.each do |chr|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
 
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-	
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  
   File.open(options[:output]+'.'+chr, 'w') do |f|
     chunk_start = 1
     chr_length = wig.chr_length(chr)

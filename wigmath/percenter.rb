@@ -13,7 +13,7 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input BigWig file to percentize
-#	  -t, --total			    Number to divide each value by (optional)	
+#   -t, --total         Number to divide each value by (optional) 
 #   -o, --output        Output percentized BigWig file
 #
 # == Author
@@ -67,9 +67,9 @@ wig = BigWigFile.new(options[:input])
 
 # Number to normalize with (divide by)
 sum = if not options[:total].nil? and options[:total] > 0
-	options[:total].to_f
+  options[:total].to_f
 else
-	wig.total
+  wig.total
 end
 
 puts "Normalizing by a factor of #{sum}"

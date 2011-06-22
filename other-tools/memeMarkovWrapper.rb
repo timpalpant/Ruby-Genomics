@@ -12,7 +12,7 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input					Input sequences
+#   -i, --input         Input sequences
 #   -o, --output        Output file
 #
 # == Author
@@ -38,20 +38,20 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-	opts.on( '-i', '--input FILE', :required, "Input sequences (FASTA)" ) { |f| options[:input] = f }
-	options[:order] = 1
-	opts.on( '-m', '--order N', "Markov model order (default = 1)" ) { |n| options[:order] = n.to_i }
+  opts.on( '-i', '--input FILE', :required, "Input sequences (FASTA)" ) { |f| options[:input] = f }
+  options[:order] = 1
+  opts.on( '-m', '--order N', "Markov model order (default = 1)" ) { |n| options[:order] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -63,16 +63,16 @@ output = %x[ fasta-get-markov -m #{options[:order]} < "\"#{File.expand_path(opti
 # Hackishly parse the output
 markov_line_start = 0
 output.each_with_index do |line,line_num|
-	# Find the first line that starts with "# order 0"
-	# Keep the output past that line
-	if line.include?('# order')
-		markov_line_start = line_num+1
-		break
-	end
+  # Find the first line that starts with "# order 0"
+  # Keep the output past that line
+  if line.include?('# order')
+    markov_line_start = line_num+1
+    break
+  end
 end
 
 # Write the good output to disk
 File.open(options[:output], 'w') do |f|
-	f.puts "# order 0"
-	f.puts output[markov_line_start..-1].join("\n")
+  f.puts "# order 0"
+  f.puts output[markov_line_start..-1].join("\n")
 end

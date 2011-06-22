@@ -53,13 +53,13 @@ ARGV.options do |opts|
   
   # Parse the command-line arguments
   opts.parse!
-	
+  
   # Validate the required parameters
   if opts.missing_switches?
     puts opts.missing_switches
     puts opts
     exit
-  end	
+  end 
 end
 
 # Parse the range
@@ -95,7 +95,7 @@ assembly.each do |chr, chr_length|
   # Run in parallel processes managed by ForkManager
   pm.start(chr) and next
   
-	puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   
   chr_hist = Array.new(num_bins, 0)
   

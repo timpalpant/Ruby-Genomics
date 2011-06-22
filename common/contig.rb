@@ -13,10 +13,10 @@ class Contig < Array
   attr_accessor :start, :step, :span
 
   def initialize(length = 0, start = 1, step = 1, span = 1)
-  	super(length, 0)
-  	@start = start
-  	@step = step
-  	@span = span
+    super(length, 0)
+    @start = start
+    @step = step
+    @span = span
   end
   
   # Parse the header arguments of a fixedStep/variableStep line
@@ -37,76 +37,76 @@ class Contig < Array
       end
     end
 
-		return self.new(0, start, step, span)
+    return self.new(0, start, step, span)
   end
   
   # Load a chromosome from a specific section of a Wig file
   # (first line should be a fixedStep/variableStep line)
   def self.load_wig(data_file, start_line, end_line)
-		# Grab all the lines
-		data = File.lines(data_file, start_line, end_line).reject { |line| line.chomp.empty? }
-			
-		# Parse the fixedStep/variableStep header
-		header = data.first
+    # Grab all the lines
+    data = File.lines(data_file, start_line, end_line).reject { |line| line.chomp.empty? }
+      
+    # Parse the fixedStep/variableStep header
+    header = data.first
     chr = parse_wig_header(header)
 
     # Parse all the values into floats
-		if header.start_with?('variableStep')
-			# Reconfigure the data if it was variableStep
-			chr.start = data[1].split("\t").first.to_i
-			chr.step = 1
-			chr.span = 1
-		
-			prev_base, prev_value = nil, nil
-			data[1..-1].each do |line|
-				entry = line.chomp.split("\t")
-				base = entry.first.to_i
-				value = entry.last.to_f
-				
-				if prev_base and prev_value
+    if header.start_with?('variableStep')
+      # Reconfigure the data if it was variableStep
+      chr.start = data[1].split("\t").first.to_i
+      chr.step = 1
+      chr.span = 1
+    
+      prev_base, prev_value = nil, nil
+      data[1..-1].each do |line|
+        entry = line.chomp.split("\t")
+        base = entry.first.to_i
+        value = entry.last.to_f
+        
+        if prev_base and prev_value
           for bp in prev_base-chr.start..base-chr.start
             chr[bp] = prev_value
           end
-				end
-				
-				prev_base = base
-				prev_value = value
-			end
-		elsif header.start_with?('fixedStep')
-			chr[0..-1] = data[1..-1].map { |line| line.to_f }
-		else
+        end
+        
+        prev_base = base
+        prev_value = value
+      end
+    elsif header.start_with?('fixedStep')
+      chr[0..-1] = data[1..-1].map { |line| line.to_f }
+    else
       raise "Wig chromosome header is neither fixedStep nor variableStep!"
     end
-		
+    
     return chr  
   end
 
-	# The last base pair with data
+  # The last base pair with data
   def stop
-  	@start + self.length - 1
+    @start + self.length - 1
   end
   
   # If this Chromosome contains data for the specified range
   def include?(low, high = self.length-1)
-		low >= start and low <= stop and high >= start and high <= stop
+    low >= start and low <= stop and high >= start and high <= stop
   end
   
   # Get a subsequence of data
   def bases(from, to)
-		low_bp = [from, to].min
-		high_bp = [from, to].max
-		
-		raise ContigError, "Chromosome does not include bases #{low_bp}..#{high_bp}" unless self.include?(low_bp, high_bp)
-		
-  	data = self[low_bp-@start..high_bp-@start]
-		data = data.reverse if from > to
-		return data
+    low_bp = [from, to].min
+    high_bp = [from, to].max
+    
+    raise ContigError, "Chromosome does not include bases #{low_bp}..#{high_bp}" unless self.include?(low_bp, high_bp)
+    
+    data = self[low_bp-@start..high_bp-@start]
+    data = data.reverse if from > to
+    return data
   end
-	
-	# Alias for bases
-	def subseq(low, high)
-		bases(low, high)
-	end
+  
+  # Alias for bases
+  def subseq(low, high)
+    bases(low, high)
+  end
   
   # Output this chromosome as a fixedStep list of values (one per line)
   def to_s
@@ -117,11 +117,11 @@ end
 
 # For converting an Array to a Chromosome
 class Array
-	def to_contig(start = 1, step = 1, span = 1)
-		chr = Contig.new(self.length, start, step, span)
+  def to_contig(start = 1, step = 1, span = 1)
+    chr = Contig.new(self.length, start, step, span)
     chr[0..-1] = self
-		return chr
-	end
+    return chr
+  end
 end
 
 

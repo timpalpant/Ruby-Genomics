@@ -43,8 +43,8 @@ fixedStep chrom=chr1 start=1 step=1 span=1
 14
 15
 variableStep chrom=2micron
-100	5
-101	6
-105	10
-110	1
-111	2
+100 5
+101 6
+105 10
+110 1
+111 2

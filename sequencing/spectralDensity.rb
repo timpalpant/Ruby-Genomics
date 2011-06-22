@@ -5,7 +5,7 @@
 #
 # == Usage 
 #   Take sequencing data in nukes.wig and compute the DFT in 1000bp windows
-#		with a step size of 100bp
+#   with a step size of 100bp
 #
 #   spectralDensity.rb -i nukes.wig -w 1000 -s 100 -o output.txt
 #
@@ -14,9 +14,9 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input file with nucleosome sequencing data
-#   -w, --window				Window size in base pairs
-#		-s, --step					Step size in base pairs
-#		-p, --padding				Padding (multiplier) to increase resolution
+#   -w, --window        Window size in base pairs
+#   -s, --step          Step size in base pairs
+#   -p, --padding       Padding (multiplier) to increase resolution
 #   -o, --output        Output file with mean spectral density values
 #
 # == Author
@@ -48,20 +48,20 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input file (wig)" ) { |f| options[:input] = f }
   opts.on( '-w', '--window N', :required, "Window size in base pairs" ) { |n| options[:window] = n.to_i }
-	opts.on( '-s', '--step N', :required, "Step size in base pairs" ) { |n| options[:step] = n.to_i }
-	options[:padding] = 0
-	opts.on( '-p', '--padding N', "Additional padding multiplier (default: 0)" ) { |n| options[:padding] = n.to_i }
+  opts.on( '-s', '--step N', :required, "Step size in base pairs" ) { |n| options[:step] = n.to_i }
+  options[:padding] = 0
+  opts.on( '-p', '--padding N', "Additional padding multiplier (default: 0)" ) { |n| options[:padding] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (bedgraph-ish)" ) { |f| options[:output] = f }
-	
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -74,33 +74,33 @@ count = 0
 
 # Iterate over all the windows and compute the power spectrum
 wig.chromosomes.each do |chr|
-	puts "Processing chromosome #{chr}" if ENV['DEBUG']
-	
-	bp = 1
-	stop = wig.chr_length(chr)
-	while bp + options[:window] < stop
-		# Demean
-		data = wig.query(chr, bp, bp+options[:window]-1).to_gslv
-		data -= data.mean
-		
-		# Pad with zeros
-		padded = Vector[(options[:padding]+1)*data.length]
-		padded[0..data.length-1] = data
-		
-		# Compute the power spectrum and normalize
-		p = padded.power_spectrum.to_gslv
-		total_power = p.sum
-		p /= total_power unless total_power == 0
-		
-		# Add to the total
-		total[0..p.length-1] += p
-		count += 1
-		
-		# Move to the next window
-		bp += options[:step]
-		# Hack to force GC for large genomes
-		GC.start if count % 500 == 0
-	end
+  puts "Processing chromosome #{chr}" if ENV['DEBUG']
+  
+  bp = 1
+  stop = wig.chr_length(chr)
+  while bp + options[:window] < stop
+    # Demean
+    data = wig.query(chr, bp, bp+options[:window]-1).to_gslv
+    data -= data.mean
+    
+    # Pad with zeros
+    padded = Vector[(options[:padding]+1)*data.length]
+    padded[0..data.length-1] = data
+    
+    # Compute the power spectrum and normalize
+    p = padded.power_spectrum.to_gslv
+    total_power = p.sum
+    p /= total_power unless total_power == 0
+    
+    # Add to the total
+    total[0..p.length-1] += p
+    count += 1
+    
+    # Move to the next window
+    bp += options[:step]
+    # Hack to force GC for large genomes
+    GC.start if count % 500 == 0
+  end
 end
 
 # Compute the average power spectrum (Welch's method for spectral density estimation)
@@ -109,5 +109,5 @@ avg = total / count
 
 # Write to file
 File.open(options[:output], 'w') do |f|
-	f.puts avg.to_a.join("\n")
+  f.puts avg.to_a.join("\n")
 end

@@ -6,8 +6,8 @@ require 'assembly'
 # Load an entire genome from a set of Fasta files in a directory
 # Loads the sequences as Bio::Sequence::NA
 ##
-class Genome < GenomicData	
-	# Load a genomic reference sequence from a fasta file, or a directory of fasta files
+class Genome < GenomicData  
+  # Load a genomic reference sequence from a fasta file, or a directory of fasta files
   def initialize(filename)
     expanded = File.expand_path(filename)
     if File.file?(expanded)
@@ -25,15 +25,15 @@ class Genome < GenomicData
     else
       raise "Genome to load must be either a single Fasta file or a directory of Fasta files, one per chromosome"
     end
-		
-		puts "Loaded #{self.length} chromosomes (#{self.bases} base pairs) from #{File.basename(filename)}" if ENV['DEBUG']
-	end
-	
-	# Return the number of base pairs in the genome
-	# length() will return the number of chromosomes
-	def bases
-		self.values.inject(0) { |length,chr| length + chr.length }
-	end
+    
+    puts "Loaded #{self.length} chromosomes (#{self.bases} base pairs) from #{File.basename(filename)}" if ENV['DEBUG']
+  end
+  
+  # Return the number of base pairs in the genome
+  # length() will return the number of chromosomes
+  def bases
+    self.values.inject(0) { |length,chr| length + chr.length }
+  end
   
   # Reduce this genome to an Assembly object (just chromosome id's and their lengths)
   def to_assembly(name)
@@ -56,25 +56,25 @@ class Genome < GenomicData
   end
   
   def composition
-  	{'a'=>self.a_count, 't'=>self.t_count, 'g'=>self.g_count, 'c'=>self.c_count}
-  end
-	
-  def a_count
-  	count('a')
+    {'a'=>self.a_count, 't'=>self.t_count, 'g'=>self.g_count, 'c'=>self.c_count}
   end
   
-	def a_content
+  def a_count
+    count('a')
+  end
+  
+  def a_content
     base_content('a')
-	end
-	
-	def a_percent
-	  (100 * a_content).to_f
-	end
-	
-	def t_count
-		count('t')
-	end
-	
+  end
+  
+  def a_percent
+    (100 * a_content).to_f
+  end
+  
+  def t_count
+    count('t')
+  end
+  
   def t_content
    base_content('t')
   end
@@ -84,7 +84,7 @@ class Genome < GenomicData
   end
  
   def g_count
-  	count('g')
+    count('g')
   end
   
   def g_content
@@ -96,9 +96,9 @@ class Genome < GenomicData
   end
  
   def c_count
-  	count('c')
+    count('c')
   end
-  	
+    
   def c_content
    base_content('c')
   end
@@ -115,6 +115,6 @@ class Genome < GenomicData
   end
   
   def count(base)
-		self.values.inject(0) { |count,chr| count + chr.count(base) }
+    self.values.inject(0) { |count,chr| count + chr.count(base) }
   end
 end

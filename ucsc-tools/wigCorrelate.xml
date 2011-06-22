@@ -1,15 +1,15 @@
 <tool id="WigCorrelate" name="Correlate" version="1.0.0">
   <description>multiple Wiggle files</description>
   <command interpreter="ruby1.9">
-		wigCorrelate.rb -o $output
-			#for $input in $inputs
-				${input.file}
-			#end for
-	</command>
+    wigCorrelate.rb -o $output
+      #for $input in $inputs
+        ${input.file}
+      #end for
+  </command>
   <inputs>
-			<repeat name="inputs" title="BigWig file">
-				<param name="file" type="data" format="bigwig" />
-			</repeat>
+      <repeat name="inputs" title="BigWig file">
+        <param name="file" type="data" format="bigwig" />
+      </repeat>
   </inputs>
   <outputs>
       <data format="tabular" name="output" />

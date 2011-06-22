@@ -40,15 +40,15 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
-	# Parse the command-line arguments
-	opts.parse!
-	
-	# Validate the required parameters
-	if opts.missing_switches?
-	  puts opts.missing_switches
-	  puts opts
-	  exit
-	end
+  # Parse the command-line arguments
+  opts.parse!
+  
+  # Validate the required parameters
+  if opts.missing_switches?
+    puts opts.missing_switches
+    puts opts
+    exit
+  end
 end
 
 
@@ -57,14 +57,14 @@ output = UCSCTools.wig_correlate(ARGV)
 
 # Parse the output and write to file
 File.open(options[:output], 'w') do |f|
-	output.split("\n").each do |line|
-		entry = line.chomp.split("\t")
-		# Clean up the filenames
-		file1 = File.basename(entry[0])
-		file2 = File.basename(entry[1])
-		correlation = entry[2]
-		
-		# Write to output file
-		f.puts "#{file1}\t#{file2}\t#{correlation}"
-	end
+  output.split("\n").each do |line|
+    entry = line.chomp.split("\t")
+    # Clean up the filenames
+    file1 = File.basename(entry[0])
+    file2 = File.basename(entry[1])
+    correlation = entry[2]
+    
+    # Write to output file
+    f.puts "#{file1}\t#{file2}\t#{correlation}"
+  end
 end
