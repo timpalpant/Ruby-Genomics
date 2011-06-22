@@ -186,13 +186,8 @@ puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 # Write the Wiggle track header
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
-<<<<<<< HEAD
-	name = "Mapped Coverage #{File.basename(options[:input])}"
-	f.puts UCSCTools.track_header(:name => name)
-=======
   name = "Mapped Coverage #{File.basename(options[:input])}"
-  f.puts Wig.track_header(name, name)
->>>>>>> 92c234fa0b5b013818a80c781a07dcb24862f229
+  f.puts UCSCTools.track_header(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file

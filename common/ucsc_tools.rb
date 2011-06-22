@@ -32,6 +32,7 @@ module UCSCTools
     str << " viewLimits=#{opts[:limits]}" if opts[:limits]
     
     return str.string
+  end
   
   def self.wig_correlate(files)
     run("wigCorrelate #{files.join(' ')}")

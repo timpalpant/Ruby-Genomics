@@ -6,7 +6,7 @@ TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
 describe SAMEntry do
   context "single-end entry" do
     # This is a Crick (reverse-complement) entry
-    SINGLE_END_ENTRY = "SRR060808.16  16  chrI  24952 255 36M * 0 0 TTATAAATCTGGTGCGACAGCTTATATTAATAAAGC  +:I4II9:CIIII6A%IIBIBIICIIIIIIIIIIII  XA:i:2  MD:Z:15T12T7  NM:i:2"
+    SINGLE_END_ENTRY = "SRR060808.16	16	chrI	24952	255	36M	*	0	0	TTATAAATCTGGTGCGACAGCTTATATTAATAAAGC	+:I4II9:CIIII6A%IIBIBIICIIIIIIIIIIII	XA:i:2	MD:Z:15T12T7	NM:i:2"
     
     before(:each) do
       @test = SAMEntry.parse(SINGLE_END_ENTRY)
@@ -50,7 +50,7 @@ describe SAMEntry do
   end
   
   context "watson paired-end entry" do
-    PAIRED_END_ENTRY = "UNC1-RDR301647_0015:1:1:1093:13632#GCCAAT 163 chrII 26958 255 35M = 27053 123 ATACATAGTCTCCAGGTTGGTAAAGATGAGTCTTA ################################### XA:i:0  MD:Z:35 NM:i:0"
+    PAIRED_END_ENTRY = "UNC1-RDR301647_0015:1:1:1093:13632#GCCAAT	163	chrII	26958	255	35M	=	27053	123	ATACATAGTCTCCAGGTTGGTAAAGATGAGTCTTA	###################################	XA:i:0	MD:Z:35	NM:i:0"
     
     before(:each) do
       @test = SAMEntry.parse(PAIRED_END_ENTRY)
