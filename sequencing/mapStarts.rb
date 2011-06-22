@@ -65,9 +65,6 @@ ARGV.options do |opts|
 end
 
 
-# Initialize the BAM file for random lookup
-bam = BAMFile.new(options[:input])
-
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
@@ -87,61 +84,62 @@ end
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
-assembly.each do |chr, chr_length|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
+BAMFile.open(options[:input]) do |bam|
+  assembly.each do |chr, chr_length|
+    # Run in parallel processes managed by ForkManager
+    pm.start(chr) and next
 
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-  unmapped = 0
+    puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+    unmapped = 0
 
-	# Write the chromosome fixedStep header
-	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
-	end
-	
-	chunk_start = 1
-	while chunk_start < chr_length		
-		# Allocate memory for this chunk
-		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
-    chunk_size = chunk_stop - chunk_start + 1
-    mapped_starts = Array.new(chunk_size, 0)
-    
-    # Count the number of reads for this chunk to make sure it's a reasonable number
-    # Adjust the step size to an optimal size
-    count = bam.count(chr, chunk_start, chunk_stop)
-    puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-    if count > 500_000
-      options[:step] = 3*options[:step]/5
-      puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
-      redo
-    elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
-      options[:step] *= 2
-      puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
-      redo
+    # Write the chromosome fixedStep header
+    File.open(options[:output]+'.'+chr, 'w') do |f|
+      f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
     end
-  
-    # Get all aligned reads for this chunk and map the dyads
-    bam.each(chr, chunk_start, chunk_stop).each do |read|
-      begin
-        mapped_starts[read.start-chunk_start] += 1 if chunk_start <= read.start and read.start <= chunk_stop
-      rescue
-        unmapped += 1
+    
+    chunk_start = 1
+    while chunk_start < chr_length		
+      # Allocate memory for this chunk
+      chunk_stop = [chunk_start+options[:step]-1, chr_length].min
+      chunk_size = chunk_stop - chunk_start + 1
+      mapped_starts = Array.new(chunk_size, 0)
+      
+      # Count the number of reads for this chunk to make sure it's a reasonable number
+      # Adjust the step size to an optimal size
+      count = bam.count(chr, chunk_start, chunk_stop)
+      puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+      if count > 500_000
+        options[:step] = 3*options[:step]/5
+        puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
+        redo
+      elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
+        options[:step] *= 2
+        puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
+        redo
       end
+    
+      # Get all aligned reads for this chunk and map the dyads
+      bam.each(chr, chunk_start, chunk_stop).each do |read|
+        begin
+          mapped_starts[read.start-chunk_start] += 1 if chunk_start <= read.start and read.start <= chunk_stop
+        rescue
+          unmapped += 1
+        end
+      end
+      
+      # Write this chunk to disk
+      File.open(options[:output]+'.'+chr, 'a') do |f|
+        f.puts mapped_starts.join("\n")
+      end
+      
+      chunk_start = chunk_stop + 1
     end
     
-    # Write this chunk to disk
-    File.open(options[:output]+'.'+chr, 'a') do |f|
-      f.puts mapped_starts.join("\n")
-    end
-    
-    chunk_start = chunk_stop + 1
+    # Send the number of unmapped reads on this chromosome back to the parent process
+    puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
+    pm.finish(0, unmapped.to_s)
   end
-  
-  # Send the number of unmapped reads on this chromosome back to the parent process
-  puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
-  pm.finish(0, unmapped.to_s)
 end
-
 
 # Wait for all of the child processes (each chromosome) to complete
 pm.wait_all_children
@@ -161,6 +159,3 @@ File.cat(tmp_files, options[:output])
 
 # Delete the individual chromosome files created by each process
 tmp_files.each { |filename| File.delete(filename) }
-
-# Delete the BAM index so that it is not orphaned within Galaxy
-bam.close

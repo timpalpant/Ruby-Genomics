@@ -66,9 +66,6 @@ ARGV.options do |opts|
 end
 
 
-# Initialize the BAM file for random lookup
-bam = BAMFile.new(options[:input])
-
 # Initialize the assembly to generate coverage on
 assembly = Assembly.load(options[:genome])
 
@@ -78,79 +75,80 @@ pm = Parallel::ForkManager.new(options[:threads])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
-assembly.each do |chr, chr_length|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
-  
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-  
-  # Write the chromosome fixedStep header
-  File.open(options[:output]+'.'+chr, 'w') do |f|
-    f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
-  end
-  
-	# Write the chromosome fixedStep header
-	File.open(options[:output]+'.'+chr, 'w') do |f|
-		f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
-	end
-	
-	chunk_start = 1
-	while chunk_start < chr_length		
-		# Allocate memory for this chunk
-		chunk_stop = [chunk_start+options[:step]-1, chr_length].min
-    chunk_size = chunk_stop - chunk_start + 1
-    total = Array.new(chunk_size, 0)
-    read_count = Array.new(chunk_size, 0)
+BAMFile.open(options[:input]) do |bam|
+  assembly.each do |chr, chr_length|
+    # Run in parallel processes managed by ForkManager
+    pm.start(chr) and next
     
-    # Pad the query because SAMTools only returns reads that physically overlap the given window
-    # It is possible that our 36bp reads may be physically outside the chunk window
-    # but will extend into the chunk window
-    query_start = [chunk_start-500, 1].max
-    query_stop = [chunk_stop+500, chr_length].min
+    puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     
-    # Count the number of reads for this chunk to make sure it's a reasonable number
-    # Adjust the step size to an optimal size
-    count = bam.count(chr, chunk_start, chunk_stop)
-    puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-    if count > 500_000
-      options[:step] = 3*options[:step]/5
-      puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
-      redo
-    elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
-      options[:step] *= 2
-      puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
-      redo
+    # Write the chromosome fixedStep header
+    File.open(options[:output]+'.'+chr, 'w') do |f|
+      f.puts Wig.fixed_step(chr) + ' start=1 step=1 span=1'
     end
     
-    # Get all aligned reads for this chunk and map the dyads
-    bam.each(chr, query_start, query_stop).each do |entry|      
-      # Also clamp to the chunk
-      low = [entry.low-chunk_start, 0].max
-      high = [entry.high-chunk_start, chunk_size-1].min
+    # Write the chromosome fixedStep header
+    File.open(options[:output]+'.'+chr, 'w') do |f|
+      f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
+    end
+    
+    chunk_start = 1
+    while chunk_start < chr_length		
+      # Allocate memory for this chunk
+      chunk_stop = [chunk_start+options[:step]-1, chr_length].min
+      chunk_size = chunk_stop - chunk_start + 1
+      total = Array.new(chunk_size, 0)
+      read_count = Array.new(chunk_size, 0)
       
-      # Map the read coverage within the wig file
-      for bp in low..high
-        total[bp] += entry.length
-        read_count[bp] += 1
+      # Pad the query because SAMTools only returns reads that physically overlap the given window
+      # It is possible that our 36bp reads may be physically outside the chunk window
+      # but will extend into the chunk window
+      query_start = [chunk_start-500, 1].max
+      query_stop = [chunk_stop+500, chr_length].min
+      
+      # Count the number of reads for this chunk to make sure it's a reasonable number
+      # Adjust the step size to an optimal size
+      count = bam.count(chr, chunk_start, chunk_stop)
+      puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+      if count > 500_000
+        options[:step] = 3*options[:step]/5
+        puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
+        redo
+      elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
+        options[:step] *= 2
+        puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
+        redo
       end
+      
+      # Get all aligned reads for this chunk and map the dyads
+      bam.each(chr, query_start, query_stop).each do |entry|      
+        # Also clamp to the chunk
+        low = [entry.low-chunk_start, 0].max
+        high = [entry.high-chunk_start, chunk_size-1].min
+        
+        # Map the read coverage within the wig file
+        for bp in low..high
+          total[bp] += entry.length
+          read_count[bp] += 1
+        end
+      end
+      
+      mean = Array.new(total.length, 0)
+      for i in 0...total.length
+        mean[i] = total[i].to_f / read_count[i] unless read_count[i] == 0
+      end
+    
+      # Write this chunk to disk
+      File.open(options[:output]+'.'+chr, 'a') do |f|
+        f.puts mean.join("\n")
+      end
+      
+      chunk_start = chunk_stop + 1
     end
     
-    mean = Array.new(total.length, 0)
-    for i in 0...total.length
-      mean[i] = total[i].to_f / read_count[i] unless read_count[i] == 0
-    end
-  
-    # Write this chunk to disk
-    File.open(options[:output]+'.'+chr, 'a') do |f|
-      f.puts mean.join("\n")
-    end
-    
-    chunk_start = chunk_stop + 1
+    pm.finish(0)
   end
-  
-  pm.finish(0)
 end
-
 
 # Wait for all of the child processes (each chromosome) to complete
 pm.wait_all_children
@@ -169,9 +167,6 @@ File.cat(tmp_files, options[:output])
 
 # Delete the individual chromosome files created by each process
 tmp_files.each { |filename| File.delete(filename) }
-
-# Delete the BAM index so that it is not orphaned within Galaxy
-bam.close
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'

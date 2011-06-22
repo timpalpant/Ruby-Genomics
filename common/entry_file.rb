@@ -18,11 +18,16 @@ class EntryFile
   def close
   end
   
-  # Open the EntryFile with a block
-  def self.open(filename)
+  # Open the EntryFile (optionally with a block)
+  def self.open(filename, &block)
     entry_file = self.new(filename)
-    yield entry_file
-    entry_file.close
+    
+    if block
+      yield entry_file
+      entry_file.close
+    else
+      return entry_file
+    end
   end
   
   # Iterate over each of the entries in an EntryFile
