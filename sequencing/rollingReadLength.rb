@@ -30,7 +30,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'assembly'
 require 'wig'
-require 'samtools'
+require 'sam'
 require 'unix_file_utils'
 require 'forkmanager'
 

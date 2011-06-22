@@ -31,7 +31,7 @@ require 'pickled_optparse'
 require 'forkmanager'
 require 'assembly'
 require 'wig'
-require 'samtools'
+require 'sam'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
