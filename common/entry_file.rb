@@ -3,6 +3,9 @@ require 'enumerator'
 ##
 # A line-oriented data file
 # base class for Bed, BedGraph, GFF, SAM, etc.
+# Idea is that it should behave somewhat like a File object,
+# but that relevant parsed Entry objects (BedEntry, SAMEntry, etc.) 
+# are returned instead of lines
 ##
 class EntryFile
   include Enumerable
@@ -15,6 +18,14 @@ class EntryFile
   def close
   end
   
+  # Open the EntryFile with a block
+  def self.open(filename)
+    entry_file = self.new(filename)
+    yield entry_file
+    entry_file.close
+  end
+  
+  # Iterate over each of the entries in an EntryFile
   def self.foreach(filename, chr = nil, start = nil, stop = nil)
     entry_file = self.new(filename)
     entry_file.each(chr, start, stop) { |entry| yield entry }

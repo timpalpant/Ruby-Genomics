@@ -70,9 +70,6 @@ high = range.last.to_i
 raise "Invalid range given. Range should be of the format LOW:HIGH" if low >= high
 num_bins = high - low + 1
 
-# Initialize the BAM file
-bam = BAMFile.new(options[:input])
-
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
@@ -91,32 +88,33 @@ end
 
 # Process each chromosome in parallel
 # Each chromosome in a different parallel process
-assembly.each do |chr, chr_length|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
-  
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-  
-  chr_hist = Array.new(num_bins, 0)
-  
-  # Iterate over the read centers on this chromosome, and bin the read length
-  bam.each(chr) do |read|
-    # Only count paired reads once (use the forward read)
-    next if read.paired? and read.crick?
+BAMFile.open(options[:input]) do |bam|
+  assembly.each do |chr, chr_length|
+    # Run in parallel processes managed by ForkManager
+    pm.start(chr) and next
     
-    bin = [[read.length, low].max, high].min - low
-    chr_hist[bin] += 1
-  end
+    puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+    
+    chr_hist = Array.new(num_bins, 0)
+    
+    # Iterate over the read centers on this chromosome, and bin the read length
+    bam.each(chr) do |read|
+      # Only count paired reads once (use the forward read)
+      next if read.paired? and read.crick?
+      
+      bin = [[read.length, low].max, high].min - low
+      chr_hist[bin] += 1
+    end
 
-  if ENV['DEBUG']
-    puts "Total number of reads on chromosome #{chr}: #{chr_hist.sum}"
-    puts "Histogram for chromosome #{chr}:"
-    p chr_hist
+    if ENV['DEBUG']
+      puts "Total number of reads on chromosome #{chr}: #{chr_hist.sum}"
+      puts "Histogram for chromosome #{chr}:"
+      p chr_hist
+    end
+    
+    pm.finish(0, chr_hist)
   end
-  
-  pm.finish(0, chr_hist)
 end
-
 
 # Wait for all of the child processes (each chromosome) to complete
 pm.wait_all_children
@@ -127,6 +125,3 @@ File.open(options[:output], 'w') do |f|
     f.puts "#{length}\t#{histogram[length-low]}"
   end
 end
-
-# Delete the BAM index so that it is not orphaned within Galaxy
-bam.close
