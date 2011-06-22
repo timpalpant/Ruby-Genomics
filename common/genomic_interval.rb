@@ -17,6 +17,18 @@ class GenomicInterval
     "#{chr}:#{start}-#{stop}"
   end
   
+  def to_bed
+    "#{chr}\t#{@start}\t#{@stop}"
+  end
+  
+  def to_bedGraph
+    "#{chr}\t#{@start}\t#{@stop}"
+  end
+  
+  def to_gff
+    "#{chr}\tSpotArray\tfeature\t#{@start}\t#{@stop}\t0\t.\t.\tprobe_id=none;count=1"
+  end
+  
   def center
     (@start + @stop) / 2 if @start and @stop
   end

@@ -33,7 +33,7 @@ require 'forkmanager'
 require 'unix_file_utils'
 require 'assembly'
 require 'wig'
-require 'samtools'
+require 'sam'
 require 'fileutils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -75,8 +75,8 @@ if options[:length]
   puts "Using fixed offset of #{offset} from read starts (5' end)" if ENV['DEBUG']
 end
 
-# Index the BAM file for random lookup
-SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
+# Initialize the BAM file for random lookup
+bam = BAMFile.new(options[:input])
 
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
@@ -124,7 +124,7 @@ assembly.each do |chr, chr_length|
     
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
-    count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
+    count = bam.count(chr, chunk_start, chunk_stop)
     puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 500_000
       options[:step] = 3*options[:step]/5
@@ -137,7 +137,7 @@ assembly.each do |chr, chr_length|
     end
   
     # Get all aligned reads for this chunk and map the dyads
-    SAMTools.view(options[:input], chr, query_start, query_stop).each do |read|
+    bam.each(chr, query_start, query_stop).each do |read|
       center = if options[:length]
         if read.watson?
           read.start + offset
@@ -189,7 +189,7 @@ File.cat(tmp_files, options[:output])
 tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
-File.delete(options[:input] + '.bai')
+bam.close
 
 # Convert the output to BigWig
 tmp = options[:output] + '.tmp'

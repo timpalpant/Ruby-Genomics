@@ -11,8 +11,14 @@ class EntryFile
     @data_file = File.expand_path(filename)
   end
   
+  # Perform any additional cleanup operations (deleting indexes, etc.)
+  def close
+  end
+  
   def self.foreach(filename, chr = nil, start = nil, stop = nil)
-    self.new(filename).each(chr, start, stop) { |entry| yield entry }
+    entry_file = self.new(filename)
+    entry_file.each(chr, start, stop) { |entry| yield entry }
+    entry_file.close
   end
   
   # Make entry files enumerable

@@ -65,8 +65,8 @@ ARGV.options do |opts|
 end
 
 
-# Index the BAM file for random lookup
-SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
+# Initialize the BAM file for random lookup
+bam = BAMFile.new(options[:input])
 
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
@@ -108,7 +108,7 @@ assembly.each do |chr, chr_length|
     
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
-    count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
+    count = bam.count(chr, chunk_start, chunk_stop)
     puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 500_000
       options[:step] = 3*options[:step]/5
@@ -121,7 +121,7 @@ assembly.each do |chr, chr_length|
     end
   
     # Get all aligned reads for this chunk and map the dyads
-    SAMTools.view(options[:input], chr, chunk_start, chunk_stop).each do |read|
+    bam.each(chr, chunk_start, chunk_stop).each do |read|
       begin
         mapped_starts[read.start-chunk_start] += 1 if chunk_start <= read.start and read.start <= chunk_stop
       rescue
@@ -163,4 +163,4 @@ File.cat(tmp_files, options[:output])
 tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
-File.delete(options[:input] + '.bai')
+bam.close

@@ -28,7 +28,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'forkmanager'
-require 'samtools'
+require 'sam'
 require 'assembly'
 require 'stats'
 
@@ -70,8 +70,8 @@ high = range.last.to_i
 raise "Invalid range given. Range should be of the format LOW:HIGH" if low >= high
 num_bins = high - low + 1
 
-# Index the BAM file for random lookup
-SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
+# Initialize the BAM file
+bam = BAMFile.new(options[:input])
 
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
@@ -100,7 +100,10 @@ assembly.each do |chr, chr_length|
   chr_hist = Array.new(num_bins, 0)
   
   # Iterate over the read centers on this chromosome, and bin the read length
-  BAMFile.foreach_read(options[:input], chr) do |read|
+  bam.each(chr) do |read|
+    # Only count paired reads once (use the forward read)
+    next if read.paired? and read.crick?
+    
     bin = [[read.length, low].max, high].min - low
     chr_hist[bin] += 1
   end
@@ -126,4 +129,4 @@ File.open(options[:output], 'w') do |f|
 end
 
 # Delete the BAM index so that it is not orphaned within Galaxy
-File.delete(options[:input] + '.bai')
+bam.close

@@ -136,8 +136,31 @@ end
 # Access BAM files through stream operations using samtools
 class BAMFile < BinaryEntryFile
   extend ReadFile
+  
+  def initialize(filename)
+    super(filename)
+    
+    # Index the BAM file if its index can't be found
+    index(@data_file) if not File.exist?(@data_file + '.bai')
+  end
+  
+  # Cleanup the index
+  def close
+    File.delete(@data_file + '.bai') if File.exist?(@data_file + '.bai')
+  end
+  
+  # Count the number of alignments in a given lookup
+  def count(chr = nil, start = nil, stop = nil)
+    %x[ samtools view -c #{@data_file} #{query_string(chr, start, stop)} ].chomp.to_i
+  end
 
   private
+  
+  # Index sorted alignment for fast random access. Index file <aln.bam>.bai will be created.
+  def index
+    puts "Generating index for BAM file #{File.basename(@data_file)}" if ENV['DEBUG']
+    %x[ samtools index #{@data_file} ]
+  end
   
   def parse(line)
     SAMEntry.parse(line)
@@ -145,7 +168,7 @@ class BAMFile < BinaryEntryFile
   
   # Define how to query BAM files for lines
   def query_command(chr = nil, start = nil, stop = nil)
-    "samtools view #{File.expand_path(@data_file)} #{query_string(chr, start, stop)}"
+    "samtools view #{@data_file} #{query_string(chr, start, stop)}"
   end
 
   def self.query_string(chr = nil, start = nil, stop = nil)

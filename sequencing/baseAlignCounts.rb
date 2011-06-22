@@ -32,7 +32,7 @@ require 'forkmanager'
 require 'pickled_optparse'
 require 'assembly'
 require 'wig'
-require 'samtools'
+require 'sam'
 require 'unix_file_utils'
 require 'fileutils'
 
@@ -75,8 +75,8 @@ else
   padding = 500
 end
 
-# Index the BAM file for random lookup
-SAMTools.index(options[:input]) if not File.exist?(options[:input]+'.bai')
+# Initialize the BAM file for random lookup
+bam = BAMFile.new(options[:index])
 
 # Initialize the assembly to generate coverage on
 assembly = Assembly.load(options[:genome])
@@ -124,7 +124,7 @@ assembly.each do |chr, chr_length|
     
     # Count the number of reads for this chunk to make sure it's a reasonable number
     # Adjust the step size to an optimal size
-    count = SAMTools.count(options[:input], chr, chunk_start, chunk_stop)
+    count = bam.count(chr, chunk_start, chunk_stop)
     puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
     if count > 500_000
       options[:step] = 3*options[:step]/5
@@ -137,7 +137,7 @@ assembly.each do |chr, chr_length|
     end
   
     # Get all aligned reads for this chunk and map the dyads
-    SAMTools.view(options[:input], chr, query_start, query_stop).each do |entry|
+    bam.each(chr, query_start, query_stop).each do |entry|
       # Calculate the read stop based on specified in silico extension
       # or the read length
       stop = if not options[:x].nil? and options[:x] != 0
@@ -199,7 +199,7 @@ File.cat(tmp_files, options[:output])
 tmp_files.each { |filename| File.delete(filename) }
 
 # Delete the BAM index so that it is not orphaned within Galaxy
-File.delete(options[:input] + '.bai')
+bam.close
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'
