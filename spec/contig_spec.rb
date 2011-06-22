@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'chromosome'
+require 'contig'
 
-describe Chromosome do
+describe Contig do
 	TEST_LENGTH = 10
 	TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/fixtures/test-chr.txt')
 	# Should correspond to the data in test-chr.txt
@@ -9,7 +9,7 @@ describe Chromosome do
 	
 	context "with start = step = span = 1" do
 		before do
-			@test = Chromosome.new(TEST_LENGTH)
+			@test = Contig.new(TEST_LENGTH)
 		end
 		
 		it "should have default start 1" do
@@ -70,7 +70,7 @@ describe Chromosome do
 	
 	context "with start = 25" do
 		before do
-			@test = Chromosome.new(100, 25, 5, 4)
+			@test = Contig.new(100, 25, 5, 4)
 		end
 		
 		it "should have correct attributes" do

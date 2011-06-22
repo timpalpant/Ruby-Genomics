@@ -1,11 +1,10 @@
 require 'enumerator'
 require 'tmpdir'
 require 'unix_file_utils'
-require 'chromosome'
+require 'contig'
 require 'genomic_index_error'
 require 'stats'
 require 'forkmanager'
-require 'genomic_data'
 require 'assembly'
 require 'stringio'
 
@@ -327,9 +326,7 @@ class BigWigFile < AbstractWigFile
   # Load data from disk and return a Vector of values for a given chromosome
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def chr(chr_id)
-    chrom = Chromosome.new(chr_length(chr_id), 1, 1, 1)
-    chrom[0..-1] = query(chr_id, 1, chr_length(chr_id))
-    return chrom
+    query(chr_id, 1, chr_length(chr_id))
   end
   
   # Get the length of a chromosome from the index
@@ -360,7 +357,7 @@ class BigWigFile < AbstractWigFile
 
     values = result.string.split(' ').map { |v| v.to_f }
     values.reverse! if start > stop
-    return values
+    return values.to_contig(start, 1, 1)
   end
 
   # Return the average value for the specified region
@@ -428,8 +425,8 @@ class WigFile < AbstractWigFile
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
       header_line = grep_line.last
-      raise WigError, "Only fixedStep-format Wig files are supported at this time" if header_line.start_with?('variable')
-      next unless header_line.start_with?('fixed')
+      #raise WigError, "Only fixedStep-format Wig files are supported at this time" if header_line.start_with?('variable')
+      next unless header_line.start_with?('fixedStep') or header_line.start_with?('variableStep')
       
       header_line.split(' ').each do |opt|
         keypair = opt.split('=')
@@ -496,7 +493,7 @@ class WigFile < AbstractWigFile
     # Parse the header of the desired chromosome
     header = File.lines(@data_file, chr_start(chr), chr_start(chr)).first
     raise GenomicIndexError, 'Random queries are only available for fixedStep-style chromosomes' unless header.start_with?('fixedStep')
-    parsed = Chromosome.parse_header(header)
+    parsed = Contig.parse_wig_header(header)
     
     raise 'Random queries are not yet implemented for data with step != 1' if parsed.step != 1
     raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > parsed.start + parsed.step*chr_length(chr)
@@ -510,8 +507,9 @@ class WigFile < AbstractWigFile
     # Call tail and head to get the appropriate lines from the Wig
     values = File.lines(@data_file, start_line, stop_line).map { |line| line.to_f }
     values.reverse! if start > stop
+    parsed[0..-1] = values
     
-    return values
+    return parsed
   end
   
 	# Output a summary about this WigFile

@@ -5,5 +5,5 @@ gem 'bio', '>= 1.4.0'
 gem 'gnuplot', '>= 2.3.6'
 gem 'rake', '~> 0.8.7'
 gem 'rspec', '>= 2.5.0'
-gem 'simplecov', '>= 0.4.0', :require => false, :group => :test
+gem 'simplecov', '>= 0.4.0'
 gem "parallel-forkmanager", "~> 1.5.1"
