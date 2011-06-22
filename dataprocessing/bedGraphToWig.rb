@@ -4,9 +4,9 @@
 #   Converts BedGraph files to Wig files
 #
 # == Usage 
-#   bedGraph2Wig.rb -i file.bed -o file.wig
+#   bedGraphToWig.rb -i file.bed -o file.wig
 #
-#   For help use: bedGraph2Wig.rb -h
+#   For help use: bedGraphToWig.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
@@ -60,7 +60,7 @@ end
 a = Assembly.load(options[:genome])
 
 # Load the BedGraph data
-bedgraph = BedGraph.load(options[:input])
+bedgraph = BedGraphFile.load(options[:input])
 
 # Write the Wiggle format
 bedgraph.to_wig(options[:output], a)

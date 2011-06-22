@@ -1,16 +1,15 @@
 require 'fixed_precision'
 require 'genomic_index_error'
 require 'unix_file_utils'
-require 'math_utils'
 
 ##
-# Represents a chromosome of single-bp genomic data
-# Returned when querying a WigFile for a specific chromosome with WigFile#chr(num)
+# Represents a contiguous block of single-bp genomic data
+# Returned when querying a WigFile / SpotArray with WigFile#chr(num)
 # or iterating over the chromosomes of a GenomicData
 #
 # Since chromosomal coordinates can always be indicated by integers, store as an Array
 ##
-class Chromosome < Array
+class Contig < Array
   attr_accessor :start, :step, :span
 
   def initialize(length = 0, start = 1, step = 1, span = 1)
@@ -21,7 +20,7 @@ class Chromosome < Array
   end
   
   # Parse the header arguments of a fixedStep/variableStep line
-  def self.parse_header(line)
+  def self.parse_wig_header(line)
     start, step, span = 1, 1, 1
     line.chomp.split(' ').each do |opt|
       keypair = opt.split('=')
@@ -43,13 +42,13 @@ class Chromosome < Array
   
   # Load a chromosome from a specific section of a Wig file
   # (first line should be a fixedStep/variableStep line)
-  def self.load(data_file, start_line, end_line)
+  def self.load_wig(data_file, start_line, end_line)
 		# Grab all the lines
 		data = File.lines(data_file, start_line, end_line).reject { |line| line.chomp.empty? }
 			
 		# Parse the fixedStep/variableStep header
 		header = data.first
-    chr = parse_header(header)
+    chr = parse_wig_header(header)
 
     # Parse all the values into floats
 		if header.start_with?('variableStep')
@@ -76,19 +75,15 @@ class Chromosome < Array
 		elsif header.start_with?('fixedStep')
 			chr[0..-1] = data[1..-1].map { |line| line.to_f }
 		else
-      raise "Chromosome header is neither fixedStep nor variableStep!"
+      raise "Wig chromosome header is neither fixedStep nor variableStep!"
     end
-
-		# Force GC
-		data = nil
-		GC.start
 		
     return chr  
   end
 
 	# The last base pair with data
   def stop
-  	self.length + @start - 1
+  	@start + self.length - 1
   end
   
   # If this Chromosome contains data for the specified range
@@ -98,10 +93,10 @@ class Chromosome < Array
   
   # Get a subsequence of data
   def bases(from, to)
-		low_bp = Math.min(from, to)
-		high_bp = Math.max(from, to)
+		low_bp = [from, to].min
+		high_bp = [from, to].max
 		
-		raise ChromosomeError, "Chromosome does not include bases #{low_bp}..#{high_bp}" unless self.include?(low_bp, high_bp)
+		raise ContigError, "Chromosome does not include bases #{low_bp}..#{high_bp}" unless self.include?(low_bp, high_bp)
 		
   	data = self[low_bp-@start..high_bp-@start]
 		data = data.reverse if from > to
@@ -122,17 +117,14 @@ end
 
 # For converting an Array to a Chromosome
 class Array
-	def to_chr(start = 1, step = 1, span = 1)
-		chr = Chromosome.new(self.length)
+	def to_contig(start = 1, step = 1, span = 1)
+		chr = Contig.new(self.length, start, step, span)
     chr[0..-1] = self
-		chr.start = start
-		chr.step = step
-		chr.span = span
 		return chr
 	end
 end
 
 
 # Raised if something goes wrong with a Chromosome
-class ChromosomeError < StandardError
+class ContigError < StandardError
 end

@@ -12,18 +12,18 @@ class Spot < GenomicInterval
 	end
 	
 	def to_s
-		"Spot: #{@id},#{@start},#{@stop},#{@value}"
+		"Spot: #{@id},#{chr},#{@start},#{@stop},#{@value}"
 	end
 	
 	def to_bed
-		"#{@start}\t#{@stop}\t#{@id}\t#{@value}"
+		"#{chr}\t#{@start}\t#{@stop}\t#{@id}\t#{@value}"
 	end
 	
 	def to_bedGraph
-		"#{@start}\t#{@stop}\t#{@value}"
+		"#{chr}\t#{@start}\t#{@stop}\t#{@value}"
 	end
 	
 	def to_gff
-		"SpotArray\tfeature\t#{@start}\t#{@stop}\t#{@value}\t.\t.\tprobe_id=#{@id};count=1"
+		"#{chr}\tSpotArray\tfeature\t#{@start}\t#{@stop}\t#{@value}\t.\t.\tprobe_id=#{@id};count=1"
 	end
 end

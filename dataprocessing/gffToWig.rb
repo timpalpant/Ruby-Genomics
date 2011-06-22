@@ -58,7 +58,7 @@ end
 
 
 # Load the GFF data
-gff = GFF.load(options[:input])
+gff = GFFFile.load(options[:input])
 
 # Load the assembly
 assembly = Assembly.load(options[:genome])

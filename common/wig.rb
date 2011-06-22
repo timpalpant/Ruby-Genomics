@@ -461,7 +461,7 @@ class WigFile < AbstractWigFile
     raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
   
     # Call tail and head to get the appropriate lines from the Wig
-    return Chromosome.load(@data_file, chr_start(chr_id), chr_stop(chr_id))
+    return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
   end
   
   # Get the starting line for a chromosome

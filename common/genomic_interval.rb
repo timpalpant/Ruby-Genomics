@@ -1,11 +1,12 @@
 ##
 # "Abstract" class for all types of genomic coordinates
-# Subclasses: Spot, Nucleosome, Read, Locus, etc.
+# Subclasses: Spot, Read
 ##
 class GenomicInterval
-	attr_accessor :start, :stop
+	attr_accessor :chr, :start, :stop
 	
-	def initialize(start = nil, stop = nil)
+	def initialize(chr = nil, start = nil, stop = nil)
+    @chr = chr
 		@start = start
 		@stop = stop
 	end
@@ -13,7 +14,7 @@ class GenomicInterval
   # Output this genomic interval as a string (the format is suitable
   # for UCSC or samtools)
   def to_s
-    "#{start}-#{stop}"
+    "#{chr}:#{start}-#{stop}"
   end
   
 	def center
@@ -52,6 +53,10 @@ class GenomicInterval
  
   def crick?
     not watson?
+  end
+  
+  def strand
+    watson? ? '+' : '-'
   end
 	
 	# TODO: Other conditions for being valid?

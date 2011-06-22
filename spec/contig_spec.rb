@@ -84,7 +84,7 @@ describe Chromosome do
 	
 	context "loaded from file" do
 		before do
-			@test = Chromosome.load(TEST_FILE, 5, 31)
+			@test = Contig.load_wig(TEST_FILE, 5, 31)
 		end
 		
 		it "should have correct attributes" do
@@ -135,7 +135,7 @@ describe Array do
 	end
 	
 	it "should convert to chromosome with default parameters" do
-		chr = @test.to_chr
+		chr = @test.to_contig
 		chr.start.should == 1
 		chr.step.should == 1
 		chr.span.should == 1
@@ -148,7 +148,7 @@ describe Array do
 	end
 	
 	it "should allow parameters to be set" do
-		chr = @test.to_chr(25, 5, 5)
+		chr = @test.to_contig(25, 5, 5)
 		chr.start.should == 25
 		chr.step.should == 5
 		chr.span.should == 5

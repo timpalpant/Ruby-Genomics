@@ -61,10 +61,10 @@ end
 
 
 # Load the windows
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
 
 # Mark nucleosomes on the genome
-calls = NukeCalls.load(options[:input])
+calls = NukeCallsFile.load(options[:input])
 
 # Pre-sort the nucleosome calls
 calls.each { |chr,spots| spots.sort! { |n1,n2| n1.dyad <=> n2.dyad } }

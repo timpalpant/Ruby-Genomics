@@ -53,8 +53,8 @@ ARGV.options do |opts|
 	end
 end
 
-# Load the Affymetrix data
-affy = Affy.load(options[:input])
+# Initialize the Affymetrix data file
+affy = AffyFile.new(options[:input])
 
-# Write the BedGraph format
-affy.to_bedGraph(options[:output])
+# Write to BedGraph format
+affy.to_bedgraph(options[:output])

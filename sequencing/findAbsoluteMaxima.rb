@@ -59,7 +59,7 @@ end
 
 
 # Load the list of windows
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
   
 # Load the wig data
 wig = BigWigFile.new(options[:input])

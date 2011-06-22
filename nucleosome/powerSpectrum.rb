@@ -60,7 +60,7 @@ end
 
 
 # Load the list of windows
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
 
 # Initialize the sequencing data
 wig = BigWigFile.new(options[:input])

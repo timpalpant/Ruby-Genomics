@@ -5,7 +5,7 @@ require 'assembly'
 require 'wig'
 
 ##
-# A GenomicData with values for each Spot, i.e. a micrarray dataset
+# A GenomicData with values for each Spot, i.e. a microarray dataset
 ##
 class SpotArray < GenomicData
 
@@ -68,7 +68,7 @@ class SpotArray < GenomicData
 	  
 	  # Allow Crick querying
 	  med.reverse! if start > stop
-	  return med
+	  return med.to_contig(start, 1, 1)
 	end
 				
 	# Return a value for the given location
@@ -93,23 +93,17 @@ class SpotArray < GenomicData
 	
 	# Write this array to GFF
 	def to_gff(filename)
-    self.to_disk(filename) do |chr,spot|
-      "#{chr}\t" + spot.to_gff
-    end
+    self.to_disk(filename) { |spot| spot.to_gff }
 	end
 	
 	#  Write this array to bed format
 	def to_bed(filename)
-    self.to_disk(filename) do |chr,spot|
-      "#{chr}\t" + spot.to_bed
-    end
+    self.to_disk(filename) { |spot| spot.to_bed }
 	end
 	
 	#  Write this array to bedGraph format
 	def to_bedGraph(filename)
-    self.to_disk(filename) do |chr,spot|
-      "#{chr}\t" + spot.to_bedGraph
-    end
+    self.to_disk(filename) { |spot| spot.to_bedGraph }
 	end
 	
 	# Write this array to Wig format
@@ -126,7 +120,7 @@ class SpotArray < GenomicData
 				next unless assembly.include?(chr)
 				
 				# Allocate space for the new Wig chromosomes
-				values = query(chr, 1, assembly[chr]).to_chr(1, 1, 1)
+				values = query(chr, 1, assembly[chr]).to_contig(1, 1, 1)
 			
 				# Write to output file
 				f.puts Wig.fixed_step(chr, values)
@@ -141,7 +135,7 @@ class SpotArray < GenomicData
 	  File.open(File.expand_path(filename), 'w') do |f|
       self.each do |chr,spots|
       	spots.each do |spot|
-      		f.puts yield(chr, spot)
+      		f.puts yield(spot)
       	end
       end
     end

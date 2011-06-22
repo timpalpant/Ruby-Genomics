@@ -55,7 +55,7 @@ end
 
 
 # Load the GFF file
-gff = GFF.load(options[:input])
+gff = GFFFile.load(options[:input])
 
 # Compute mean and standard deviation
 mean = gff.mean
@@ -66,11 +66,11 @@ puts "StDev: #{stdev}"
 raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 
 # Copy the GFF input file to output, replacing values with Z-scores
-print 'Computing Z-scores for each spot...'
+print 'Computing Z-scores for each spot...' if ENV['DEBUG']
 File.open(options[:output], 'w') do |out|
 	File.foreach(options[:input]) do |line|
 		# Copy comment lines
-		if line[0] == '#'
+		if line.start_with?('#')
 			out.write line
   	else
 			record = line.chomp.split("\t")
@@ -79,4 +79,3 @@ File.open(options[:output], 'w') do |out|
   	end
 	end
 end
-puts 'complete!'

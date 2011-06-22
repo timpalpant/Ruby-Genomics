@@ -58,11 +58,11 @@ end
 
 
 puts "Loading the list of alignment loci" if ENV['DEBUG']
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
 puts "#{loci.num_spots} alignment loci"
   
 puts "\nLoading binding sites" if ENV['DEBUG']
-bs = MACS.load(options[:input])
+bs = MACSFile.load(options[:input])
 puts "#{bs.num_spots} binding sites"
 
 puts "\nMarking binding sites relative to alignment loci" if ENV['DEBUG']

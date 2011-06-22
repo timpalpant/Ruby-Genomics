@@ -67,7 +67,7 @@ NA_PLACEHOLDER = '-'
 MARKER_SPACING = 200
 
 # Load the list of loci to align to
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
 
 # Validation and default alignment points
 loci.each do |chr,spots|

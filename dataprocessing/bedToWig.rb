@@ -60,7 +60,7 @@ end
 a = Assembly.load(options[:genome])
 
 # Load the Bed data
-bed = Bed.load(options[:input])
+bed = BedFile.load(options[:input])
 
 # Write the Wiggle format
 bed.to_wig(options[:output], a)

@@ -1,12 +1,13 @@
-require 'spot_array'
+require 'entry_file'
+require 'spot_file'
 require 'spot'
 
 ##
 # An entry in a Bed file
 ##
-class BedEntry < Spot
-	attr_accessor :chr
-	
+class BedEntry < Spot	
+  attr_accessor :strand, :thick_start, :thick_end, :item_rgb, :block_count, :block_sizes, :block_starts
+
 	def self.parse(line)
 		entry = line.chomp.split("\t")
       
@@ -18,64 +19,40 @@ class BedEntry < Spot
     spot.stop = entry[2].to_i
     spot.id = entry[3] if entry.length >= 4
     spot.value = entry[4].to_f if entry.length >= 5
+    spot.strand = entry[5] if entry.length >= 6
+    spot.thick_start = entry[6] if entry.length >= 7
+    spot.thick_end = entry[7] if entry.length >= 8
+    spot.item_rgb = entry[8] if entry.length >= 9
+    spot.block_count = entry[9] if entry.length >= 10
+    spot.block_sizes = entry[10] if entry.length >= 11
+    spot.block_starts = entry[11] if entry.length >= 12
 		
 		return spot
 	end
-end
-
-##
-# Load Bed files completely into memory
-# @DEPRECATED: only feasible for small genomess / datasets
-##
-class Bed < SpotArray
-  # Load the Bed file as a SpotArray
-  def self.load(filename)
-		puts "Loading Bed file: #{File.basename(filename)}" if ENV['DEBUG']
-    spot_array = self.new
-		
-    BedFile.foreach(filename) do |entry|
-      spot_array[entry.chr] ||= Array.new
-      spot_array[entry.chr] << entry
-    end
-
-    puts "Loaded #{spot_array.num_spots} entries" if ENV['DEBUG']
-    return spot_array
+  
+  def name
+    @id
   end
-end
-
-##
-# Base class for all Bed files (BedFile / BigBedFile)
-##
-class AbstractBedFile
 end
 
 ##
 # Get data from BigBed files
 ##
-class BigBedFile < AbstractBedFile
+class BigBedFile < BinaryEntryFile
 end
 
 ##
 # Stream bed files by line or by chromosome
 ##
-class BedFile < AbstractBedFile
-	# Override each (line) to return each BedEntry
-	def self.foreach(filename, chr = nil)
-    if chr.nil?
-      File.foreach(File.expand_path(filename)) do |line|
-        # Skip comment and track lines
-        next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
-        yield BedEntry.parse(line)
-      end
-    else
-      IO.popen("grep -w #{chr} #{File.expand_path(filename)}") do |output|
-        output.each do |line|
-          next if line.start_with?('#') or line.start_with?('track') or line.chomp.empty?
-          yield BedEntry.parse(line)
-        end
-      end
-    end
-	end
+class BedFile < TextEntryFile
+  extend SpotFile
+
+  private
+  
+	# Define how to parse Bed entries
+	def parse(line)
+    BedEntry.parse(line)
+  end
 end
 
 class BedError < StandardError

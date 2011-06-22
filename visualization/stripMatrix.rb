@@ -58,7 +58,7 @@ File.open(options[:output],'w') do |out|
 	File.foreach(options[:input]) do |line|
 		entry = line.chomp.split("\t")
 		# Also replace -'s with NaN's for Matlab
-		out.puts entry[1..-1].map { |v| (v=='-') ? 'NaN' : v }.join("\t") unless line_num == 1
+		out.puts entry[1..-1].map { |v| (v=='-') ? 'NaN' : v }.join("\t") unless line_num == 1 or entry.first.start_with?('MARKER')
 		
 		line_num += 1
 		puts line_num if line_num % 1_000 == 0 and ENV['DEBUG']

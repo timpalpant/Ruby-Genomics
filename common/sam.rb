@@ -1,13 +1,14 @@
-require 'bio'
-require 'genomic_interval'
-require 'genomic_data'
+require 'entry_file'
+require 'read_file'
+require 'read'
+require 'stringio'
 
 # An entry in a SAM file
 # From the specification, see: http://samtools.sourceforge.net/SAM-1.4.pdf
 # Also helpful: http://chagall.med.cornell.edu/NGScourse/SAM.pdf
 # TODO: Better handling of empty (*) values
-class SAMEntry < GenomicInterval
-	attr_accessor :qname, :flag, :rname, :mapq, :cigar, :rnext, :pnext, :tlen, :seq, :qual
+class SAMEntry < Read
+	attr_accessor :qname, :flag, :rname, :mapq, :cigar, :rnext, :pnext, :tlen
 	
 	def self.parse(line)
 		record = line.chomp.split("\t")
@@ -15,7 +16,7 @@ class SAMEntry < GenomicInterval
 		entry = self.new
 		entry.qname = record[0]
 		entry.flag = record[1].to_i
-		entry.rname = record[2]
+		entry.chr = record[2]
 		entry.mapq = record[4].to_i
 		entry.cigar = record[5]
 		entry.rnext = record[6]
@@ -41,8 +42,8 @@ class SAMEntry < GenomicInterval
 		return entry
 	end
 	
-	def chr
-		@rname
+	def rname
+		@chr
 	end
 
 	def pos
@@ -122,52 +123,37 @@ end
 
 # Access SAM files through stream operations
 # Best option for iterating over large SAM files
-class SAMFile
-	# Return each SAMEntry
-	def self.foreach(filename)
-		File.foreach(File.expand_path(filename)) do |line|
-			# Skip comment lines
-			next if line.start_with?('@')
-			yield SAMEntry.parse(line)
-		end
-	end
-
-	# Return each read, but only one (forward) entry for paired-end reads
-	def self.foreach_read(filename)
-		self.foreach(filename, chr, start, stop) do |entry|
-      yield entry unless entry.paired? and entry.crick?
-    end
-	end
+class SAMFile < TextEntryFile
+	extend ReadFile
+  
+  private
+  
+  def parse(line)
+    SAMEntry.parse(line)
+  end
 end
 
-# Access BAM files through stream operations
-# For random access, use SAMTools
-class BAMFile
-  # Return each SAMEntry
-  def self.foreach(filename, chr = nil, start = nil, stop = nil)
-    IO.popen("samtools view #{File.expand_path(filename)} #{query_string(chr, start, stop)}") do |output|
-      output.each do |line|
-        next if line.start_with?('@')
-        yield SAMEntry.parse(line)
-      end
-    end
-  end
-
-  # Return each read, but only one (forward) entry for paired-end reads
-  def self.foreach_read(filename, chr = nil, start = nil, stop = nil)
-    self.foreach(filename, chr, start, stop) do |entry|
-      yield entry unless entry.paired? and entry.crick?
-    end
-  end
+# Access BAM files through stream operations using samtools
+class BAMFile < BinaryEntryFile
+  extend ReadFile
 
   private
+  
+  def parse(line)
+    SAMEntry.parse(line)
+  end
+  
+  # Define how to query BAM files for lines
+  def query_command(chr = nil, start = nil, stop = nil)
+    "samtools view #{File.expand_path(@data_file)} #{query_string(chr, start, stop)}"
+  end
 
   def self.query_string(chr = nil, start = nil, stop = nil)
-    query_string = String.new
-    query_string += chr.to_s if chr
-    query_string += ':' + start.to_s if start
-    query_string += '-' + stop.to_s if stop
+    query = StringIO.new
+    query << chr.to_s if chr
+    query << ':' << start.to_s if start
+    query << '-' << stop.to_s if stop
 
-    return query_string
+    return query.string
   end
 end

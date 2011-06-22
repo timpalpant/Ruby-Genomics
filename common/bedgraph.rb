@@ -1,12 +1,11 @@
-require 'spot_array'
+require 'entry_file'
+require 'spot_file'
 require 'spot'
 
 ##
 # An entry in a bedGraph file
 ##
 class BedGraphEntry < Spot
-	attr_accessor :chr
-
 	def self.parse(line)
 	  entry = line.chomp.split("\t")
       
@@ -23,61 +22,26 @@ class BedGraphEntry < Spot
 end
 
 ##
-# Load bedGraph files
-# @DEPRECATED: only feasible for small genomess / datasets
+# Stream bedgraph files by line or by chromosome
 ##
-class BedGraph < SpotArray
-  # Load the Bed file as a SpotArray
-  def self.load(filename)
-		puts "Loading BedGraph file: #{File.basename(filename)}" if ENV['DEBUG']
-    spot_array = self.new
-    
-		skipped = 0
-    File.foreach(File.expand_path(filename)) do |line|
-      # Ignore comment lines
-      next if line[0] == '#' or line.start_with?('track') or line.chomp.empty?
-      
-      # Load spot lines
-			begin
-				entry = BedGraphEntry.parse(line)
-			rescue BedGraphError
-				skipped += 1
-				puts "Skipped line: #{line}" if ENV['DEBUG']
-				next
-			end
-			
-			spot_array[entry.chr] ||= Array.new
-      spot_array[entry.chr] << entry
-    end
+class BedGraphFile < TextEntryFile
+  extend SpotFile
 
-    puts "Loaded #{spot_array.num_spots} entries" if ENV['DEBUG']
-		puts "Skipped #{skipped} invalid lines" if ENV['DEBUG'] and skipped > 0
-    
-    return spot_array
-  end
-  
   # Convert a bedGraph file to a BigWig
   def self.to_bigwig(input_file, output_file, assembly)
     # BedGraph must be sorted first
-    tmp_sorted = input_file + '.sorted'
-    File.sort(File.expand_path(input_file), File.expand_path(tmp_sorted), '-k1,1 -k2,2')
-    %x[ bedGraphToBigWig #{File.expand_path(tmp_sorted)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
-    File.delete(File.expand_path(tmp_sorted))
+    tmp_sorted = File.expand_path(input_file + '.sorted')
+    File.sort(File.expand_path(input_file), tmp_sorted, '-k1,1 -k2,2')
+    %x[ bedGraphToBigWig #{tmp_sorted} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
+    File.delete(tmp_sorted)
   end
-end
 
-##
-# Stream bedgraph files by line or by chromosome
-##
-class BedGraphFile < File
-	# Override each (line) to return each BedGraphEntry
-	def self.foreach(filename)
-		File.foreach(File.expand_path(filename)) do |line|
-			# Skip comment and track lines
-			next if line.start_with?('#') or line.start_with?('track')
-			yield BedGraphEntry.parse(line)
-		end
-	end
+  private
+  
+	# Define how to parse BedGraph entries
+	def parse(line)
+    BedGraphEntry.parse(line)
+  end
 end
 
 class BedGraphError < StandardError

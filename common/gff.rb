@@ -1,62 +1,67 @@
-require 'spot_array'
+require 'entry_file'
+require 'spot_file'
 require 'spot'
 
 ##
-# An entry 
+# An entry in a GFF file
+# For the format spec, see: http://genome.ucsc.edu/FAQ/FAQformat.html#format3
 ##
 class GFFEntry < Spot
-	attr_accessor :chr
+  attr_accessor :source, :feature, :frame
 	
 	def self.parse(line)
 	  record = line.chomp.split("\t")
 		
     spot = self.new
 		spot.chr = record[0]
-    spot.id = record[8]
+    spot.source = record[1]
+    spot.feature = record[2]
     spot.start = record[3].to_i
     spot.stop = record[4].to_i
     spot.value = record[5].to_f
+    strand = record[6]
+    spot.frame = record[7]
+    spot.id = record[8]
+    
+    # Ensure that the coordinates (start/stop) match the strand, if specified
+    if strand == '+'
+      tmp_low = spot.low
+      tmp_high = spot.high
+      spot.start = tmp_low
+      spot.stop = tmp_high
+    elsif strand == '-'
+      tmp_low = spot.low
+      tmp_high = spot.high
+      spot.start = tmp_high
+      spot.stop = tmp_low
+    end
       
 		return spot
 	end
-end
-
-##
-# Load GFF files completely into memory
-##
-class GFF < SpotArray
-  # Load the GFF output file from NimbleScan
-  def self.load(filename)
-    puts "Loading GFF file: #{File.basename(filename)}" if ENV['DEBUG']
-    spot_array = self.new
-    
-    File.foreach(filename) do |line|
-      # Ignore comment lines
-      next if line.start_with?('#') or line.chomp.empty?
-      
-      # Load spot lines
-			entry = GFFEntry.parse(line)
-
-			spot_array[entry.chr] ||= Array.new
-      spot_array[entry.chr] << entry
-    end
-    
-    puts "Loaded #{spot_array.num_spots} entries" if ENV['DEBUG']
-    
-    return spot_array
+  
+  def seqname
+    @chr
+  end
+  
+  def group
+    @id
+  end
+  
+  def score
+    @value
   end
 end
 
 ##
-# Stream GFF files by line or by chromosome
+# Stream GFF files
 ##
-class GFFFile < File
-	# Override each (line) to return each GFFEntry
-	def self.foreach(filename)
-		File.foreach(File.expand_path(filename)) do |line|
-			# Skip comment and track lines
-			next if line.start_with?('#') or line.start_with?('track')
-			yield GFFEntry.parse(line)
-		end
-	end
+class GFFFile < TextEntryFile
+  extend SpotFile
+
+  private
+  
+	# Define how to parse GFF entries
+	def parse(line)
+    GFFEntry.parse(line)
+  end
 end

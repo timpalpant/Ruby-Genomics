@@ -31,7 +31,6 @@ require 'pickled_optparse'
 require 'wig'
 require 'stats'
 require 'nucleosome'
-require 'math_utils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -88,8 +87,8 @@ File.open(options[:output],'w') do |f|
     smoothed_chr.sort_index.reverse.each do |i|
       if smoothed_chr[i] > 0
         nuke = Nucleosome.new
-        nuke.start = Math.max(0, i-half_nuke)
-        nuke.stop = Math.min(i+half_nuke, smoothed_chr.length-1)
+        nuke.start = [0, i-half_nuke].max
+        nuke.stop = [i+half_nuke, smoothed_chr.length-1].min
         nuke.dyad = i
         
         nuke.occupancy = 0
@@ -112,7 +111,7 @@ File.open(options[:output],'w') do |f|
           nuke.dyad_stdev = Math.sqrt(sum_of_squares.to_f / nuke.occupancy)
           
           # Write nucleosome to output
-          f.puts "#{chr}\t#{nuke}"
+          f.puts nuke.to_s
           
           # Set 147bp (nuke size) surrounding current bp on either side to 0
           # This is the region in which another nuke cannot be called

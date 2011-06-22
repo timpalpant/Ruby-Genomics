@@ -1,11 +1,11 @@
-require 'genomic_interval'
-require 'genomic_data'
+require 'entry_file'
+require 'spot_file'
 
 ##
 # Encapsulates information about an individual nucleosome
 ##
-class Nucleosome < GenomicInterval
-  attr_accessor :chr, :conditional_position, :dyad, :dyad_stdev, :dyad_mean, :occupancy
+class Nucleosome < Spot
+  attr_accessor :conditional_position, :dyad, :dyad_stdev, :dyad_mean
 
   # Parse a NukeCallsFile entry
   def self.parse(line)
@@ -20,9 +20,13 @@ class Nucleosome < GenomicInterval
     nuke.dyad_stdev = entry[4].to_f
     nuke.conditional_position = entry[5].to_f
     nuke.dyad_mean = entry[6].to_i
-    nuke.occupancy = entry[7].to_i
+    nuke.value = entry[7].to_f
     
     return nuke
+  end
+  
+  def occupancy
+    @value
   end
   
   # Use the dyad as the nucleosome position
@@ -31,50 +35,26 @@ class Nucleosome < GenomicInterval
   end
   
   def to_s
-    "#{@start}\t#{@stop}\t#{@dyad}\t#{@dyad_stdev}\t#{@conditional_position}\t#{@dyad_mean}\t#{@occupancy}"
+    "#{@chr}\t#{@start}\t#{@stop}\t#{@dyad}\t#{@dyad_stdev}\t#{@conditional_position}\t#{@dyad_mean}\t#{@occupancy}"
   end
 end
 
 ##
 # Lists of Nucleosome Calls
 ##
-class NukeCalls < GenomicData
-	
+class NukeCalls
 	HEADER = "#Chromosome\tNuke Start\tNuke Stop\tDyad\tDyad StDev\tSmoothed Position\tDyad Mean\tDyad Count"
-	
-  # Load a list of nucleosome calls
-  def self.load(filename)
-    calls = self.new
-    
-    NukeCallsFile.foreach(filename) do |nuke|
-      calls[nuke.chr] ||= Array.new
-      calls[nuke.chr] << nuke
-    end
-    
-    return calls
-  end
 end
 
 ##
 # Lists of Nucleosome Calls
 ##
-class NukeCallsFile
-  # Override each (line) to return each Nucleosome entry
-	def self.foreach(filename, chr = nil)
-    if chr.nil?
-      File.foreach(File.expand_path(filename)) do |line|
-        # Skip comment lines
-        next if line.start_with?('#') or line.chomp.empty?
-        yield Nucleosome.parse(line)
-      end
-    else
-      IO.popen("grep -w #{chr} #{File.expand_path(filename)}") do |output|
-        output.each do |line|
-          # Skip comment lines
-          next if line.start_with?('#') or line.chomp.empty?
-          yield Nucleosome.parse(line)
-        end
-      end
-    end
-	end
+class NukeCallsFile < TextEntryFile
+  extend SpotFile
+
+  private
+  
+	def parse(line)
+    Nucleosome.parse(line)
+  end
 end

@@ -60,7 +60,7 @@ end
 
 # Load the list of loci to align to
 puts 'Loading the list of alignment loci' if ENV['DEBUG']
-loci = Bed.load(options[:loci])
+loci = BedFile.load(options[:loci])
 
 # Validation and default alignment points
 loci.each do |chr,spots|
