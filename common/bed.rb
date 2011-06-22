@@ -9,25 +9,27 @@ class BedEntry < Spot
   attr_accessor :strand, :thick_start, :thick_end, :item_rgb, :block_count, :block_sizes, :block_starts
 
   def self.parse(line)
-    entry = line.chomp.split("\t")
+    begin
+      entry = line.chomp.split("\t")
+        
+      spot = self.new
+      spot.chr = entry[0]
+      spot.start = entry[1].to_i
+      spot.stop = entry[2].to_i
+      spot.id = entry[3] if entry.length >= 4
+      spot.value = entry[4].to_f if entry.length >= 5
+      spot.strand = entry[5] if entry.length >= 6
+      spot.thick_start = entry[6] if entry.length >= 7
+      spot.thick_end = entry[7] if entry.length >= 8
+      spot.item_rgb = entry[8] if entry.length >= 9
+      spot.block_count = entry[9] if entry.length >= 10
+      spot.block_sizes = entry[10] if entry.length >= 11
+      spot.block_starts = entry[11] if entry.length >= 12
       
-    raise BedError, "Invalid Bed Entry!" if entry.length < 3
-      
-    spot = self.new
-    spot.chr = entry[0]
-    spot.start = entry[1].to_i
-    spot.stop = entry[2].to_i
-    spot.id = entry[3] if entry.length >= 4
-    spot.value = entry[4].to_f if entry.length >= 5
-    spot.strand = entry[5] if entry.length >= 6
-    spot.thick_start = entry[6] if entry.length >= 7
-    spot.thick_end = entry[7] if entry.length >= 8
-    spot.item_rgb = entry[8] if entry.length >= 9
-    spot.block_count = entry[9] if entry.length >= 10
-    spot.block_sizes = entry[10] if entry.length >= 11
-    spot.block_starts = entry[11] if entry.length >= 12
-    
-    return spot
+      return spot
+    rescue
+      raise BedError, "Invalid Bed Entry!"
+    end
   end
   
   def name
@@ -39,6 +41,9 @@ end
 # Get data from BigBed files
 ##
 class BigBedFile < BinaryEntryFile
+  def initialize(filename)
+    raise BedError, "BigBed files are not yet implemented"
+  end
 end
 
 ##
@@ -46,6 +51,14 @@ end
 ##
 class BedFile < TextEntryFile
   extend SpotFile
+  
+  CHR_COL = 1
+  START_COL = 2
+  STOP_COL = 3
+  
+  def initialize(filename)
+    super(filename, CHR_COL, START_COL, END_COL)
+  end
 
   private
   
@@ -55,5 +68,5 @@ class BedFile < TextEntryFile
   end
 end
 
-class BedError < StandardError
+class BedError < EntryFileError
 end

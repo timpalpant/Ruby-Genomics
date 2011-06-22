@@ -7,17 +7,19 @@ require 'spot'
 ##
 class BedGraphEntry < Spot
   def self.parse(line)
-    entry = line.chomp.split("\t")
-      
-    raise BedGraphError, "Invalid BedGraph entry!" if entry.length < 3
-      
-    spot = self.new
-    spot.chr = entry[0]
-    spot.start = entry[1].to_i
-    spot.stop = entry[2].to_i
-    spot.value = entry[3].to_f if entry.length >= 4
-      
-    return spot
+    begin
+      entry = line.chomp.split("\t")
+        
+      spot = self.new
+      spot.chr = entry[0]
+      spot.start = entry[1].to_i
+      spot.stop = entry[2].to_i
+      spot.value = entry[3].to_f if entry.length >= 4
+        
+      return spot
+    rescue
+      raise BedGraphError, "Invalid BedGraph Entry!"
+    end
   end
 end
 
@@ -26,6 +28,14 @@ end
 ##
 class BedGraphFile < TextEntryFile
   extend SpotFile
+  
+  CHR_COL = 1
+  START_COL = 2
+  STOP_COL = 3
+  
+  def initialize(filename)
+    super(filename, CHR_COL, START_COL, END_COL)
+  end
 
   # Convert a bedGraph file to a BigWig
   def self.to_bigwig(input_file, output_file, assembly)
@@ -44,5 +54,5 @@ class BedGraphFile < TextEntryFile
   end
 end
 
-class BedGraphError < StandardError
+class BedGraphError < EntryFileError
 end

@@ -49,5 +49,5 @@ class AffyFile < TextEntryFile
   end
 end
 
-class AffyFileError < StandardError
+class AffyFileError < EntryFileError
 end

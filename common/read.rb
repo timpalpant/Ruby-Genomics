@@ -11,16 +11,4 @@ class Read < GenomicInterval
   def to_s
     "Read: #{chr},#{@start},#{@stop}"
   end
-  
-  def to_bed
-    "#{chr}\t#{@start}\t#{@stop}"
-  end
-  
-  def to_bedgraph
-    to_bed
-  end
-  
-  def to_sam
-    raise "Not yet implemented"
-  end
 end

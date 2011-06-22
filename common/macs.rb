@@ -9,19 +9,23 @@ class MACSEntry < Spot
   attr_accessor :summit, :tags, :pvalue, :fdr
   
   def self.parse(line)
-    entry = line.chomp.split("\t")
+    begin
+      entry = line.chomp.split("\t")
 
-    spot = self.new
-    spot.chr = entry[0]
-    spot.start = entry[1].to_i
-    spot.stop = entry[2].to_i
-    spot.summit = spot.start + entry[4].to_i
-    spot.tags = entry[5].to_i
-    spot.pvalue = 10**(entry[6].to_f / -10)
-    spot.value = entry[7].to_f
-    spot.fdr = entry[8].to_f
-      
-    return spot
+      spot = self.new
+      spot.chr = entry[0]
+      spot.start = entry[1].to_i
+      spot.stop = entry[2].to_i
+      spot.summit = spot.start + entry[4].to_i
+      spot.tags = entry[5].to_i
+      spot.pvalue = 10**(entry[6].to_f / -10)
+      spot.value = entry[7].to_f
+      spot.fdr = entry[8].to_f
+        
+      return spot
+    rescue
+      raise MACSEntryError, "Invalid MACS entry!"
+    end
   end
   
   def fold_enrichment
@@ -31,10 +35,21 @@ end
 
 class MACSFile < TextEntryFile
   extend SpotFile
+  
+  CHR_COL = 1
+  START_COL = 2
+  STOP_COL = 3
+  
+  def initialize(filename)
+    super(filename, CHR_COL, START_COL, END_COL)
+  end
 
   private
   
   def parse(line)
     MACSEntry.parse(line)
   end
+end
+
+class MACSEntryError < EntryFileError
 end

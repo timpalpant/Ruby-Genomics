@@ -11,35 +11,39 @@ class SAMEntry < Read
   attr_accessor :qname, :flag, :rname, :mapq, :cigar, :rnext, :pnext, :tlen
   
   def self.parse(line)
-    record = line.chomp.split("\t")
-  
-    entry = self.new
-    entry.qname = record[0]
-    entry.flag = record[1].to_i
-    entry.chr = record[2]
-    entry.mapq = record[4].to_i
-    entry.cigar = record[5]
-    entry.rnext = record[6]
-    entry.pnext = record[7].to_i
-    entry.tlen = record[8].to_i
-    entry.seq = Bio::Sequence::NA.new(record[9])
-    entry.qual = record[10]
-  
-    extend = (entry.tlen == 0) ? entry.seq.length : entry.tlen.abs
-  
-    # According to the SAM specification, POS is the leftmost base
-    # so 5' end for forward-mapping reads and
-    # 3' end for reverse-complement mapping reads
-    # Adjust start/stop appropriately
-    if entry.watson?
-      entry.start = record[3].to_i
-      entry.stop = entry.start + extend - 1
-    else
-      entry.start = record[3].to_i + entry.seq.length - 1
-      entry.stop = entry.start - extend + 1
-    end
+    begin
+      record = line.chomp.split("\t")
+    
+      entry = self.new
+      entry.qname = record[0]
+      entry.flag = record[1].to_i
+      entry.chr = record[2]
+      entry.mapq = record[4].to_i
+      entry.cigar = record[5]
+      entry.rnext = record[6]
+      entry.pnext = record[7].to_i
+      entry.tlen = record[8].to_i
+      entry.seq = Bio::Sequence::NA.new(record[9])
+      entry.qual = record[10]
+    
+      extend = (entry.tlen == 0) ? entry.seq.length : entry.tlen.abs
+    
+      # According to the SAM specification, POS is the leftmost base
+      # so 5' end for forward-mapping reads and
+      # 3' end for reverse-complement mapping reads
+      # Adjust start/stop appropriately
+      if entry.watson?
+        entry.start = record[3].to_i
+        entry.stop = entry.start + extend - 1
+      else
+        entry.start = record[3].to_i + entry.seq.length - 1
+        entry.stop = entry.start - extend + 1
+      end
 
-    return entry
+      return entry
+    rescue
+      raise SAMError, "Not a valid SAM Entry"
+    end
   end
   
   def rname
@@ -126,6 +130,14 @@ end
 class SAMFile < TextEntryFile
   extend ReadFile
   
+  CHR_COL = 3
+  START_COL = 4
+  STOP_COL = 4
+  
+  def initialize(filename)
+    super(filename, CHR_COL, START_COL, END_COL)
+  end
+  
   private
   
   def parse(line)
@@ -138,15 +150,8 @@ class BAMFile < BinaryEntryFile
   extend ReadFile
   
   def initialize(filename)
-    super(filename)
-    
-    # Index the BAM file if its index can't be found
-    index(@data_file) if not File.exist?(@data_file + '.bai')
-  end
-  
-  # Cleanup the index
-  def close
-    File.delete(@data_file + '.bai') if File.exist?(@data_file + '.bai')
+    # BAM index is the filename plus the extension .bai
+    super(filename, filename+'.bai')
   end
   
   # Count the number of alignments in a given lookup
@@ -179,4 +184,7 @@ class BAMFile < BinaryEntryFile
 
     return query.string
   end
+end
+
+class SAMError < EntryFileError
 end
