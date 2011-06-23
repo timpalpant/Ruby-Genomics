@@ -63,38 +63,36 @@ end
 # Load the windows
 skipped, invalid_coordinates = 0, 0
 File.open(options[:output], 'w') do |f|
-  BedFile.open(options[:loci]) do |bed|
-    NukeCallsFile.open(options[:input]) do |calls|
-      direction = options[:reverse] ? 3 : 5
-      puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
+  NukeCallsFile.open(options[:input]) do |calls|
+    direction = options[:reverse] ? 3 : 5
+    puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
+    
+    BedFile.foreach(options[:loci]) do |spot|
+      if not calls.chromosomes.include?(spot.chr)
+        skipped += 1
+        next
+      end
       
-      bed.each do |spot|
-        if not calls.chromosomes.include?(spot.chr)
-          skipped += 1
-          next
-        end
-        
-        first_nuke = nil
-        calls.each(spot.chr, spot.start, spot.stop) do |nuke|
-          # If this is the first nucleosome we've found, it automatically wins
-          if first_nuke.nil?
-            first_nuke = nuke.dyad
-          # Otherwise it has to be the best
+      first_nuke = nil
+      calls.each(spot.chr, spot.start, spot.stop) do |nuke|
+        # If this is the first nucleosome we've found, it automatically wins
+        if first_nuke.nil?
+          first_nuke = nuke.dyad
+        # Otherwise it has to be the best
+        else
+          first_nuke = if (options[:reverse] and spot.watson?) or (not options[:reverse] and spot.crick?)
+            nuke.dyad if nuke.dyad > first_nuke
           else
-            first_nuke = if (options[:reverse] and spot.watson?) or (not options[:reverse] and spot.crick?)
-              nuke.dyad if nuke.dyad > first_nuke
-            else
-              nuke.dyad if nuke.dyad < first_nuke
-            end
+            nuke.dyad if nuke.dyad < first_nuke
           end
         end
-        
-        if first_nuke == nil
-          invalid_coordinates += 1
-        else
-          spot.value = first_nuke
-          f.puts spot.to_bed
-        end
+      end
+      
+      if first_nuke == nil
+        invalid_coordinates += 1
+      else
+        spot.value = first_nuke
+        f.puts spot.to_bed
       end
     end
   end
