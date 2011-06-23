@@ -11,22 +11,24 @@ module WigMath
   
   # The sum of all values
   def total
-    chr_totals = self.chunk_map(0) do |sum,chr,start,stop|
-      sum + query(chr,start,stop).sum
+    sum = 0
+    self.each_chunk do |chunk|
+      sum += chunk.sum
     end
 
-    return chr_totals.sum
+    return sum
   end
   
   # The mean of all values
   def mean
-    total / num_values
+    total.to_f / num_values
   end
   
   # The standard deviation of all values
   def stdev(avg = self.mean)
-    chr_deviances = self.chunk_map(0) do |sum,chr,start,stop|
-      sum + query(chr,start,stop).map { |elem| (elem-avg)**2 }.sum
+    deviances = 0
+    self.each_chunk do |chunk|
+      deviances += chunk.map { |elem| (elem-avg)**2 }.sum
     end
     
     Math.sqrt(chr_deviances.sum / num_values)

@@ -25,7 +25,6 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'parallelizer'
 require 'pickled_optparse'
 require 'wig'
 
@@ -41,8 +40,6 @@ ARGV.options do |opts|
   
   # List all parameters
   options[:step] = 500_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
-  options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
@@ -59,6 +56,9 @@ ARGV.options do |opts|
 end
 
 
+# Set the number of threads to use
+Enumerable.max_threads = options[:threads]
+
 # Initialize the wig files to add
 wigs = ARGV.map { |filename| BigWigFile.new(filename) }
 # Validate their compatibility
@@ -69,14 +69,11 @@ wigs[1..-1].each do |wig|
   end
 end
 
-# Initialize the parallel computation manager
-parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
-
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(wigs.first, assembly) do |chr, chunk_start, chunk_stop|
+wigs.first.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   sum = wigs.first.query(chr, chunk_start, chunk_stop)
   wigs[1..-1].each do |wig|
     data = wig.query(chr, chunk_start, chunk_stop)

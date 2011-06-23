@@ -1,7 +1,7 @@
 require 'enumerator'
 require 'unix_file_utils'
-require 'contig'
 require 'parallelizer'
+require 'contig'
 require 'assembly'
 require 'stringio'
 require 'wig_math'
@@ -14,7 +14,6 @@ end
 ##
 class AbstractWigFile
   include Enumerable
-  include WigParallelEnumerable
   include WigMath
   
   attr_reader :track_header, :data_file
@@ -30,9 +29,36 @@ class AbstractWigFile
   
   # Enumerate over the chromosomes in this Wig file
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
-  def each
-    self.chromosomes.each do |chr_id| 
-      yield [chr_id, chr(chr_id)]
+  def each(&block)
+    self.chromosomes.p_each do |chr_id|
+      yield(chr_id, chr(chr_id))
+    end
+  end
+  
+  # Enumerate over chromosomes in this Wig file
+  # Automatically parallelize
+  # NOTE: The order of the chromosomes is not guaranteed
+  def each_chr
+    self.chromosomes.p_each do |chr_id|
+      yield chr(chr_id)
+    end
+  end
+  
+  # Enumerate over chunks in this Wig file
+  # Automatically parallelize
+  # NOTE: The order of the chunks is not guaranteed
+  def each_chunk
+    self.chromosomes.p_each do |chr|
+      chunk_start = 1
+      chr_length = chr_length(chr)
+      while chunk_start <= chr_length
+        chunk_stop = [chunk_start+200_000-1, chr_length].min
+        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        
+        yield query(chr, chunk_start, chunk_stop)
+
+        chunk_start = chunk_stop + 1
+      end
     end
   end
   
@@ -40,6 +66,53 @@ class AbstractWigFile
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def [](chr_id)
     chr(chr_id)
+  end
+  
+  # Compute some transformation on the values in this file, and output the result to disk
+  def transform(output_file)
+    # Write the output file header
+    header_file = output_file+'.header'
+    File.open(header_file, 'w') do |f|
+      f.puts @track_header
+    end
+
+    # Keep track of all the temporary intermediate files (header first)
+    tmp_files = [header_file]
+  
+    # Iterate chromosome-by-chromosome
+    self.chromosomes.p_each do |chr|
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      chr_temp_file = output_file+'.'+chr
+      tmp_files << chr_temp_file      
+
+      # Write the chromosome header
+      File.open(chr_temp_file, 'w') do |f|
+        f.puts Contig.new(0, chr, 1, 1, 1)
+      end
+      
+      chunk_start = 1
+      chr_length = wig.chr_length(chr)
+      while chunk_start <= chr_length
+        chunk_stop = [chunk_start+200_000-1, chr_length].min
+        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        
+        output = yield(chr, chunk_start, chunk_stop)
+        
+        # Write this chunk to disk
+        File.open(chr_temp_file, 'a') do |f|
+          f.puts output.map { |value| value.to_s(5) }.join("\n")
+        end
+        
+        chunk_start = chunk_stop + 1
+      end
+    end
+    
+    # Concatenate all of the temp file pieces into the final output
+    File.cat(tmp_files, output_file)
+
+    # Delete the individual temp files created by each process
+    tmp_files.each { |filename| File.delete(filename) }
   end
   
   ##
@@ -100,6 +173,19 @@ class BigWigFile < AbstractWigFile
     #@stdev = info[-1].chomp.split(':').last.to_f
     @min = info[-3].chomp.split(':').last.to_f
     @max = info[-2].chomp.split(':').last.to_f
+  end
+  
+  # Convert the output of #transform back to BigWig
+  alias :super_transform :transform
+  def transform(output_file, assembly, &block)
+    super_transform(output_file, &block)
+    
+    # Convert the output Wig file to BigWig
+    tmp_file = output_file + '.tmp'
+    WigFile.to_bigwig(output_file, tmp_file, assembly)
+    
+    # Delete the temporary intermediate Wig file by moving the BigWig on top of it
+    FileUtils.move(tmp_file, output_file)
   end
   
   ##

@@ -26,7 +26,6 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'parallelizer'
 require 'pickled_optparse'
 require 'wig'
 
@@ -43,8 +42,6 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-m', '--minuend FILE', :required, "File 1 (BigWig)" ) { |f| options[:minuend] = f }
   opts.on( '-s', '--subtrahend FILE', :required, "File 2 (BigWig)" ) { |f| options[:subtrahend] = f }
-  options[:step] = 500_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
@@ -61,6 +58,9 @@ ARGV.options do |opts|
   end
 end
 
+# Set the number of threads to use
+Enumerable.max_threads = options[:threads]
+
 # Initialize the BigWig files to subtract
 minuend = BigWigFile.new(options[:minuend])
 subtrahend = BigWigFile.new(options[:subtrahend])
@@ -72,14 +72,11 @@ minuend.chromosomes.each do |chr_id|
   raise "Chromosome #{chr_id} has a different length" unless minuend.chr_length(chr_id) == subtrahend.chr_length(chr_id)
 end
 
-# Initialize the parallel computation manager
-parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
-
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(minuend, assembly) do |chr, chunk_start, chunk_stop|
+minuend.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   m_chunk = minuend.query(chr, chunk_start, chunk_stop)
   s_chunk = subtrahend.query(chr, chunk_start, chunk_stop)
   difference = Array.new(m_chunk.length)

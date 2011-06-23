@@ -73,7 +73,7 @@ wig.chromosomes.each do |chr|
 
   puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
   
-  File.open(options[:output]+'.'+chr, 'w') do |f|
+  File.open(options[:output]+'.'+chr, 'w') do |f|  
     chunk_start = 1
     chr_length = wig.chr_length(chr)
     while chunk_start < chr_length

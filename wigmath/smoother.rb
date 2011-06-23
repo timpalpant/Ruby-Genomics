@@ -27,7 +27,6 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'parallelizer'
 require 'pickled_optparse'
 require 'fixed_precision'
 require 'wig'
@@ -50,8 +49,6 @@ ARGV.options do |opts|
   opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 20)" ) { |num| options[:sdev] = num.to_i }
   options[:window_size] = 3
   opts.on( '-w', '--window NUM', "Number of standard deviations +/- to make a window (default 3)" ) { |num| options[:window_size] = num.to_i }
-  options[:step] = 500_000
-  opts.on( '-c', '--step N', "Chunk size to use in base pairs (default: 500,000)" ) { |n| options[:step] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
@@ -68,6 +65,8 @@ ARGV.options do |opts|
   end
 end
 
+# Set the number of threads to use
+Enumerable.max_threads = options[:threads]
 
 # Gaussian smoothing requires padding of half_window on either end
 padding = options[:sdev] * options[:window_size]
@@ -82,14 +81,11 @@ padding = options[:sdev] * options[:window_size]
 # Initialize the wig files to smooth
 wig = BigWigFile.new(options[:input])
 
-# Initialize the parallel computation manager
-parallelizer = BigWigComputationParallelizer.new(options[:output], options[:step], options[:threads])
-
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-parallelizer.run(wig, assembly) do |chr, chunk_start, chunk_stop|
+wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   # Don't pad off the end of the chromosome
   query_start = [1, chunk_start-padding].max
   query_stop = [chunk_stop+padding, wig.chr_length(chr)].min
