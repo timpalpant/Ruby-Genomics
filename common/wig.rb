@@ -5,6 +5,7 @@ require 'contig'
 require 'assembly'
 require 'stringio'
 require 'wig_math'
+require 'ucsc_tools'
 
 class WigError < StandardError
 end
@@ -92,7 +93,7 @@ class AbstractWigFile
       end
       
       chunk_start = 1
-      chr_length = wig.chr_length(chr)
+      chr_length = chr_length(chr)
       while chunk_start <= chr_length
         chunk_stop = [chunk_start+200_000-1, chr_length].min
         puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
@@ -232,7 +233,7 @@ class BigWigFile < AbstractWigFile
     query_start = low-1
     result = StringIO.new
     while query_start <= high-1
-      query_stop = [query_start+@@default_chunk_size-1, high-1].min
+      query_stop = [query_start+200_000-1, high-1].min
       num_values = (query_stop-query_start+1) / step
       chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
       raise WigError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')

@@ -119,8 +119,8 @@ class Contig < Array
     str = StringIO.new("fixedStep chrom=#{@chr}")
     
     str << " start=#{@start}" if @start
-  	str << " step=#{@step}" if @step
-	  str << " span=#{@span}" if @span
+    str << " step=#{@step}" if @step
+    str << " span=#{@span}" if @span
 
     self.each { |value| str << "\n" << value.to_s(5) }
     

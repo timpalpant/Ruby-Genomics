@@ -121,7 +121,7 @@ describe Contig do
     end
     
     it "should correctly output to String" do
-      @test.to_s.split("\n").length.should == @test.length
+      @test.to_s.split("\n").length.should == @test.length+1
     end
   end
   

@@ -19,7 +19,7 @@ module Enumerable
   
   def p_each
     self.each do |e|
-      @@pm.start(e)
+      @@pm.start(e) and next
       yield(e)
       @@pm.finish(0)
     end
