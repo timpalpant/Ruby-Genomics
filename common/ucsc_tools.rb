@@ -51,6 +51,8 @@ class UCSCTrackHeader
   end
   
   def set(key, value)
+    puts "Setting UCSC track #{key}:#{value}" if ENV['DEBUG']
+
     case key
       when 'type'
         @type = value
@@ -96,21 +98,29 @@ class UCSCTrackHeader
     unless line.chomp.start_with?('track')
       raise UCSCTrackHeaderError, "Not a valid UCSC Genome Browser track line"
     end
+
+    puts "Parsing track line: #{line.chomp!}" if ENV['DEBUG']
     
     track = self.new
     pos = 0
-    while (equals_pos = line.index('=', pos))
+    until (equals_pos = line.index('=', pos)).nil?
       begin
         # Look back from the equals position until there is a space to get the token key
         cursor = equals_pos - 1
-        cursor -= 1 while line[cursor] != ' '
-        key = line[cursor+1, equals_pos-1]
+        stop = cursor
+        cursor -= 1 until cursor == 0 or line[cursor] == ' '
+        start = cursor + 1
+        key = line[start..stop]
         
         # Look forward from the equals position until there is a space to get the token value
         cursor = equals_pos + 1
-        cursor += 1 while line[cursor] != ' '
-        value = line[equals_pos+1, cursor-1]
-        
+        quoted = (line[cursor] == '"')
+        cursor += 1 if quoted
+        start = cursor
+        cursor += 1 until cursor == line.length or (not quoted and line[cursor] == ' ') or (quoted and line[cursor] == '"')
+        stop = cursor - 1
+        value = line[start..stop]        
+
         # Store the token key-value in the UCSCTrackHeader object
         begin
           track.set(key, value)

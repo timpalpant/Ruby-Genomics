@@ -30,8 +30,8 @@ class AbstractWigFile
   
   # Enumerate over the chromosomes in this Wig file
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
-  def each(&block)
-    self.chromosomes.p_each do |chr_id|
+  def each
+    self.chromosomes.each do |chr_id|
       yield(chr_id, chr(chr_id))
     end
   end
@@ -40,7 +40,7 @@ class AbstractWigFile
   # Automatically parallelize
   # NOTE: The order of the chromosomes is not guaranteed
   def each_chr
-    self.chromosomes.p_each do |chr_id|
+    self.chromosomes.each do |chr_id|
       yield chr(chr_id)
     end
   end
@@ -49,7 +49,7 @@ class AbstractWigFile
   # Automatically parallelize
   # NOTE: The order of the chunks is not guaranteed
   def each_chunk
-    self.chromosomes.p_each do |chr|
+    self.chromosomes.each do |chr|
       chunk_start = 1
       chr_length = chr_length(chr)
       while chunk_start <= chr_length
@@ -89,7 +89,7 @@ class AbstractWigFile
 
       # Write the chromosome header
       File.open(chr_temp_file, 'w') do |f|
-        f.puts Contig.new(0, chr, 1, 1, 1)
+        f.puts Contig.new(0, chr, 1, 1, 1).to_s
       end
       
       chunk_start = 1
@@ -263,7 +263,8 @@ class BigWigFile < AbstractWigFile
   
   # Output a summary about this BigWigFile
   def to_s
-    str = StringIO.new("BigWigFile: connected to file #{@data_file}\n")
+    str = StringIO.new
+    str << "BigWigFile: connected to file #{@data_file}\n"
     @chromosomes.each do |chr,chr_size|
       str << "\t#{chr} (bases covered: #{chr_size})\n"
     end
@@ -420,7 +421,8 @@ class WigFile < AbstractWigFile
   
 	# Output a summary about this WigFile
   def to_s
-    str = StringIO.new("WigFile: connected to file #{@data_file}\n")
+    str = StringIO.new
+    str << "WigFile: connected to file #{@data_file}\n"
     @index.each do |chr,line|
       str << "\tChromosome #{chr} (lines: #{line}..#{chr_stop(chr)})\n"
     end
