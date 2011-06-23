@@ -90,6 +90,6 @@ class File
   
   # Sort files
   def self.sort(input_file, output_file, options)
-    %x[ sort #{options.join(' ')} -o #{output_file} #{input_file} ]
+    %x[ sort #{options} -o #{output_file} #{input_file} ]
   end
 end

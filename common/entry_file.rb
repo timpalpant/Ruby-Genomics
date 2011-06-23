@@ -135,7 +135,7 @@ class TextEntryFile < EntryFile
   # Index all TextEntryFiles with Tabix
   def index
     # File must be sorted
-    File.sort(@data_file, @sorted_file, "-k#{chr_col},#{chr_col} -k#{start_col},#{start_col}n")
+    File.sort(@data_file, @sorted_file, "-k#{@chr_col},#{@chr_col} -k#{@start_col},#{@start_col}n")
     
     # and BGZipped
     BGZip.compress(@sorted_file, @bgzipped_file)
@@ -150,6 +150,7 @@ end
 class BinaryEntryFile < EntryFile
   def initialize(filename, index_file)
     super(filename)
+    
     @index_file = File.expand_path(index_file)
   end
   
