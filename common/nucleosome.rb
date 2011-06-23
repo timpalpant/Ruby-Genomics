@@ -1,5 +1,6 @@
 require 'entry_file'
 require 'spot_file'
+require 'spot_array_math'
 
 ##
 # Encapsulates information about an individual nucleosome
@@ -54,6 +55,7 @@ end
 ##
 class NukeCallsFile < TextEntryFile
   extend SpotFile
+  include SpotArrayMath
   
   CHR_COL = 1
   START_COL = 2

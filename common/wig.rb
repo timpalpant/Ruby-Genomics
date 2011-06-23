@@ -4,9 +4,10 @@ require 'unix_file_utils'
 require 'contig'
 require 'genomic_index_error'
 require 'stats'
-require 'forkmanager'
+require 'parallelizer'
 require 'assembly'
 require 'stringio'
+require 'wig_math'
 
 class WigError < StandardError
 end
@@ -16,24 +17,9 @@ end
 ##
 class AbstractWigFile
   include Enumerable
+  include WigMath
   
   attr_reader :name, :description, :data_file
-  @@pm = Parallel::ForkManager.new(2, {'tempdir' => Dir.tmpdir})
-  @@default_chunk_size = 200_000
-  
-  ##
-  # CLASS METHODS
-  ##
-  
-  # Set the total number of computation processes for all Wig files (default = 2)
-  def self.max_threads=(n)
-    @@pm = Parallel::ForkManager.new(n.to_i, {'tempdir' => Dir.tmpdir})
-  end
-  
-  # Set the default chunk size
-  def self.chunk_size(n)
-    @@default_chunk_size = n
-  end
   
   ##
   # INSTANCE METHODS
@@ -87,130 +73,6 @@ class AbstractWigFile
   def query(chr, start, stop)
     raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
   end
-  
-  ##
-  # STATISTICAL METHODS
-  ##
-  
-  # Number of values in the Wig file
-  def num_values
-    self.chromosomes.map { |chr| chr_length(chr) }.sum
-  end
-  
-  # The sum of all values
-  def total
-    chr_totals = self.chunk_map(0) do |sum,chr,start,stop|
-      sum + query(chr,start,stop).sum
-    end
-
-    return chr_totals.sum
-  end
-  
-  # The mean of all values
-  def mean
-    total / num_values
-  end
-  
-  # The standard deviation of all values
-  def stdev(avg = self.mean)
-    chr_deviances = self.chunk_map(0) do |sum,chr,start,stop|
-      sum + query(chr,start,stop).map { |elem| (elem-avg)**2 }.sum
-    end
-    
-    Math.sqrt(chr_deviances.sum / num_values)
-  end
-  
-  ##
-  # PARALLELIZATION METHODS
-  ##
-  
-  # Run a given block for each chromosome
-  # (parallel each)
-  def p_each    
-    self.chromosomes.each do |chr|
-      @@pm.start(chr)
-      yield(chr)
-      @@pm.finish(0)
-    end
-
-    @@pm.wait_all_children
-  end
-
-  # Compute a given block for each chromosome
-  # and return the results (parallel map)
-  def p_map
-    results = Array.new(self.chromosomes.length)
-    
-    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
-      results[id] = data['output']
-    end
-
-    self.chromosomes.each_with_index do |chr,i|
-      @@pm.start(chr)
-      result = yield(chr)
-      @@pm.finish(0, {'output' => result})
-    end
-    
-    @@pm.wait_all_children
-
-    return results
-  end
-  
-  # Iterate over all chromosomes in chunks
-  def chunk_each(chunk_size = @@default_chunk_size)
-    self.chromosomes.each do |chr|
-      # Run in parallel processes managed by ForkManager
-      @@pm.start(chr) and next 
-      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-      
-      chunk_start = 1
-      chr_length = self.chr_length(chr)
-      while chunk_start < chr_length
-        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
-        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-        yield(chr, chunk_start, chunk_stop)
-        chunk_start = chunk_stop + 1
-      end
-
-      @@pm.finish(0)
-    end
-
-    @@pm.wait_all_children
-  end
-  
-  # Compute a given block for all chromosomes in chunks
-  # and inject the results (parallel inject)
-  def chunk_map(initial_value, chunk_size = @@default_chunk_size)
-    results = Array.new(self.chromosomes.length)
-    
-    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
-      results[id] = data['output']
-    end
-
-    self.chromosomes.each_with_index do |chr,i|
-      # Run in parallel processes managed by ForkManager
-      @@pm.start(i) and next   
-      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-      
-      result = initial_value
-      chunk_start = 1
-      chr_length = self.chr_length(chr)
-      while chunk_start < chr_length
-        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
-        puts "Computing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-        
-        result = yield(result, chr, chunk_start, chunk_stop)
-        
-        chunk_start = chunk_stop + 1
-      end
-      
-      @@pm.finish(0, {'output' => result})
-    end
-
-    @@pm.wait_all_children
-    
-    return results
-  end
 end
 
 
@@ -219,6 +81,9 @@ end
 # Analogous to WigFile, but for compressed BigWigs
 ##
 class BigWigFile < AbstractWigFile
+  extend WigForkManager
+  include WigParallelEnumerable
+  
   attr_reader :min, :max
 
   def initialize(filename)
@@ -351,6 +216,9 @@ end
 # only as needed to conserve memory
 ##
 class WigFile < AbstractWigFile
+  extend WigForkManager
+  include WigParallelEnumerable
+
   # Open a Wig file and parse its track/chromosome information
   def initialize(filename)
     super(filename)

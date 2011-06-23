@@ -100,3 +100,114 @@ class BigWigComputationParallelizer < WigComputationParallelizer
     FileUtils.move(tmp_file, @output)
   end
 end
+
+##
+# Module for managing Wig processes in parallel
+##
+module WigForkManager
+  @@pm = Parallel::ForkManager.new(2, {'tempdir' => Dir.tmpdir})
+  @@default_chunk_size = 200_000
+  
+  # Set the total number of computation processes for all Wig files (default = 2)
+  def max_threads=(n)
+    @@pm = Parallel::ForkManager.new(n.to_i, {'tempdir' => Dir.tmpdir})
+  end
+  
+  # Set the default chunk size
+  def chunk_size=(n)
+    @@default_chunk_size = n
+  end
+end
+
+##
+# Enumerators for Wig files in parallel
+##
+module WigParallelEnumerable  
+  # Run a given block for each chromosome
+  # (parallel each)
+  def p_each    
+    self.chromosomes.each do |chr|
+      @@pm.start(chr)
+      yield(chr)
+      @@pm.finish(0)
+    end
+
+    @@pm.wait_all_children
+  end
+
+  # Compute a given block for each chromosome
+  # and return the results (parallel map)
+  def p_map
+    results = Array.new(self.chromosomes.length)
+    
+    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
+      results[id] = data['output']
+    end
+
+    self.chromosomes.each_with_index do |chr,i|
+      @@pm.start(chr)
+      result = yield(chr)
+      @@pm.finish(0, {'output' => result})
+    end
+    
+    @@pm.wait_all_children
+
+    return results
+  end
+  
+  # Iterate over all chromosomes in chunks
+  def chunk_each(chunk_size = @@default_chunk_size)
+    self.chromosomes.each do |chr|
+      # Run in parallel processes managed by ForkManager
+      @@pm.start(chr) and next 
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      chunk_start = 1
+      chr_length = self.chr_length(chr)
+      while chunk_start < chr_length
+        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+        puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        yield(chr, chunk_start, chunk_stop)
+        chunk_start = chunk_stop + 1
+      end
+
+      @@pm.finish(0)
+    end
+
+    @@pm.wait_all_children
+  end
+  
+  # Compute a given block for all chromosomes in chunks
+  # and inject the results (parallel inject)
+  def chunk_map(initial_value, chunk_size = @@default_chunk_size)
+    results = Array.new(self.chromosomes.length)
+    
+    @@pm.run_on_finish do |pid,exit_code,id,exit_signal,core_dump,data|
+      results[id] = data['output']
+    end
+
+    self.chromosomes.each_with_index do |chr,i|
+      # Run in parallel processes managed by ForkManager
+      @@pm.start(i) and next   
+      puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+      
+      result = initial_value
+      chunk_start = 1
+      chr_length = self.chr_length(chr)
+      while chunk_start < chr_length
+        chunk_stop = [chunk_start+chunk_size-1, chr_length].min
+        puts "Computing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+        
+        result = yield(result, chr, chunk_start, chunk_stop)
+        
+        chunk_start = chunk_stop + 1
+      end
+      
+      @@pm.finish(0, {'output' => result})
+    end
+
+    @@pm.wait_all_children
+    
+    return results
+  end
+end

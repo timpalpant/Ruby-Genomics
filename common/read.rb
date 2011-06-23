@@ -9,6 +9,6 @@ class Read < GenomicInterval
   attr_accessor :seq, :qual
   
   def to_s
-    "Read: #{chr},#{@start},#{@stop}"
+    "Read: #{chr},#{@start},#{@stop},#{@seq}"
   end
 end

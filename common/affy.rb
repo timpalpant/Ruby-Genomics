@@ -1,5 +1,6 @@
 require 'entry_file'
 require 'spot_file'
+require 'spot_array_math'
 require 'spot'
 
 # Affy file entries are just spots
@@ -11,8 +12,9 @@ end
 ##
 class AffyFile < TextEntryFile
   extend SpotFile
+  include SpotArrayMath
 
-  # Override each because Affy files are not strictly line-based
+  # Override #each because Affy files are not strictly line-based
   # We have to look at multiple lines to parse individual entries
   def each(query_chr = nil, query_start = nil, query_stop = nil)
     prev_chr, prev_start, prev_value = nil, nil, nil

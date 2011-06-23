@@ -4,35 +4,14 @@ require 'genomic_data'
 require 'assembly'
 require 'wig'
 require 'ucsc_tools'
+require 'spot_array_math'
 
 ##
 # A GenomicData with values for each Spot, i.e. a microarray dataset
+# @DEPRECATED: Could potentially consume huge amounts of memory if loading an entire dataset
 ##
 class SpotArray < GenomicData
-
-  ##
-  # STATISTICAL METHODS
-  ##
-
-  # The total number of spots in this SpotArray
-  def num_spots
-    self.collect { |chr_id,spots| spots.length }.sum
-  end
-  
-  # The sum of the values of all spots
-  def total
-    self.collect { |chr_id,spots| spots.collect { |spot| spot.value }.sum }.sum
-  end
-  
-  # The mean value of all spots
-  def mean
-    total.to_f / num_spots
-  end
-  
-  # The standard deviation of all spots
-  def stdev(mean = self.mean)
-    self.map { |chr_id,spots| spots.map { |spot| (spot.value-mean)**2 }.sum }.sum / num_spots
-  end
+  include SpotArrayMath  
   
   ##
   # QUERY METHODS
@@ -59,7 +38,7 @@ class SpotArray < GenomicData
     end
     
     # Map base pairs without data to nil, and take the mean of overlapping probes
-    med = Array.new(length) do |i|
+    avg = Array.new(length) do |i|
       if count[i] > 0
         total[i].to_f / count[i]
       else
@@ -68,8 +47,8 @@ class SpotArray < GenomicData
     end
     
     # Allow Crick querying
-    med.reverse! if start > stop
-    return med.to_contig(start, 1, 1)
+    avg.reverse! if start > stop
+    return avg.to_contig(start, 1, 1)
   end
         
   # Return a value for the given location
@@ -121,7 +100,7 @@ class SpotArray < GenomicData
         next unless assembly.include?(chr)
         
         # Allocate space for the new Wig chromosomes
-        values = query(chr, 1, assembly[chr]).to_contig(1, 1, 1)
+        values = query(chr, 1, assembly[chr])
       
         # Write to output file
         f.puts Wig.fixed_step(chr, values)

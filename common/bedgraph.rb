@@ -1,5 +1,6 @@
 require 'entry_file'
 require 'spot_file'
+require 'spot_array_math'
 require 'spot'
 
 ##
@@ -28,6 +29,7 @@ end
 ##
 class BedGraphFile < TextEntryFile
   extend SpotFile
+  include SpotArrayMath
   
   CHR_COL = 1
   START_COL = 2

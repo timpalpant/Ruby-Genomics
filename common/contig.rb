@@ -4,8 +4,7 @@ require 'unix_file_utils'
 
 ##
 # Represents a contiguous block of genomic data values
-# Returned when querying a WigFile / SpotArray with WigFile#chr(num)
-# or iterating over the chromosomes of a GenomicData
+# Returned when querying a WigFile / SpotArray
 #
 # Since chromosomal coordinates can always be indicated by integers, store as an Array
 ##

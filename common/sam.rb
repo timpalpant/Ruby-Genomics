@@ -156,7 +156,27 @@ class BAMFile < BinaryEntryFile
   
   # Count the number of alignments in a given lookup
   def count(chr = nil, start = nil, stop = nil)
+    index() if not indexed?
     %x[ samtools view -c #{@data_file} #{query_string(chr, start, stop)} ].chomp.to_i
+  end
+  
+  # Use samtools to get the chromosomes efficiently
+  def chromosomes
+    # Cache for performance
+    if @chromosomes.nil?
+      index() if not indexed?
+      @chromosomes = Array.new
+      %x[ samtools idxstats #{@data_file} ].split("\n").each do |line| 
+        entry = line.chomp.split("\t")
+        chr = entry[0]
+        bases = entry[1].to_i
+        mapped = entry[2].to_i
+        unmapped = entry[3].to_i
+        @chromosomes << chr if (mapped+unmapped) > 0
+      end
+    end
+    
+    return @chromosomes
   end
 
   private

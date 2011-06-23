@@ -1,6 +1,7 @@
 require 'enumerator'
 require 'unix_file_utils'
 require 'tabix'
+require 'set'
 
 ##
 # A line-oriented data file
@@ -12,12 +13,14 @@ require 'tabix'
 class EntryFile
   include Enumerable
 
-  def initialize(filename)
+  def initialize(filename, index_file = nil)
     @data_file = File.expand_path(filename)
+    @index_file = File.expand_path(index_file) unless index_file.nil?
   end
   
   # Perform any additional cleanup operations (deleting indexes, etc.)
   def close
+    File.delete(@index_file) if indexed?
   end
   
   # Open the EntryFile (optionally with a block)
@@ -57,6 +60,39 @@ class EntryFile
     puts "Skipped #{skipped} invalid entries" if ENV['DEBUG']
   end
   
+  # Return all of the chromosomes available in this EntryFile
+  # This has fairly bad performance (requires parsing all entries in the file)
+  # So it can be overridden if there is a better way for a specific filetype
+  def chromosomes
+    # Cache for performance
+    if @chromosomes.nil?
+      s = Set.new
+      self.each { |entry| s << entry.chr }
+      @chromosomes = s.to_a
+    end
+    
+    return @chromosomes
+  end
+  
+  # Allow EntryFiles to be indexed like GenomicDatas, optionally with a block
+  # to avoid loading all elements of a chromosome into memory
+  def [](chr_id, &block)
+    chr(chr_id, &block)
+  end
+  
+  # Query for a specific chromosome
+  def chr(chr_id, &block)
+    if block
+      self.each(chr_id) { |entry| yield entry }
+    else
+      # TODO: Return a custom Enumerable object that doesn't require
+      # preloading all of the entries
+      entries = Array.new
+      self.each(chr_id) { |entry| entries << entry }
+      return entries
+    end
+  end
+  
   def to_bed(output)
     to_disk(output) { |entry| entry.to_bed }
   end
@@ -70,6 +106,11 @@ class EntryFile
   end
   
   private
+  
+  # Returns true if the index file exists (i.e. assume it has been indexed)
+  def indexed?
+    @index_file and File.exist?(@index_file)
+  end
   
   # Should be overridden in subclasses to parse an line into an object
   def parse(line)
@@ -105,11 +146,15 @@ class TextEntryFile < EntryFile
   
   # Delete the Tabix index file and the BGZipped version, if it exists
   def close
-    File.delete(@index_file) if File.exist?(@index_file)
-    File.delete(@bgzipped_file) if File.exist?(@bgzipped_file)
+    File.delete(@index_file) if indexed?
+    File.delete(@bgzipped_file) if bgzipped?
   end
   
   private
+  
+  def bgzipped?
+    @bgzipped_file and File.exist?(@bgzipped_file)
+  end
   
   # Get all lines in the file matching chr:start-stop
   def query_lines(chr = nil, start = nil, stop = nil)
@@ -125,7 +170,7 @@ class TextEntryFile < EntryFile
       end
     # If we're querying for a specific region, use Tabix to index the file
     else
-      index() if not File.exist?(@index_file)
+      index() if not indexed?
       IO.popen("tabix #{@bgzipped_file} #{chr}:#{start}-#{stop}") do |output|
         output.each { |line| yield line }
       end
@@ -147,23 +192,12 @@ class TextEntryFile < EntryFile
   end
 end
 
-class BinaryEntryFile < EntryFile
-  def initialize(filename, index_file)
-    super(filename)
-    
-    @index_file = File.expand_path(index_file)
-  end
-  
-  # Cleanup the index, if it exists
-  def close
-    File.delete(@index_file) if File.exist?(@index_file)
-  end
-  
+class BinaryEntryFile < EntryFile  
   private
   
   # Query the binary file and return the resulting text-entry lines
   def query_lines(chr, start, stop)
-    index() if not File.exist?(@index_file)
+    index() if not indexed?
     
     IO.popen(query_command(chr, start, stop)) do |output|
       output.each { |line| yield line }
