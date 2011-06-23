@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rbconfig'
 
 ##
 # Just ensure that all scripts will compile
@@ -8,13 +9,15 @@ require 'spec_helper'
 # $?.success? is true if the error code returned is 0, false otherwise
 ##
 
+CURRENT_RUBY_INTERPRETER = RbConfig::CONFIG.values_at('bindir', 'ruby_install_name').join('/')
+
 shared_examples "scripts collection" do
   it "should compile" do
     failed = Array.new
     
     @fileset.each do |f|
       # Run the script just to make sure it compiles
-      %x[ ruby1.9 #{f} 2>&1 ]
+      %x[ #{CURRENT_RUBY_INTERPRETER} #{f} 2>&1 ]
     
       # Flag this set of scripts as failed unless script compilation was successful
       failed << File.basename(f) unless $?.success?
