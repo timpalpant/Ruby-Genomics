@@ -55,7 +55,7 @@ module SpotFile
       low = [low, spot.low].max
       high = [spot.high, high].min
     
-      for bp in spot.low..spot.high
+      for bp in low..high
         total[bp-low] += spot.value unless spot.value.nil?
         count[bp-low] += 1
       end

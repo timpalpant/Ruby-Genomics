@@ -14,19 +14,21 @@ class GenomicInterval
   # Output this genomic interval as a string (the format is suitable
   # for UCSC or samtools)
   def to_s
-    "#{chr}:#{start}-#{stop}"
+    "#{@chr}:#{start}-#{stop}"
   end
   
   def to_bed
-    "#{chr}\t#{@start}\t#{@stop}"
+    value = @value ? @value : '.'
+    id = @id ? @id : '.'
+    "#{@chr}\t#{low}\t#{high}\t#{id}\t#{value}\t#{strand}"
   end
   
   def to_bedgraph
-    "#{chr}\t#{@start}\t#{@stop}"
+    "#{@chr}\t#{low}\t#{high}"
   end
   
   def to_gff
-    "#{chr}\tSpotArray\tfeature\t#{@start}\t#{@stop}\t0\t.\t.\tprobe_id=none;count=1"
+    "#{@chr}\tSpotArray\tfeature\t#{low}\t#{high}\t0\t.\t.\tprobe_id=none;count=1"
   end
   
   def center

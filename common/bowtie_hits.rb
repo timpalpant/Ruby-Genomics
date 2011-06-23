@@ -37,7 +37,7 @@ class BowtieHitsEntry < Read
       
       return read
     rescue
-      raise BowtieHitsError, "Invalid Bed Entry!"
+      raise BowtieHitsError, "Invalid BowtieHits Entry!"
     end
   end
 end

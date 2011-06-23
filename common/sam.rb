@@ -38,6 +38,8 @@ class SAMEntry < Read
       else
         entry.start = record[3].to_i + entry.seq.length - 1
         entry.stop = entry.start - extend + 1
+        entry.seq = entry.seq.reverse_complement
+        entry.qual = entry.qual.reverse
       end
 
       return entry
