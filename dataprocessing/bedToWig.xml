@@ -1,11 +1,11 @@
-<tool id="BedToWig" name="Bed-to-Wig" version="1.0.0">
+<tool id="BedToWig" name="Bed-to-BigWig" version="1.0.0">
   <description>converter</description>
   <command interpreter="ruby1.9">bedToWig.rb -i $input -g $dbkey -o $output</command>
   <inputs>
       <param name="input" type="data" format="bed" label="Input Bed file" />
   </inputs>
   <outputs>
-      <data name="output" format="wig" metadata_source="input" />
+      <data name="output" format="bigwig" metadata_source="input" />
   </outputs>
 	
 <help>

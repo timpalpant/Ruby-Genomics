@@ -283,7 +283,23 @@ class BigWigFile < AbstractWigFile
   # Write a BigWigFile to a Wig file
   def self.to_wig(input_file, output_file)
     puts "Converting BigWig file (#{File.basename(input_file)}) to Wig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToWig #{input_file} #{File.expand_path(output_file)} ]
+    
+    # Write a track header
+    header_file = File.expand_path(output_file + '.header')
+    File.open(header_file, 'w') do |f|
+      f.puts UCSCTrackHeader.new(:name => File.basename(output_file))
+    end
+    
+    # Extract the data with UCSC tools
+    data_file = File.expand_path(output_file + '.data')
+    %x[ bigWigToWig #{input_file} #{data_file} ]
+    
+    # Cat the two parts together
+    File.cat([header_file, data_file], output_file)
+    
+    # Delete the two temp files
+    File.delete(header_file)
+    File.delete(data_file)
   end
 
   # Write this BigWig to a BedGraph

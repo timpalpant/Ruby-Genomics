@@ -5,6 +5,7 @@ require 'assembly'
 require 'wig'
 require 'ucsc_tools'
 require 'spot_array_math'
+require 'fileutils'
 
 ##
 # A GenomicData with values for each Spot, i.e. a microarray dataset
@@ -91,7 +92,7 @@ class SpotArray < GenomicData
   # averaged, if multiple spots cover a given base
   def to_wig(filename, assembly)    
     # Iterate over each chromosome, mapping all spots and averaging
-    File.open(filename,'w') do |f|
+    File.open(File.expand_path(filename), 'w') do |f|
       # TODO: should be rewritten to intelligently use step size
       f.puts UCSCTrackHeader.new(:type => 'wiggle_0') 
       
@@ -106,6 +107,15 @@ class SpotArray < GenomicData
         f.puts values
       end
     end
+  end
+  
+  # Write this array to BigWig format
+  def to_bigwig(filename, assembly)
+    self.to_wig(filename, assembly)
+    
+    tmp_file = filename + '.tmp'
+    WigFile.to_bigwig(filename, tmp_file, assembly)
+    FileUtils.move(tmp_file, filename)
   end
   
   private

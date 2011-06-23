@@ -66,7 +66,7 @@ dividend = BigWigFile.new(options[:dividend])
 divisor = BigWigFile.new(options[:divisor])
   
 # Validate that both files have the same chromosomes
-puts "Validating compatibility"
+puts "Validating compatibility" if ENV['DEBUG']
 dividend.chromosomes.each do |chr_id|
   raise "Files have different chromosomes!" unless divisor.include?(chr_id)
   raise "Chromosome #{chr_id} has a different length" unless dividend.chr_length(chr_id) == divisor.chr_length(chr_id)

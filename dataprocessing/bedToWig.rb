@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Converts Bed files to Wig files
+#   Converts Bed files to BigWig files
 #
 # == Usage 
-#   bed2Wig.rb -i file.bed -o file.wig
+#   bed2Wig.rb -i file.bed -o file.bw
 #
 #   For help use: bed2Wig.rb -h
 #
@@ -12,7 +12,7 @@
 #   -h, --help          Displays help message
 #		-i, --input					Input Bed
 #		-g, --genome				Genome assembly
-#		-o, --output				Output WIG
+#		-o, --output				Output BigWig
 #
 # == Author
 #   Timothy Palpant
@@ -32,7 +32,7 @@ require 'pickled_optparse'
 options = Hash.new
 ARGV.options do |opts|
 	# Banner at the top of the help screen
-	opts.banner = "Usage: #{__FILE__} -i input.bed -o output.wig"
+	opts.banner = "Usage: #{__FILE__} -i input.bed -o output.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -43,7 +43,7 @@ ARGV.options do |opts|
 	opts.on( '-i', '--input FILE', :required, "Input Bed" ) { |f| options[:input] = f }
 	options[:genome] = 'sacCer2'
 	opts.on( '-g', '--genome ASSEMBLY', "Genome assembly" ) { |g| options[:genome] = g }
-	opts.on( '-o', '--output FILE', :required, "Output Wig" ) { |f| options[:output] = f }
+	opts.on( '-o', '--output FILE', :required, "Output BigWig" ) { |f| options[:output] = f }
 		
 	# Parse the command-line arguments
 	opts.parse!
@@ -63,4 +63,4 @@ a = Assembly.load(options[:genome])
 bed = BedFile.load(options[:input])
 
 # Write the Wiggle format
-bed.to_wig(options[:output], a)
+bed.to_bigwig(options[:output], a)

@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Converts GFF files to Wig files
+#   Converts GFF files to BigWig files
 #
 # == Usage 
-#   gff2Wig.rb -i file.gff -o file.wig
+#   gff2Wig.rb -i file.gff -o file.bw
 #
 #   For help use: gff2Wig.rb -h
 #
@@ -12,7 +12,7 @@
 #   -h, --help          Displays help message
 #		-i, --input					Input GFF
 #		-g, --genome				Genome assembly
-#		-o, --output				Output WIG
+#		-o, --output				Output BigWig
 #
 # == Author
 #   Timothy Palpant
@@ -32,7 +32,7 @@ require 'pickled_optparse'
 options = Hash.new
 ARGV.options do |opts|
 	# Banner at the top of the help screen
-	opts.banner = "Usage: #{__FILE__} -i input.gff -o output.wig"
+	opts.banner = "Usage: #{__FILE__} -i input.gff -o output.bw"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -43,7 +43,7 @@ ARGV.options do |opts|
 	opts.on( '-i', '--input FILE', :required, "Input GFF" ) { |f| options[:input] = f }
 	options[:genome] = 'sacCer2'
 	opts.on( '-g', '--genome ASSEMBLY', "Genome assembly" ) { |g| options[:genome] = g }
-	opts.on( '-o', '--output FILE', :required, "Output WIG" ) { |f| options[:output] = f }
+	opts.on( '-o', '--output FILE', :required, "Output BigWig" ) { |f| options[:output] = f }
 		
 	# Parse the command-line arguments
 	opts.parse!
@@ -64,4 +64,4 @@ gff = GFFFile.load(options[:input])
 assembly = Assembly.load(options[:genome])
 
 # Write the Wiggle format
-gff.to_wig(options[:output], assembly)
+gff.to_bigwig(options[:output], assembly)
