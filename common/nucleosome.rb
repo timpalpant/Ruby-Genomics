@@ -1,6 +1,6 @@
 require 'entry_file'
 require 'spot_file'
-require 'spot_array_math'
+require 'spot'
 
 ##
 # Encapsulates information about an individual nucleosome
@@ -28,6 +28,10 @@ class Nucleosome < Spot
       raise NucleosomeError, "Invalid nucleosome call entry!"
     end
   end
+
+  def occupancy=(value)
+    @value = value
+  end
   
   def occupancy
     @value
@@ -54,12 +58,11 @@ end
 # Lists of Nucleosome Calls
 ##
 class NukeCallsFile < TextEntryFile
-  extend SpotFile
-  include SpotArrayUtils
-  
+  include SpotFile
+ 
   CHR_COL = 1
-  START_COL = 2
-  END_COL = 3
+  START_COL = 4
+  END_COL = 4
   
   def initialize(filename)
     super(filename, CHR_COL, START_COL, END_COL)

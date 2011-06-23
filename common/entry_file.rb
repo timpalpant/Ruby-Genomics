@@ -199,7 +199,9 @@ class TextEntryFile < EntryFile
     # If we're querying for a specific region, use Tabix to index the file
     else
       index() if not indexed?
-      IO.popen("tabix #{@bgzipped_file} #{chr}:#{start}-#{stop}") do |output|
+      low = [start, stop].min
+      high = [start, stop].max
+      IO.popen("tabix #{@bgzipped_file} #{chr}:#{low}-#{high}") do |output|
         output.each { |line| yield line }
       end
     end

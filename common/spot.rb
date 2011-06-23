@@ -19,7 +19,7 @@ class Spot < GenomicInterval
     "#{chr}\t#{@start}\t#{@stop}\t#{@id}\t#{@value}"
   end
   
-  def to_bedGraph
+  def to_bedraph
     "#{chr}\t#{@start}\t#{@stop}\t#{@value}"
   end
   

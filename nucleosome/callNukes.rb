@@ -115,8 +115,8 @@ File.open(options[:output],'w') do |f|
           
           # Set 147bp (nuke size) surrounding current bp on either side to 0
           # This is the region in which another nuke cannot be called
-          low = Math.max(i-options[:nuke], 0)
-          high = Math.min(i+options[:nuke], smoothed_chr.length-1)
+          low = [i-options[:nuke], 0].max
+          high = [i+options[:nuke], smoothed_chr.length-1].min
           for bp in low..high
             smoothed_chr[bp] = 0
           end

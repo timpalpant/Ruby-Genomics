@@ -61,16 +61,15 @@ end
 
 
 # Load the windows
+skipped, invalid_coordinates = 0, 0
 File.open(options[:output], 'w') do |f|
   BedFile.open(options[:loci]) do |bed|
     NukeCallsFile.open(options[:input]) do |calls|
       direction = options[:reverse] ? 3 : 5
       puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
       
-      skipped = 0
-      invalid_coordinates = 0
       bed.each do |spot|
-        if not calls.chromosomes.include?(chr)
+        if not calls.chromosomes.include?(spot.chr)
           skipped += 1
           next
         end
@@ -85,12 +84,12 @@ File.open(options[:output], 'w') do |f|
             first_nuke = if (options[:reverse] and spot.watson?) or (not options[:reverse] and spot.crick?)
               nuke.dyad if nuke.dyad > first_nuke
             else
-              nuke.dyad if or nuke.dyad < first_nuke
+              nuke.dyad if nuke.dyad < first_nuke
             end
           end
         end
         
-        if first_nuke = nil
+        if first_nuke == nil
           invalid_coordinates += 1
         else
           spot.value = first_nuke
