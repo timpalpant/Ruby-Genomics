@@ -1,9 +1,7 @@
 require 'enumerator'
-require 'tmpdir'
 require 'unix_file_utils'
 require 'contig'
 require 'genomic_index_error'
-require 'stats'
 require 'parallelizer'
 require 'assembly'
 require 'stringio'
@@ -17,9 +15,10 @@ end
 ##
 class AbstractWigFile
   include Enumerable
+  include WigParallelEnumerable
   include WigMath
   
-  attr_reader :name, :description, :data_file
+  attr_reader :track_header, :data_file
   
   ##
   # INSTANCE METHODS
@@ -80,10 +79,7 @@ end
 # For documentation, see: http://genome.ucsc.edu/goldenPath/help/bigWig.html
 # Analogous to WigFile, but for compressed BigWigs
 ##
-class BigWigFile < AbstractWigFile
-  extend WigForkManager
-  include WigParallelEnumerable
-  
+class BigWigFile < AbstractWigFile  
   attr_reader :min, :max
 
   def initialize(filename)
@@ -160,7 +156,7 @@ class BigWigFile < AbstractWigFile
 
     values = result.string.split(' ').map { |v| v.to_f }
     values.reverse! if start > stop
-    return values.to_contig(start, step, step)
+    return values.to_contig(chr, start, step, step)
   end
 
   # Return the average value for the specified region
@@ -216,29 +212,17 @@ end
 # only as needed to conserve memory
 ##
 class WigFile < AbstractWigFile
-  extend WigForkManager
-  include WigParallelEnumerable
-
   # Open a Wig file and parse its track/chromosome information
   def initialize(filename)
     super(filename)
     
     # Load the track information from the first line
     File.open(@data_file) do |f|
-      track_line = f.gets.chomp
-      break unless track_line.start_with?('track')
-      track_line.split(' ').each do |opt|
-        keypair = opt.split('=')
-        key = keypair.first
-        value = keypair.last[1..-2]
-        
-        # TODO: Load other track parameters
-        case key
-          when 'name'
-            @name = value
-          when 'description'
-            @description = value
-        end
+      begin
+        @track_header = UCSCTrackHeader.parse(f.gets)
+      rescue UCSCTrackHeaderError
+        # If the track header couldn't be parsed, create a default one
+        @track_header = UCSCTrackHeader.new(:type => 'wiggle_0')
       end
     end
     
@@ -247,27 +231,23 @@ class WigFile < AbstractWigFile
     @index = Hash.new
     
     # Find chromosome header lines and index (ghetto B-tree index)
-    puts 'Indexing chromosome header lines' if ENV['DEBUG']
+    puts 'Indexing Contig header lines' if ENV['DEBUG']
     File.grep_with_linenum(@data_file, 'chrom').each do |line|
       grep_line = line.split(':')
       line_num = grep_line.first.to_i
       header_line = grep_line.last
-      #raise WigError, "Only fixedStep-format Wig files are supported at this time" if header_line.start_with?('variable')
-      next unless header_line.start_with?('fixedStep') or header_line.start_with?('variableStep')
       
-      header_line.split(' ').each do |opt|
-        keypair = opt.split('=')
-        key = keypair.first
-        value = keypair.last
-        
-        if key == 'chrom'
-          @index[value] = line_num
-        end
+      begin
+        parsed = Contig.parse_wig_header(header_line)
+        @index[parsed.chr] = line_num
+      rescue ContigError
+        puts "Not a valid fixedStep/variableStep header" if ENV['DEBUG']
+        next
       end
     end
   
     # Raise an error if no chromosomes were found
-    raise WigError, "No chromosome fixedStep headers found in Wig file!" if @index.length == 0
+    raise WigError, "No fixedStep/variableStep headers found in Wig file!" if @index.length == 0
   end
   
   ##

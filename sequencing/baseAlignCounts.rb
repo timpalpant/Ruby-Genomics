@@ -185,7 +185,7 @@ puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
   name = "Mapped Coverage #{File.basename(options[:input])}"
-  f.puts UCSCTools.track_header(:name => name)
+  f.puts UCSCTrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file

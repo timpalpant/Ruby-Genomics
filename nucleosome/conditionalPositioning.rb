@@ -64,8 +64,8 @@ wig = WigFile.new(options[:input])
 puts "Computing conditional positioning" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
 	name = "#{options[:input]} Conditional Positioning"
-  f.write UCSCTools.track_header(:name => name,
-                                 :limits => '0:1e-7')
+  f.write UCSCTrackHeader.new(:name => name,
+                              :limits => '0:1e-7')
 
                                  wig.each do |chr_id,chr|
     puts "Processing chromosome #{chr_id}" if ENV['DEBUG']

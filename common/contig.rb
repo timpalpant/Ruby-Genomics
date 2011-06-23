@@ -9,10 +9,11 @@ require 'unix_file_utils'
 # Since chromosomal coordinates can always be indicated by integers, store as an Array
 ##
 class Contig < Array
-  attr_accessor :start, :step, :span
+  attr_accessor :chr, :start, :step, :span
 
-  def initialize(length = 0, start = 1, step = 1, span = 1)
+  def initialize(length = 0, chr = 'unknown', start = 1, step = 1, span = 1)
     super(length, 0)
+    @chr = chr
     @start = start
     @step = step
     @span = span
@@ -20,13 +21,19 @@ class Contig < Array
   
   # Parse the header arguments of a fixedStep/variableStep line
   def self.parse_wig_header(line)
-    start, step, span = 1, 1, 1
+    unless line.chomp.start_with?('fixedStep') or line.chomp.start_with?('variableStep')
+      raise ContigError, "Not a valid Wig Contig header"
+    end
+  
+    chrom, start, step, span = 'unknown', 1, 1, 1
     line.chomp.split(' ').each do |opt|
       keypair = opt.split('=')
       key = keypair.first
       value = keypair.last
       
       case key
+        when 'chrom'
+          chrom = value
         when 'start'
           start = value.to_i
         when 'step'
@@ -36,7 +43,7 @@ class Contig < Array
       end
     end
 
-    return self.new(0, start, step, span)
+    return self.new(0, chrom, start, step, span)
   end
   
   # Load a chromosome from a specific section of a Wig file
@@ -116,8 +123,8 @@ end
 
 # For converting an Array to a Chromosome
 class Array
-  def to_contig(start = 1, step = 1, span = 1)
-    chr = Contig.new(self.length, start, step, span)
+  def to_contig(chr = 'unknown', start = 1, step = 1, span = 1)
+    chr = Contig.new(self.length, chr, start, step, span)
     chr[0..-1] = self
     return chr
   end

@@ -48,7 +48,7 @@ class SpotArray < GenomicData
     
     # Allow Crick querying
     avg.reverse! if start > stop
-    return avg.to_contig(start, 1, 1)
+    return avg.to_contig(chr, start, 1, 1)
   end
         
   # Return a value for the given location

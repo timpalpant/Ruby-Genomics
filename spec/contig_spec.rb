@@ -70,7 +70,7 @@ describe Contig do
   
   context "with start = 25" do
     before do
-      @test = Contig.new(100, 25, 5, 4)
+      @test = Contig.new(100, 'unknown', 25, 5, 4)
     end
     
     it "should have correct attributes" do
@@ -88,6 +88,7 @@ describe Contig do
     end
     
     it "should have correct attributes" do
+      @test.chr.should == 'chrXI'
       @test.start.should == 20
       @test.step.should == 5
       @test.span.should == 4
@@ -135,28 +136,30 @@ describe Array do
   end
   
   it "should convert to chromosome with default parameters" do
-    chr = @test.to_contig
-    chr.start.should == 1
-    chr.step.should == 1
-    chr.span.should == 1
-    chr.stop.should == 100
-    chr.length.should == 100
+    contig = @test.to_contig
+    contig.chr.should == 'unknown'
+    contig.start.should == 1
+    contig.step.should == 1
+    contig.span.should == 1
+    contig.stop.should == 100
+    contig.length.should == 100
     
     @test.each_with_index do |value,i|
-      chr[i].should == @test[i]
+      contig[i].should == @test[i]
     end
   end
   
   it "should allow parameters to be set" do
-    chr = @test.to_contig(25, 5, 5)
-    chr.start.should == 25
-    chr.step.should == 5
-    chr.span.should == 5
-    chr.stop.should == 124
-    chr.length.should == 100
+    contig = @test.to_contig('chrI', 25, 5, 5)
+    contig.chr.should == 'chrI'
+    contig.start.should == 25
+    contig.step.should == 5
+    contig.span.should == 5
+    contig.stop.should == 124
+    contig.length.should == 100
     
     @test.each_index do |i|
-      chr[i].should == @test[i]
+      contig[i].should == @test[i]
     end
   end
 end

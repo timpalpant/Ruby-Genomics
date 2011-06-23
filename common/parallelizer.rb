@@ -33,8 +33,8 @@ class WigComputationParallelizer < Parallelizer
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
-      f.puts UCSCTools.track_header(:name => @output, 
-                                    :description => @output)
+      f.puts UCSCTrackHeader.new(:name => @output, 
+                                 :description => @output)
     end
 
     # Keep track of all the temporary intermediate files (header first)
@@ -104,25 +104,20 @@ end
 ##
 # Module for managing Wig processes in parallel
 ##
-module WigForkManager
+module WigParallelEnumerable
   @@pm = Parallel::ForkManager.new(2, {'tempdir' => Dir.tmpdir})
   @@default_chunk_size = 200_000
   
   # Set the total number of computation processes for all Wig files (default = 2)
-  def max_threads=(n)
+  def self.max_threads=(n)
     @@pm = Parallel::ForkManager.new(n.to_i, {'tempdir' => Dir.tmpdir})
   end
   
   # Set the default chunk size
-  def chunk_size=(n)
+  def self.chunk_size=(n)
     @@default_chunk_size = n
   end
-end
-
-##
-# Enumerators for Wig files in parallel
-##
-module WigParallelEnumerable  
+ 
   # Run a given block for each chromosome
   # (parallel each)
   def p_each    

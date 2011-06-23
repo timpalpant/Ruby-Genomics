@@ -175,7 +175,7 @@ puts "WARN: #{total_unmapped} unmapped dyads" if total_unmapped > 0
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
 	name = "Mapped Dyads #{File.basename(options[:input])}"
-	f.puts UCSCTools.track_header(:name => name)
+	f.puts UCSCTrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file

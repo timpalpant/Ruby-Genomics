@@ -157,7 +157,7 @@ pm.wait_all_children
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
 	name = "Mean Read Length #{File.basename(options[:input])}"
-	f.puts UCSCTools.track_header(:name => name)
+	f.puts UCSCTrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
