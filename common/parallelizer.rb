@@ -33,8 +33,7 @@ class WigComputationParallelizer < Parallelizer
     # Write the output file header
     header_file = @output+'.header'
     File.open(header_file, 'w') do |f|
-      f.puts UCSCTrackHeader.new(:name => @output, 
-                                 :description => @output)
+      f.puts wig.track_header
     end
 
     # Keep track of all the temporary intermediate files (header first)
@@ -51,7 +50,7 @@ class WigComputationParallelizer < Parallelizer
 
       # Write the chromosome fixedStep header
       File.open(chr_temp_file, 'w') do |f|
-        f.puts WigFile.fixed_step(chr) + ' start=1 step=1 span=1'
+        f.puts Contig.new(0, chr, 1, 1, 1)
       end
       
       chunk_start = 1

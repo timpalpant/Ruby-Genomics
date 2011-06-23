@@ -93,7 +93,7 @@ class SpotArray < GenomicData
     # Iterate over each chromosome, mapping all spots and averaging
     File.open(filename,'w') do |f|
       # TODO: should be rewritten to intelligently use step size
-      f.puts Wig.track_header(@name, @description) 
+      f.puts UCSCTrackHeader.new(:type => 'wiggle_0') 
       
       self.chromosomes.each do |chr|
         # Skip if this chromosome is not in the specified assembly
@@ -103,7 +103,6 @@ class SpotArray < GenomicData
         values = query(chr, 1, assembly[chr])
       
         # Write to output file
-        f.puts Wig.fixed_step(chr, values)
         f.puts values
       end
     end

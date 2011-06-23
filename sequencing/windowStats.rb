@@ -79,7 +79,7 @@ File.open(options[:output], 'w') do |f|
     values = wigs.map do |wig|
       begin
          value = wig.query(spot.chr, spot.start, spot.stop).send(options[:stat])
-      rescue GenomicIndexError
+      rescue Wig
          value = 'NaN'
       end
 

@@ -67,16 +67,15 @@ File.open(options[:output],'w') do |f|
   f.write UCSCTrackHeader.new(:name => name,
                               :limits => '0:1e-7')
 
-                                 wig.each do |chr_id,chr|
+  wig.each do |chr_id, contig|
     puts "Processing chromosome #{chr_id}" if ENV['DEBUG']
-    conditional = Chromosome.new(chr.length,73)
-    for bp in 1...chr.length-147
-      window = chr.bases(bp, bp+147)
+    conditional = Contig.new(contig.length, contig.chr, 73)
+    for bp in 1...contig.length-147
+      window = contig.bases(bp, bp+147)
       conditional[bp] = window[73] / window.sum
     end
     
     puts "Writing to disk" if ENV['DEBUG']
-    f.puts WigFile.fixed_step(chr_id, conditional)
     f.puts conditional
   end
 end

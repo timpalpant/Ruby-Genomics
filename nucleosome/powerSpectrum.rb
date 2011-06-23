@@ -77,7 +77,7 @@ loci.each do |chr,spots|
     # Compute the power spectrum
     begin
       p = wig.query(chr, spot.start, spot.stop).power_spectrum
-    rescue GenomicIndexError
+    rescue WigError
       next
     end
     

@@ -94,7 +94,7 @@ wigs.each do |wig|
     spots.each do |spot|
       begin
         values = wig.query(chr, spot.start, spot.stop)
-      rescue GenomicIndexError
+      rescue Wig
         next
       end
       

@@ -114,9 +114,17 @@ class Contig < Array
     bases(low, high)
   end
   
-  # Output this chromosome as a fixedStep list of values (one per line)
+  # Output this Contig as a fixedStep list of values (one per line)
   def to_s
-    self.map { |value| value.to_s(5) }.join("\n")
+    str = StringIO.new("fixedStep chrom=#{@chr}")
+    
+    str << " start=#{@start}" if @start
+  	str << " step=#{@step}" if @step
+	  str << " span=#{@span}" if @span
+
+    self.each { |value| str << "\n" << value.to_s(5) }
+    
+    return str.string
   end
 end
 

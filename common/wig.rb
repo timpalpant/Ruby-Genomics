@@ -1,7 +1,6 @@
 require 'enumerator'
 require 'unix_file_utils'
 require 'contig'
-require 'genomic_index_error'
 require 'parallelizer'
 require 'assembly'
 require 'stringio'
@@ -129,13 +128,14 @@ class BigWigFile < AbstractWigFile
   # Load data from disk and return a Contig of values for a given chromosome
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def chr(chr_id)
+    raise WigError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     query(chr_id, 1, chr_length(chr_id))
   end
   
   # Return a Contig of data from the specified region
   def query(chr, start, stop, step = 1)
     # Don't query off the ends of chromosomes
-    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)
+    raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr) or start < 1 or stop > chr_length(chr)
 
     # Allow Crick queries
     low = [start, stop].min
@@ -149,7 +149,7 @@ class BigWigFile < AbstractWigFile
       query_stop = [query_start+@@default_chunk_size-1, high-1].min
       num_values = (query_stop-query_start+1) / step
       chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
-      raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
+      raise WigError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
       result << ' ' << chunk
       query_start = query_stop + 1
     end
@@ -162,7 +162,7 @@ class BigWigFile < AbstractWigFile
   # Return the average value for the specified region
   def query_average(chr, start, stop)
     # Don't query off the ends of chromosomes
-    raise GenomicIndexError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if start < 1 or stop > chr_length(chr)
+    raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if start < 1 or stop > chr_length(chr)
 
     low = [start, stop].min
     high = [start, stop].max
@@ -266,13 +266,13 @@ class WigFile < AbstractWigFile
   
   # Get the starting line for a chromosome
   def chr_start(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    raise WigError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     @index[chr_id]
   end
   
   # Get the stop line for a chromosome
   def chr_stop(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    raise WigError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     start_line = chr_start(chr_id)
     
     # Read up to the next chromosome in the file, or the end if there are no more chromosomes
@@ -285,7 +285,7 @@ class WigFile < AbstractWigFile
   
   # Get the length of a chromosome from the index
   def chr_length(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    raise WigError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
     chr_stop(chr_id) - chr_start(chr_id)
   end
   
@@ -295,7 +295,7 @@ class WigFile < AbstractWigFile
   
   # Load data from disk and return a Vector of values for a given chromosome
   def chr(chr_id)
-    raise GenomicIndexError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
+    raise WigError, "Chromosome #{chr_id} not found in Wig file #{@data_file}!" unless include?(chr_id)
   
     # Call tail and head to get the appropriate lines from the Wig
     return Contig.load_wig(@data_file, chr_start(chr_id), chr_stop(chr_id))
@@ -303,15 +303,15 @@ class WigFile < AbstractWigFile
   
   # Return single-bp data from the specified region
   def query(chr, start, stop)
-    raise GenomicIndexError, "Chromosome #{chr} not found in Wig file #{@data_file}!" unless include?(chr)
+    raise WigError, "Chromosome #{chr} not found in Wig file #{@data_file}!" unless include?(chr)
     
     # Parse the header of the desired chromosome
     header = File.lines(@data_file, chr_start(chr), chr_start(chr)).first
-    raise GenomicIndexError, 'Random queries are only available for fixedStep-style chromosomes' unless header.start_with?('fixedStep')
+    raise WigError, 'Random queries are only available for fixedStep-style chromosomes' unless header.start_with?('fixedStep')
     parsed = Contig.parse_wig_header(header)
     
     raise 'Random queries are not yet implemented for data with step != 1' if parsed.step != 1
-    raise GenomicIndexError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > parsed.start + parsed.step*chr_length(chr)
+    raise WigError, 'Specified interval outside of data range in Wig file!' if start < parsed.start or stop > parsed.start + parsed.step*chr_length(chr)
 
     # Calculate the lines needed
     low = [start, stop].min
@@ -339,20 +339,6 @@ class WigFile < AbstractWigFile
     end
     
     return str.string
-  end
-  
-  # Make a Wig fixedStep header for the given ID and Contig
-  def self.fixed_step(chr_id, contig = nil)
-  	str = StringIO.new("fixedStep chrom=#{chr_id}")
-  	
-  	# fixedStep parameters
-  	unless contig.nil?
-  	  str << " start=#{contig.start}" if contig.start
-  	  str << " step=#{contig.step}" if contig.step
-	    str << " span=#{contig.span}" if contig.span
-  	end
-  	
-  	return str.string
   end
   
   ##
@@ -418,4 +404,7 @@ class WigFile < AbstractWigFile
       end
     end
   end
+end
+
+class WigError < StandardError
 end
