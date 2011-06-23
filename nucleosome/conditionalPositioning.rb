@@ -76,6 +76,6 @@ File.open(options[:output],'w') do |f|
     end
     
     puts "Writing to disk" if ENV['DEBUG']
-    f.puts conditional
+    f.puts conditional.to_s
   end
 end

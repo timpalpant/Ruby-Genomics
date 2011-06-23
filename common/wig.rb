@@ -79,15 +79,14 @@ class AbstractWigFile
 
     # Keep track of all the temporary intermediate files (header first)
     tmp_files = [header_file]
+    self.chromosomes.each { |chr| tmp_files << output_file+'.'+chr }
   
     # Iterate chromosome-by-chromosome
     self.chromosomes.p_each do |chr|
       puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-      
-      chr_temp_file = output_file+'.'+chr
-      tmp_files << chr_temp_file      
 
       # Write the chromosome header
+      chr_temp_file = output_file+'.'+chr
       File.open(chr_temp_file, 'w') do |f|
         f.puts Contig.new(0, chr, 1, 1, 1).to_s
       end

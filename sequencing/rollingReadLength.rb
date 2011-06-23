@@ -84,7 +84,7 @@ BAMFile.open(options[:input]) do |bam|
     
     # Write the chromosome fixedStep header
     File.open(options[:output]+'.'+chr, 'w') do |f|
-      f.puts Contig.new(0, chr, 1, 1, 1)
+      f.puts Contig.new(0, chr, 1, 1, 1).to_s
     end
     
     chunk_start = 1
