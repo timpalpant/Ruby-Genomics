@@ -129,7 +129,8 @@ class UCSCTrackHeader
   end
 
   def to_s  
-  	str = StringIO.new("track")
+  	str = StringIO.new
+    str << "track"
     
     str << " type=#{@type}" if @type
     str << " name='#{@name}'" if @name

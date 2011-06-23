@@ -116,7 +116,8 @@ class Contig < Array
   
   # Output this Contig as a fixedStep list of values (one per line)
   def to_s
-    str = StringIO.new("fixedStep chrom=#{@chr}")
+    str = StringIO.new
+    str << "fixedStep chrom=#{@chr}"
     
     str << " start=#{@start}" if @start
     str << " step=#{@step}" if @step
