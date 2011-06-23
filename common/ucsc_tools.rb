@@ -88,7 +88,6 @@ class UCSCTrackHeader
         @smoothing_window = value
       else
         raise UCSCTrackHeaderError, "Unknown UCSC track header key #{key}"
-      end
     end
   end
   
