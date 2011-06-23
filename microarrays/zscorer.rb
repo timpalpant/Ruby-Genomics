@@ -55,15 +55,15 @@ end
 
 
 # Load the GFF file
-gff = GFFFile.load(options[:input])
+GFFFile.open(options[:input]) do |gff|
+  # Compute mean and standard deviation
+  mean = gff.mean
+  puts "Mean: #{mean}"
 
-# Compute mean and standard deviation
-mean = gff.mean
-puts "Mean: #{mean}"
-
-stdev = gff.stdev
-puts "StDev: #{stdev}"
-raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
+  stdev = gff.stdev
+  puts "StDev: #{stdev}"
+  raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
+end
 
 # Copy the GFF input file to output, replacing values with Z-scores
 print 'Computing Z-scores for each spot...' if ENV['DEBUG']

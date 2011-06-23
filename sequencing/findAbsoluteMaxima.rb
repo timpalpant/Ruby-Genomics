@@ -57,16 +57,13 @@ ARGV.options do |opts|
   end
 end
 
-
-# Load the list of windows
-loci = BedFile.load(options[:loci])
   
 # Load the wig data
 wig = BigWigFile.new(options[:input])
   
 # Find the peak in each locus
-loci.each do |chr,spots|
-  spots.each do |spot|
+File.open(options[:output], 'w') do |f|
+  BedFile.foreach(options[:loci]) do |spot|
     peak_base, peak_value = 0, 0
     values = wig.query(chr, spot.low, spot.high)
     for i in 0...values.length
@@ -77,8 +74,6 @@ loci.each do |chr,spots|
     end
     
     spot.value = spot.low + peak_base
+    f.puts spot.to_bed
   end
 end
-
-# Write maxima to file
-loci.to_bed(options[:output])

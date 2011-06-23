@@ -55,7 +55,7 @@ end
 ##
 class NukeCallsFile < TextEntryFile
   extend SpotFile
-  include SpotArrayMath
+  include SpotArrayUtils
   
   CHR_COL = 1
   START_COL = 2

@@ -1,6 +1,5 @@
 require 'entry_file'
 require 'spot_file'
-require 'spot_array_math'
 require 'spot'
 
 # Affy file entries are just spots
@@ -11,8 +10,7 @@ end
 # Load Affymetrix array files
 ##
 class AffyFile < TextEntryFile
-  extend SpotFile
-  include SpotArrayMath
+  include SpotFile
 
   # Override #each because Affy files are not strictly line-based
   # We have to look at multiple lines to parse individual entries

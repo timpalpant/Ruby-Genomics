@@ -1,6 +1,5 @@
 require 'entry_file'
 require 'spot_file'
-require 'spot_array_math'
 require 'spot'
 
 ##
@@ -28,8 +27,7 @@ end
 # Stream bedgraph files by line or by chromosome
 ##
 class BedGraphFile < TextEntryFile
-  extend SpotFile
-  include SpotArrayMath
+  include SpotFile
   
   CHR_COL = 1
   START_COL = 2

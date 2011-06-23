@@ -28,6 +28,17 @@ class AbstractWigFile
     @data_file = File.expand_path(filename)
   end
   
+  # Open a Wig file with an optional block
+  def open(filename, &block)
+    wig = self.new(filename)
+  
+    if block
+      yield wig
+    else
+      return wig
+    end
+  end
+  
   # Enumerate over the chromosomes in this Wig file
   # @DEPRECATED: Loads entire chromosomes of data, unsuitable for large genomes
   def each
@@ -456,7 +467,7 @@ class WigFile < AbstractWigFile
 
   # Convert this WigFile to a BedGraph
   def to_bedgraph(output_file)
-    WigFile.to_bedGraph(@datafile, output_file)
+    WigFile.to_bedgraph(@datafile, output_file)
   end
   
   # For converting wigs to BigWigs without having to load (index them) first

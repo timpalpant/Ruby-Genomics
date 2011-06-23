@@ -9,6 +9,9 @@ require 'set'
 # Idea is that it should behave somewhat like a File object,
 # but that relevant parsed Entry objects (BedEntry, SAMEntry, etc.) 
 # are returned instead of lines
+#
+# In general, caching is kept to a minimum to avoid rampant memory usage
+# and indexing is maximized
 ##
 class EntryFile
   include Enumerable
@@ -93,6 +96,14 @@ class EntryFile
     end
   end
   
+  # Count the number of entries that will be returned
+  # Fairly bad performance, so can be overridden
+  def count(chr = nil, start = nil, stop = nil)
+    num = 0
+    self.each(chr, start, stop) { |entry| num += 1 }
+    return num
+  end
+  
   def to_bed(output)
     to_disk(output) { |entry| entry.to_bed }
   end
@@ -148,6 +159,23 @@ class TextEntryFile < EntryFile
   def close
     File.delete(@index_file) if indexed?
     File.delete(@bgzipped_file) if bgzipped?
+  end
+  
+  # Use wc to count the number of entries (assume one entry per line)
+  def count(chr = nil, start = nil, stop = nil)
+    raise EntryFileError, "Tabix only supports queries with start AND stop" if start and stop.nil?
+  
+    line_count = if chr.nil?
+      File.num_lines(@data_file)
+    elsif start.nil? or stop.nil?
+      %x[ grep -w #{chr} #{@data_file} | wc -l ].chomp.to_i
+    else
+      num = 0
+      self.each(chr, start, stop) { |entry| num += 1 }
+      num
+    end
+    
+    return line_count
   end
   
   private

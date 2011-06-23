@@ -1,6 +1,5 @@
 require 'entry_file'
 require 'spot_file'
-require 'spot_array_math'
 require 'spot'
 
 ##
@@ -62,8 +61,7 @@ end
 # Stream GFF files
 ##
 class GFFFile < TextEntryFile
-  extend SpotFile
-  include SpotArrayMath
+  include SpotFile
   
   CHR_COL = 1
   START_COL = 4

@@ -1,6 +1,5 @@
 require 'entry_file'
 require 'spot_file'
-require 'spot_array_math'
 require 'spot'
 
 ##
@@ -35,8 +34,7 @@ class MACSEntry < Spot
 end
 
 class MACSFile < TextEntryFile
-  extend SpotFile
-  include SpotArrayMath
+  include SpotFile
   
   CHR_COL = 1
   START_COL = 2

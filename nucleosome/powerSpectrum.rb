@@ -59,19 +59,16 @@ ARGV.options do |opts|
 end
 
 
-# Load the list of windows
-loci = BedFile.load(options[:loci])
-
 # Initialize the sequencing data
 wig = BigWigFile.new(options[:input])
 
 # Iterate over the list of windows
 # and compute the power spectrum for each
 crystal, bistable, other = 0, 0, 0
-loci.each do |chr,spots|
-  puts "chromosome #{chr}" if ENV['DEBUG']
-  # Process the current chromosome
-  spots.each do |spot|
+File.open(options[:output], 'w') do |f|
+  f.puts "ORF\tChromosome\tStart (+1 Nuc)\tStop (3' Nuc)\tL\tType\tPS1\tNumNuc1\tPeriod1\tPS2\tNumNuc2\tPeriod2\t\tPS values"
+
+  BedFile.foreach(options[:loci]) do |spot|
     next if spot.length <= 1
     
     # Compute the power spectrum
@@ -82,8 +79,8 @@ loci.each do |chr,spots|
     end
     
     # Normalize
-                total = p.sum
-                p.map! { |e| e / total }
+    total = p.sum
+    p.map! { |e| e / total }
     
     # Decide whether the window is crystal, bistable, or other
     # based on definitions in Vaillant et al. 2010
@@ -106,20 +103,10 @@ loci.each do |chr,spots|
       spot.value = "Other"
     end
     
-    spot.value << "\t#{sorted[0]}\t#{num_nukes[0]}\t#{period[0]}\t#{sorted[1]}\t#{num_nukes[1]}\t#{period[1]}\t\t#{p[0..last_freq].to_a.join("\t")}" 
+    f.puts "#{spot.id}\t#{chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{sorted[0]}\t#{num_nukes[0]}\t#{period[0]}\t#{sorted[1]}\t#{num_nukes[1]}\t#{period[1]}\t\t#{p[0..last_freq].to_a.join("\t")}" 
   end
 end
 
 puts "Crystal: #{crystal}"
 puts "Bistable: #{bistable}"
 puts "Other: #{other}"
-
-# Write the power spectra to disk as a comma-separated list in the 5th column
-File.open(options[:output], 'w') do |f|
-  f.puts "ORF\tChromosome\tStart (+1 Nuc)\tStop (3' Nuc)\tL\tType\tPS1\tNumNuc1\tPeriod1\tPS2\tNumNuc2\tPeriod2\t\tPS values"
-  loci.each do |chr,spots|
-    spots.each do |spot|
-      f.puts "#{spot.id}\t#{chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{spot.value}"
-    end
-  end
-end

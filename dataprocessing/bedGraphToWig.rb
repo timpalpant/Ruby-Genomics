@@ -60,7 +60,7 @@ end
 a = Assembly.load(options[:genome])
 
 # Load the BedGraph data
-bedgraph = BedGraphFile.load(options[:input])
-
-# Write the Wiggle format
-bedgraph.to_bigwig(options[:output], a)
+BedGraphFile.open(options[:input]) do |bedgraph|
+  # Write the Wiggle format
+  bedgraph.to_bigwig(options[:output], a)
+end

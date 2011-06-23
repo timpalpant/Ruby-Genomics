@@ -61,46 +61,41 @@ end
 
 
 # Load the windows
-loci = BedFile.load(options[:loci])
-
-# Mark nucleosomes on the genome
-calls = NukeCallsFile.load(options[:input])
-
-# Pre-sort the nucleosome calls
-calls.each { |chr,spots| spots.sort! { |n1,n2| n1.dyad <=> n2.dyad } }
-
-direction = options[:reverse] ? 3 : 5
-puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
-skipped = 0
-invalid_coordinates = 0
-loci.each do |chr,spots|
-  if not calls.chromosomes.include?(chr)
-    skipped += 1
-    loci.delete(chr)
-    next
-  end
-  
-  spots.each do |spot|
-    nukes_in_spot = calls[chr].select { |nuke| nuke.dyad >= spot.low and nuke.dyad <= spot.high }
-    if nukes_in_spot.length < 1
-      invalid_coordinates += 1
-      spots.delete(spot)
-      next
-    end
-
-
-    # Take the position of the first nucleosome
-    spot.value = if options[:reverse]
-      if spot.watson?
-        nukes_in_spot.last.dyad
-      else
-        nukes_in_spot.first.dyad
-      end
-    else
-      if spot.watson?
-        nukes_in_spot.first.dyad
-      else
-        nukes_in_spot.last.dyad
+File.open(options[:output], 'w') do |f|
+  BedFile.open(options[:loci]) do |bed|
+    NukeCallsFile.open(options[:input]) do |calls|
+      direction = options[:reverse] ? 3 : 5
+      puts "Finding first nucleosome from #{direction}' end" if ENV['DEBUG']
+      
+      skipped = 0
+      invalid_coordinates = 0
+      bed.each do |spot|
+        if not calls.chromosomes.include?(chr)
+          skipped += 1
+          next
+        end
+        
+        first_nuke = nil
+        calls.each(spot.chr, spot.start, spot.stop) do |nuke|
+          # If this is the first nucleosome we've found, it automatically wins
+          if first_nuke.nil?
+            first_nuke = nuke.dyad
+          # Otherwise it has to be the best
+          else
+            first_nuke = if (options[:reverse] and spot.watson?) or (not options[:reverse] and spot.crick?)
+              nuke.dyad if nuke.dyad > first_nuke
+            else
+              nuke.dyad if or nuke.dyad < first_nuke
+            end
+          end
+        end
+        
+        if first_nuke = nil
+          invalid_coordinates += 1
+        else
+          spot.value = first_nuke
+          f.puts spot.to_bed
+        end
       end
     end
   end
@@ -108,6 +103,3 @@ end
 
 puts "No nucleosomes for #{skipped} chromosome(s)" if skipped > 0
 puts "No nucleosomes for #{invalid_coordinates} coordinate(s)" if invalid_coordinates > 0
-
-# Write to disk
-loci.to_bed(options[:output])

@@ -57,11 +57,11 @@ ARGV.options do |opts|
 end
 
 
-# Load the GFF data
-gff = GFFFile.load(options[:input])
-
 # Load the assembly
 assembly = Assembly.load(options[:genome])
 
-# Write the Wiggle format
-gff.to_bigwig(options[:output], assembly)
+# Load the GFF data
+GFFFile.open(options[:input]) do |gff|
+  # Write the Wiggle format
+  gff.to_bigwig(options[:output], assembly)
+end

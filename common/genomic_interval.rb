@@ -21,7 +21,7 @@ class GenomicInterval
     "#{chr}\t#{@start}\t#{@stop}"
   end
   
-  def to_bedGraph
+  def to_bedgraph
     "#{chr}\t#{@start}\t#{@stop}"
   end
   
