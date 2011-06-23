@@ -85,7 +85,7 @@ class SpotArray < GenomicData
   #  Write this array to bedGraph format
   def to_bedGraph(filename)
     self.to_disk(filename) { |spot| spot.to_bedGraph }
-	end
+  end
 	
   # Write this array to Wig format
   # Construct a Wig that is the data from all spots
@@ -94,7 +94,7 @@ class SpotArray < GenomicData
     # Iterate over each chromosome, mapping all spots and averaging
     File.open(File.expand_path(filename), 'w') do |f|
       # TODO: should be rewritten to intelligently use step size
-      f.puts UCSCTrackHeader.new(:type => 'wiggle_0') 
+      f.puts UCSCTrackHeader.new(:type => 'wiggle_0').to_s
       
       self.chromosomes.each do |chr|
         # Skip if this chromosome is not in the specified assembly
@@ -104,7 +104,7 @@ class SpotArray < GenomicData
         values = query(chr, 1, assembly[chr])
       
         # Write to output file
-        f.puts values
+        f.puts values.to_s
       end
     end
   end

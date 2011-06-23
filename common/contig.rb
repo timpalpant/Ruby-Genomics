@@ -123,8 +123,14 @@ class Contig < Array
     str << " step=#{@step}" if @step
     str << " span=#{@span}" if @span
 
-    self.each { |value| str << "\n" << value.to_s(5) }
-    
+    self.each do |value|
+      if value 
+        str << "\n" << value.to_s(5)
+      else
+        str << "\nNaN"
+      end
+    end
+
     return str.string
   end
 end
