@@ -37,15 +37,6 @@ class BedGraphFile < TextEntryFile
     super(filename, CHR_COL, START_COL, END_COL)
   end
 
-  # Convert a bedGraph file to a BigWig
-  def self.to_bigwig(input_file, output_file, assembly)
-    # BedGraph must be sorted first
-    tmp_sorted = File.expand_path(input_file + '.sorted')
-    File.sort(File.expand_path(input_file), tmp_sorted, '-k1,1 -k2,2')
-    %x[ bedGraphToBigWig #{tmp_sorted} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
-    File.delete(tmp_sorted)
-  end
-
   private
   
   # Define how to parse BedGraph entries

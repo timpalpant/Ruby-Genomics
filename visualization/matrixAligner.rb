@@ -67,20 +67,19 @@ NA_PLACEHOLDER = '-'
 MARKER_SPACING = 200
 
 # Load the list of loci to align to
-loci = BedFile.load(options[:loci])
+loci = Array.new
+BedFile.foreach(options[:loci]) { |spot| loci << spot }
 
 # Validation and default alignment points
-loci.each do |chr,spots|
-  spots.each do |spot|
-    spot.start = 1 if spot.start < 1
-    spot.stop = 1 if spot.stop < 1
-    spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
-  end
+loci.each do |spot|
+  spot.start = 1 if spot.start < 1
+  spot.stop = 1 if spot.stop < 1
+  spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
 end
 
 m = loci.num_spots
-left_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.start).abs }.max }.max.to_i
-right_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.stop).abs }.max }.max.to_i
+left_max = loci.collect { |spot| (spot.value-spot.start).abs }.max.to_i
+right_max = loci.collect { |spot| (spot.value-spot.stop).abs }.max.to_i
 # One bonus for odd/even safety
 n = left_max + right_max + 1
 alignment_point = left_max
@@ -106,6 +105,15 @@ if not options[:max].nil? and options[:max] < n
   end
 end
 
+# Construct markers for the top and bottom
+marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
+marker = alignment_point % MARKER_SPACING
+while marker < right_bound-left_bound+1
+  marker_line[marker] = '1e30'
+  marker += MARKER_SPACING
+end
+marker_line ="Marker\t" +  marker_line.join("\t")
+
 
 # Initialize the Wig file
 puts "Initializing BigWig file" if ENV['DEBUG']
@@ -113,9 +121,15 @@ wig = BigWigFile.new(options[:input])
 
 # Align values for each locus around the alignment point
 skipped = 0
-output = Hash.new
-loci.each do |chr,spots|
-  spots.each_with_index do |spot,i|
+puts "Aligning matrix and writing to disk" if ENV['DEBUG']
+File.open(options[:output],'w') do |f|
+  # Write a header (required by matrix2png)
+  f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
+  # Add markers
+  10.times { f.puts marker_line }
+  
+  # Write the data for each row
+  loci.each do |spot|
     # Get the data for this interval from the wig file
     begin
       values = wig.query(chr, spot.start, spot.stop)
@@ -137,40 +151,12 @@ loci.each do |chr,spots|
     # Total length should be the matrix width to avoid irregular matrices
     raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
       
-    # Save to the temp file and index the line
-    output[spot.id] = entry[left_bound..right_bound].join("\t")
+    # Save to the output file
+    f.puts spot.id + "\t" + entry[left_bound..right_bound].join("\t")
   end
-end
-
-# Sanity check
-puts "#{output.length} rows in alignment data" if ENV['DEBUG']
-puts "#{skipped} spots skipped" if ENV['DEBUG']
-
-# Write to disk in the original Bed entry order
-puts "Writing aligned matrix to disk" if ENV['DEBUG']
-File.open(options[:output],'w') do |f|
-  # Write a header (required by matrix2png)
-  f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
-
-  # Add markers at the top
-  marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
-  marker = alignment_point % MARKER_SPACING
-  while marker < right_bound-left_bound+1
-    marker_line[marker] = '1e30'
-    marker += MARKER_SPACING
-  end
-  marker_line ="Marker\t" +  marker_line.join("\t")
-  10.times { f.puts marker_line }
   
-  # Write them out to the matrix in the orginial order
-  File.foreach(options[:loci]) do |line|
-    next if line.start_with?('#')
-    entry = line.chomp.split("\t")
-    next if entry.length < 4
-    id = entry[3]
-    f.puts id + "\t" + output[id] if output.include?(id)
-  end
-
   # Add markers at the bottom
   10.times { f.puts marker_line }
 end
+
+puts "#{skipped} spots skipped" if ENV['DEBUG']

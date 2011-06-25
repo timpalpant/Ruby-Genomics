@@ -103,7 +103,7 @@ class UCSCTrackHeader
     
     track = self.new
     pos = 0
-    until (equals_pos = line.index('=', pos)).nil?
+    while (equals_pos = line.index('=', pos))
       begin
         # Look back from the equals position until there is a space to get the token key
         cursor = equals_pos - 1

@@ -1,14 +1,36 @@
-On OS X, all can be installed with MacPorts
-On Linux, use appropriate package management
+DEPENDENCIES:
 
-First install Ruby 1.9.2, Perl 5.12, GSL, and gnuplot with MacPorts / package management:
+1. Ruby 1.9.2
+2. Perl 5.12 (only for calling certain external scripts)
+3. GNU Scientific Library (GSL) (only for certain scripts)
+4. GNUPlot (only for certain scripts)
+5. SAMTools (for working with BAM files)
+6. Tabix (for working with any tab-delimited files)
+
+Most of these can be installed easily with MacPorts / package management:
 
 sudo port install ruby19 perl5 gnuplot gsl
 
-Then install Bundler with Gem:
+Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, cat, etc.)
+
+All dependencies also need to be added to the $PATH.
+
+
+REQUIRED GEMS:
+
+The easiest way to get set up is to install bundler with gem:
 
 sudo gem1.9 install bundler
 
-The use bundler to install the rest of the requirements:
+Then use bundler to install the rest of the requirements:
 
+cd Ruby-Genomics
 bundle install
+
+
+TESTS:
+
+Run the tests to ensure that everything is set up correctly:
+
+cd Ruby-Genomics
+rake1.9

@@ -16,8 +16,8 @@ class Float
   end
 end
 
-class Fixnum
-  # Added so that to_s can be called on Floats or Fixnums
+class Integer
+  # Added so that to_s can be called on Floats or Integers
   # without being interpreted as a radix (see RubyDoc for Integer#to_s(radix))
   alias_method :orig_to_s, :to_s
   def to_s(arg = nil)

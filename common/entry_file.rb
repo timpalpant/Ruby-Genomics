@@ -193,9 +193,7 @@ class TextEntryFile < EntryFile
       File.foreach(@data_file) { |line| yield line }
     # If we're getting a specific chromosome, use grep to filter the entries
     elsif start.nil? or stop.nil?
-      IO.popen("grep -w #{chr} #{@data_file}") do |output|
-        output.each { |line| yield line }
-      end
+      File.grep(@data_file, chr) { |line| yield line }
     # If we're querying for a specific region, use Tabix to index the file
     else
       index() if not indexed?

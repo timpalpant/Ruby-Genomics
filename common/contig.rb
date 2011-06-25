@@ -1,127 +1,145 @@
 require 'fixed_precision'
 require 'genomic_index_error'
 require 'unix_file_utils'
+require 'enumerator'
 
 ##
 # Represents a contiguous block of genomic data values
 # Returned when querying a WigFile / SpotArray
 #
-# Since chromosomal coordinates can always be indicated by integers, store as an Array
 ##
-class Contig < Array
-  attr_accessor :chr, :start, :step, :span
+class Contig
+  include Enumerable
+  attr_accessor :chr
 
-  def initialize(length = 0, chr = 'unknown', start = 1, step = 1, span = 1)
-    super(length, 0)
+  def initialize(chr = 'unknown')
     @chr = chr
-    @start = start
-    @step = step
-    @span = span
+    @data = Hash.new
   end
   
-  # Parse the header arguments of a fixedStep/variableStep line
-  def self.parse_wig_header(line)
-    unless line.chomp.start_with?('fixedStep') or line.chomp.start_with?('variableStep')
-      raise ContigError, "Not a valid Wig Contig header"
-    end
-  
-    chrom, start, step, span = 'unknown', 1, 1, 1
-    line.chomp.split(' ').each do |opt|
-      keypair = opt.split('=')
-      key = keypair.first
-      value = keypair.last
-      
-      case key
-        when 'chrom'
-          chrom = value
-        when 'start'
-          start = value.to_i
-        when 'step'
-          step = value.to_i
-        when 'span'
-          span = value.to_i
-      end
-    end
-
-    return self.new(0, chrom, start, step, span)
+  def each
+    (start..stop).each { |bp| yield get(bp) }
   end
   
-  # Load a chromosome from a specific section of a Wig file
-  # (first line should be a fixedStep/variableStep line)
-  def self.load_wig(data_file, start_line, end_line)
-    # Grab all the lines
-    data = File.lines(data_file, start_line, end_line).reject { |line| line.chomp.empty? }
-      
-    # Parse the fixedStep/variableStep header
-    header = data.first
-    chr = parse_wig_header(header)
-
-    # Parse all the values into floats
-    if header.start_with?('variableStep')
-      # Reconfigure the data if it was variableStep
-      chr.start = data[1].split("\t").first.to_i
-      chr.step = 1
-      chr.span = 1
-    
-      prev_base, prev_value = nil, nil
-      data[1..-1].each do |line|
-        entry = line.chomp.split("\t")
-        base = entry.first.to_i
-        value = entry.last.to_f
-        
-        if prev_base and prev_value
-          for bp in prev_base-chr.start..base-chr.start
-            chr[bp] = prev_value
-          end
-        end
-        
-        prev_base = base
-        prev_value = value
+  ##
+  # ACCESS METHODS
+  ##
+  
+  def set(base, value)
+    @data[base] = value
+  end
+  
+  def get(base)
+    @data[base]
+  end
+  
+  # Analogous to Array#[]
+  # Can take a single integer (base pair), or a range, or two integers (slice)
+  def [](*args)
+    if args.length == 1
+      arg = args.first
+      if arg.is_a?(Integer)
+        raise ContigError, "Contig does not contain data for the base (#{arg})" unless include?(arg)
+        return get(arg)
+      elsif arg.is_a?(Range)
+        raise ContigError, "Contig does not contain data for the range #{arg}" unless include?(arg.min, arg.max)
+        return arg.map { |base| get(base) }
+      else
+        raise ContigError, "Invalid type of argument passed to Contig (#{arg.class})"
       end
-    elsif header.start_with?('fixedStep')
-      chr[0..-1] = data[1..-1].map { |line| line.to_f }
+    elsif args.length == 2
+      start = args[0]
+      length = args[1]
+      stop = start + length - 1
+      raise ContigError, "Invalid type of arguments passed to Contig (#{start.class}, #{length.class})" unless start.is_a?(Integer) and length.is_a?(Integer)
+      raise ContigError, "Contig does not contain data for the range (#{start}..#{start+length-1})" unless include?(start, start+length-1)
+      
+      return (start..stop).map { |base| get(base) }
     else
-      raise "Wig chromosome header is neither fixedStep nor variableStep!"
+      raise ContigError, "Invalid number of arguments passed to Contig (1 or 2 args accepted, #{args.length} passed!)"
     end
-    
-    return chr  
   end
-
+  
+  ##
+  # PROPERTY METHODS
+  ##
+  
+  # The first base pair with data
+  def start
+    @data.keys.min
+  end
+  
   # The last base pair with data
   def stop
-    @start + self.length - 1
+    @data.keys.max
   end
   
-  # If this Chromosome contains data for the specified range
+  # The number of base pairs of data
+  # NOTE: some bases could be missing data if the block is not truly contiguous
+  def length
+    stop - start + 1
+  end
+  
+  # If this Contig contains data for the specified base pair / range
   def include?(low, high = self.length-1)
-    low >= start and low <= stop and high >= start and high <= stop
+    low >= start and high <= stop
   end
   
-  # Get a subsequence of data
+  # Alias for #include
+  def cover?(low, high = self.length-1)
+    include?(low, high)
+  end
+  
+  # Get a subsequence of data as an Array
+  # Alias for #[], but also allows Crick querying
   def bases(from, to)
-    low_bp = [from, to].min
-    high_bp = [from, to].max
+    low = [from, to].min
+    high = [from, to].max
     
-    raise ContigError, "Chromosome does not include bases #{low_bp}..#{high_bp}" unless self.include?(low_bp, high_bp)
+    # Get the values
+    values = self[low..high]
     
-    data = self[low_bp-@start..high_bp-@start]
-    data = data.reverse if from > to
-    return data
+    # Allow crick querying
+    values.reverse! if from > to
+    return values
   end
   
-  # Alias for bases
+  # Alias for query
+  def bases(from, to)
+    query(from, to)
+  end
+  
+  # Alias for query
   def subseq(low, high)
-    bases(low, high)
+    query(low, high)
+  end
+
+  ##
+  # OUTPUT METHODS
+  ##
+  
+  # Convert this Contig into an Array of values
+  def to_a
+    (start..stop).map { |bp| get(bp) }
   end
   
-  # Output this Contig as a fixedStep list of values (one per line)
-  def to_s
+  # Output this Contig as a variableStep Wiggle block
+  def to_variable_step
+    str = StringIO.new
+    str << "variableStep chrom=#{@chr} span=1"
+    
+    @data.each do |bp,value|
+      str << "\n#{bp}\t#{value}"
+    end
+    
+    return str.string
+  end
+  
+  # Output this Contig as a fixedStep Wiggle block
+  def to_fixed_step
     str = StringIO.new
     str << "fixedStep chrom=#{@chr}"
-    
-    str << " start=#{@start}" if @start
-    str << " step=#{@step}" if @step
-    str << " span=#{@span}" if @span
+    str << " start=#{start} step=1 span=1"
 
     self.each do |value|
       if value 
@@ -136,16 +154,16 @@ class Contig < Array
 end
 
 
-# For converting an Array to a Chromosome
+# For converting an Array to a Contig
 class Array
-  def to_contig(chr = 'unknown', start = 1, step = 1, span = 1)
-    chr = Contig.new(self.length, chr, start, step, span)
-    chr[0..-1] = self
-    return chr
+  def to_contig(chr = 'unknown', start = 1)
+    contig = Contig.new(chr)
+    self.each_with_index { |value,i| contig.set(start+i, value) }
+    return contig
   end
 end
 
 
-# Raised if something goes wrong with a Chromosome
+# Raised if something goes wrong with a Contig
 class ContigError < StandardError
 end

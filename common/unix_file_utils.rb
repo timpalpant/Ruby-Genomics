@@ -13,7 +13,7 @@ class File
       return total
     end
     
-    # Add 1 because wc counts line breaks
+    # Add 1 because wc counts line breaks?
     %x[ wc -l #{filename} ].split(' ').first.to_i + 1
   end
 
@@ -29,40 +29,93 @@ class File
   
   # Return an array of strings resulting from the output of grep -v
   # Alternatively, get all lines and then use Array#select
-  def self.inverse_grep(filename, search_str)
-    %x[ grep -v '#{search_str}' #{filename} ].split("\n")
+  # Takes an optional block
+  def self.inverse_grep(filename, search_str, &block)
+    if block
+      IO.popen("grep -v '#{search_str}' #{filename}") do |output|
+        output.each { |line| yield line }
+      end
+    else
+      return %x[ grep -v '#{search_str}' #{filename} ].split("\n")
+    end
   end
   
   # Return an array of strings resulting from the output of grep -n
-  def self.grep_with_linenum(filename, search_str)
-    %x[ grep -n '#{search_str}' #{filename} ].split("\n")
+  def self.grep_with_linenum(filename, search_str, &block)
+    if block
+      IO.popen("grep -n -w '#{search_str}' #{filename}") do |output|
+        output.each do |line|
+          entry = line.split(':')
+          line_num = entry.first.to_i
+          content = entry.last
+          yield(line_num, content)
+        end
+      end
+    else
+      return %x[ grep -n -w '#{search_str}' #{filename} ].split("\n").map do |line|
+        entry = line.split(':')
+        line_num = entry.first.to_i
+        content = entry.last
+        [line_num, content]
+      end
+    end
   end
   
   # Return an array of strings resulting from the output of grep
-  def self.grep(filename, search_str)
-    %x[ grep '#{search_str}' #{filename} ].split("\n")
+  def self.grep(filename, search_str, &block)
+    if block
+      IO.popen("grep -w '#{search_str}' #{filename}") do |output|
+        output.each { |line| yield line }
+      end
+    else
+      return %x[ grep -w '#{search_str}' #{filename} ].split("\n")
+    end
   end
   
   # Get lines m..n of a file using tail and head
-  def self.lines(filename, start_line, end_line = nil)
-    if end_line.nil?   # Read to EOF
-      %x[ tail -n+#{start_line} #{filename} ].split("\n")
-    else   # Read a specific number of lines
+  def self.lines(filename, start_line, end_line = nil, &block)
+    if end_line.nil?  # Read to EOF
+      if block
+        IO.popen("tail -n+#{start_line} #{filename}") do |output|
+          output.each { |line| yield line }
+        end
+      else
+        return %x[ tail -n+#{start_line} #{filename} ].split("\n")
+      end
+    else  # Read a specific number of lines
       num_lines = end_line - start_line + 1
-      %x[ tail -n+#{start_line} #{filename} 2>&1 | head -n #{num_lines} ].split("\n")
-      # Seems to be much slower
-      #%x[ sed -n '#{start_line},#{end_line}p; #{end_line+1}q' #{filename} ].split("\n")
+      if block
+        IO.popen("tail -n+#{start_line} #{filename} 2>&1 | head -n #{num_lines}") do |output|
+          output.each { |line| yield line }
+        end
+      else
+        return %x[ tail -n+#{start_line} #{filename} 2>&1 | head -n #{num_lines} ].split("\n")
+        # Seems to be much slower
+        #%x[ sed -n '#{start_line},#{end_line}p; #{end_line+1}q' #{filename} ].split("\n")
+      end
     end
   end
   
   # Get the first n lines of a file using head
-  def self.head(filename, num_lines)
-    %x[ head -n #{num_lines} #{filename} ].split("\n")
+  def self.head(filename, num_lines, &block)
+    if block
+      IO.popen("head -n #{num_lines} #{filename}") do |output|
+        output.each { |line| yield line }
+      end
+    else
+      return %x[ head -n #{num_lines} #{filename} ].split("\n")
+    end
   end
   
   # Get the bottom n lines of a file using tail
-  def self.tail(filename, num_lines)
-    %x[ tail -n#{num_lines} #{filename} ].split("\n")
+  def self.tail(filename, num_lines, &block)
+    if block
+      IO.popen("tail -n#{num_lines} #{filename}") do |output|
+        output.each { |line| yield line }
+      end
+    else
+      return %x[ tail -n#{num_lines} #{filename} ].split("\n")
+    end
   end
 
   # GZip a file
@@ -70,17 +123,9 @@ class File
     %x[ gzip #{filename} ]
   end
 
-  # Cross-platform way of finding an executable in the $PATH
+  # Find the location of an executable in the $PATH
   def self.which(cmd)
-    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-    ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
-      exts.each do |ext|
-        exe = "#{path}/#{cmd}#{ext}"
-        return exe if File.executable? exe
-      end
-    end
-
-    return nil
+    %x[ which #{cmd} ]
   end
   
   # Concatenate files

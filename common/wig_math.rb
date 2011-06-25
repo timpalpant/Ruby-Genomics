@@ -6,7 +6,7 @@ require 'stats'
 module WigMath
   # Number of values in the Wig file
   def num_values
-    self.chromosomes.map { |chr| chr_length(chr) }.sum
+    @contigs_index.map { |chr,start,length| length }.sum
   end
   
   # The sum of all values

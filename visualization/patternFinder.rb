@@ -60,20 +60,19 @@ end
 
 # Load the list of loci to align to
 puts 'Loading the list of alignment loci' if ENV['DEBUG']
-loci = BedFile.load(options[:loci])
+loci = Array.new
+BedFile.foreach(options[:loci]) { |spot| loci << spot }
 
 # Validation and default alignment points
-loci.each do |chr,spots|
-  spots.each do |spot|
-    spot.start = 1 if spot.start < 1
-    spot.stop = 1 if spot.stop < 1
-    spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
-  end
+loci.each do |spot|
+  spot.start = 1 if spot.start < 1
+  spot.stop = 1 if spot.stop < 1
+  spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
 end
 
 puts "\nComputing alignment dimensions\n" if ENV['DEBUG']
-left_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.start).abs }.max }.max.to_i
-right_max = loci.collect { |chr,spots| spots.collect { |spot| (spot.value-spot.stop).abs }.max }.max.to_i
+left_max = loci.collect { |spot| (spot.value-spot.start).abs }.max.to_i
+right_max = loci.collect { |spot| (spot.value-spot.stop).abs }.max.to_i
 # One bonus for odd/even safety
 n = left_max + right_max + 1
 alignment_point = left_max
@@ -87,29 +86,27 @@ puts "\nBeginning averaging\n" if ENV['DEBUG']
 averages = Array.new
 wigs.each do |wig|
   # Align and average values from all loci
-  puts "\nAveraging values for: #{File.basename(wig.data_file)}" if ENV['DEBUG']
+  puts "\nAveraging values for: #{wig.track_header.name}" if ENV['DEBUG']
   sum = Array.new(n, 0)
   count = Array.new(n, 0)
-  loci.each do |chr,spots|
-    spots.each do |spot|
-      begin
-        values = wig.query(chr, spot.start, spot.stop)
-      rescue Wig
-        next
-      end
-      
-      # Locus alignment point (spot.value) should be positioned over
-      # the matrix alignment point (alignment_point)
-      n1 = alignment_point - (spot.value - spot.start).abs.to_i
-      n2 = alignment_point + (spot.value - spot.stop).abs.to_i
-      # length we are trying to insert should equal the length we are replacing
-      raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+  loci.each do |spot|
+    begin
+      values = wig.query(chr, spot.start, spot.stop)
+    rescue Wig
+      next
+    end
     
-      # Add values to the sum and add one to the count for those bases
-      for bp in n1..n2
-        sum[bp] += values[bp-n1]
-        count[bp] += 1
-      end
+    # Locus alignment point (spot.value) should be positioned over
+    # the matrix alignment point (alignment_point)
+    n1 = alignment_point - (spot.value - spot.start).abs.to_i
+    n2 = alignment_point + (spot.value - spot.stop).abs.to_i
+    # length we are trying to insert should equal the length we are replacing
+    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, ({chr},#{spot})" if values.length != (n2-n1+1)
+  
+    # Add values to the sum and add one to the count for those bases
+    for bp in n1..n2
+      sum[bp] += values[bp-n1]
+      count[bp] += 1
     end
   end
 

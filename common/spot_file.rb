@@ -79,9 +79,7 @@ module SpotFile
   # OUTPUT METHODS
   ##
   
-  # Write this array to Wig format
-  # Construct a Wig that is the data from all spots
-  # averaged, if multiple spots cover a given base
+  # Write this array to variableStep Wig format
   def to_wig(filename, assembly)    
     # Iterate over each chromosome, mapping all spots and averaging
     File.open(File.expand_path(filename), 'w') do |f|
@@ -102,11 +100,22 @@ module SpotFile
   end
   
   # Write this array to BigWig format
+  # By first writing to bedGraph, then calling BedGraph#to_bigwig
   def to_bigwig(filename, assembly)
-    self.to_wig(filename, assembly)
+    begin
+      tmp_bedgraph = File.expand_path(filename + '.bedGraph')
+      self.to_bedgraph(tmp_bedgraph)
     
-    tmp_file = filename + '.tmp'
-    WigFile.to_bigwig(filename, tmp_file, assembly)
-    FileUtils.move(tmp_file, filename)
+      # bedGraph must be sorted to call bedGraphToBigWig
+      tmp_sorted = tmp_bedgraph + '.sorted'
+      File.sort(tmp_bedgraph, tmp_sorted, '-k1,1 -k2,2n')
+      %x[ bedGraphToBigWig #{tmp_sorted} #{File.expand_path(assembly.len_file)} #{File.expand_path(filename)} ]
+    rescue
+      raise "Error converting Array to BigWig!"
+    ensure
+      # Delete the temporary intermediate files
+      File.delete(tmp_bedgraph) if File.exist?(tmp_bedgraph)
+      File.delete(tmp_sorted) if File.exist?(tmp_sorted)
+    end
   end
 end
