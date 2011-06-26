@@ -10,11 +10,24 @@ require 'spec_helper'
 require 'wig'
 
 TEST_WIG = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.wig')
+TEST_BIGWIG = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bw')
+
+shared_examples "wig files" do
+  
+end
+
+describe BigWigFile do
+  
+end
 
 describe WigFile do
 
   before do
     @test = WigFile.new(TEST_WIG)
+  end
+  
+  after do
+    @test.close
   end
   
   it "should find all chromosomes" do
@@ -25,49 +38,47 @@ describe WigFile do
   end
   
   it "should correctly index all chromosome starts" do
-    @test.chr_start('chrXI').should == 2
-    @test.chr_start('chr1').should == 29
-    @test.chr_start('2micron').should == 45
+    @test.chr_start('chrXI').should == 20
+    @test.chr_start('chr1').should == 1
+    @test.chr_start('2micron').should == 100
   end
   
   it "should correctly index all chromosome stops" do
-    @test.chr_stop('chrXI').should == 28
-    @test.chr_stop('chr1').should == 44
-    @test.chr_stop('2micron').should == 50
-  end
-  
-  it "should correctly index all chromosome data lengths" do
-    @test.chr_length('chrXI').should == 26
-    @test.chr_length('chr1').should == 15
-    @test.chr_length('2micron').should == 5
-  end
-  
-  it "should load whole fixedStep chromosomes" do
-    data = @test['chrXI']
-    data.length.should == 26
-    
-    data = @test.chr('chr1')
-    data.length.should == 15
-  end
-  
-  it "should load whole variableStep chromosomes" do
-    data = @test['2micron']
-    data.length.should == 12
-  end
-  
-  it "should iterate over all chromosomes" do
-    count = 0
-    @test.each { |chr, values| count += 1 }
-    count.should == 3
+    @test.chr_stop('chrXI').should == 148
+    @test.chr_stop('chr1').should == 15
+    @test.chr_stop('2micron').should == 111
   end
   
   it "should query randomly within fixedStep chromosomes" do
-    @test.query('chr1', 5, 8).should == [5, 6, 7, 8]
-    lambda { @test.query('chrXI', 25, 35) }.should raise_error
+    result = @test.query('chr1', 5, 8)
+    (5..8).each { |bp| result[bp].should == bp }
+    
+    result = @test.query('chrXI', 25, 35)
+    (25..28).each { |bp| result[bp].should == 3 }
+    result[29].should be_nil
+    (30..33).each { |bp| result[bp].should == 4 }
+    result[34].should be_nil
+    result[35].should == 9
   end
   
-  it "should raise an error when attempting to query a variableStep chromosome" do
-    lambda { @test.query('2micron', 101, 110) }.should raise_error
+  it "should query randomly within variableStep chromosomes" do
+    result = @test.query('2micron', 101, 110)
+    result[101].should == 6
+    result[102].should be_nil
+    result[103].should be_nil
+    result[104].should be_nil
+    result[105].should == 10
+    result[106].should be_nil
+    result[107].should be_nil
+    result[108].should be_nil
+    result[109].should be_nil
+    result[110].should == 1
   end
 
+end
+
+describe ContigInfo do
+  before do
+    @test = ContigInfo.new()
+  end
 end

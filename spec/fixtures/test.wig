@@ -26,7 +26,11 @@ fixedStep chrom=chrXI start=20 step=5 span=4
 15
 18
 22
+
+
+
 fixedStep chrom=chr1 start=1 step=1 span=1
+
 1
 2
 3

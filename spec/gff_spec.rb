@@ -6,4 +6,14 @@
 #  Copyright 2011 UNC. All rights reserved.
 #
 
+require 'spec_helper'
+require 'spot_file_examples'
+require 'gff'
 
+describe GFFEntry do
+  
+end
+
+describe GFFFile do
+  
+end

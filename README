@@ -1,36 +1,39 @@
-DEPENDENCIES:
+=== Prerequisite Dependencies
 
 1. Ruby 1.9.2
-2. Perl 5.12 (only for calling certain external scripts)
-3. GNU Scientific Library (GSL) (only for certain scripts)
-4. GNUPlot (only for certain scripts)
+2. Perl 5.12 (for calling certain external scripts)
+3. GNU Scientific Library (GSL) (for certain scripts)
+4. GNUPlot (for certain scripts)
 5. SAMTools (for working with BAM files)
-6. Tabix (for working with any tab-delimited files)
+6. Tabix
 
 Most of these can be installed easily with MacPorts / package management:
 
-sudo port install ruby19 perl5 gnuplot gsl
+  $ sudo port install ruby19 perl5 gnuplot gsl
 
-Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, cat, etc.)
+Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, cat, etc.) For this reason, they will only work under Linux / Mac OS X / Cygwin.
 
-All dependencies also need to be added to the $PATH.
-
-
-REQUIRED GEMS:
-
-The easiest way to get set up is to install bundler with gem:
-
-sudo gem1.9 install bundler
-
-Then use bundler to install the rest of the requirements:
-
-cd Ruby-Genomics
-bundle install
+All dependencies need to be available in the $PATH.
 
 
-TESTS:
+=== Required Gems
+
+The easiest way to get set up is to use bundler:
+
+  $ sudo gem1.9 install bundler
+
+
+=== Setup
+
+Checkout the source tree with git:
+
+  $ git clone git://github.com/timpalpant/Ruby-Genomics.git
+
+Use bundler to install the rest of the requirements:
+
+  $ cd Ruby-Genomics
+  $ bundle install
 
 Run the tests to ensure that everything is set up correctly:
 
-cd Ruby-Genomics
-rake1.9
+  $ rake1.9

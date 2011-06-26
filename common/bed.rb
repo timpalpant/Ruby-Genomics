@@ -6,7 +6,7 @@ require 'spot'
 # An entry in a Bed file
 ##
 class BedEntry < Spot 
-  attr_accessor :strand, :thick_start, :thick_end, :item_rgb, :block_count, :block_sizes, :block_starts
+  attr_accessor :thick_start, :thick_end, :item_rgb, :block_count, :block_sizes, :block_starts
 
   def self.parse(line)
     begin
@@ -14,28 +14,36 @@ class BedEntry < Spot
         
       spot = self.new
       spot.chr = entry[0]
-      spot.start = entry[1].to_i
-      spot.stop = entry[2].to_i
-      # Bed format specifies that start must be less than or equal to stop
-      raise BedError, "Invalid Bed entry: start > stop" if spot.start > spot.stop
+      # Bed is 0-indexed
+      spot.start = entry[1].to_i+1
+      # And half open
+      spot.stop = entry[2].to_i  
       spot.id = entry[3] if entry.length >= 4
       spot.value = entry[4].to_f if entry.length >= 5
       
       # Reverse start/stop if on the - strand
       strand = entry[5] if entry.length >= 6
-      if strand == '-'
+      if strand == '-' and spot.start < spot.stop
         tmp = start.start
         spot.start = spot.stop
         spot.stop = tmp
       end
   
-      spot.thick_start = entry[6] if entry.length >= 7
-      spot.thick_end = entry[7] if entry.length >= 8
+      if entry.length >= 8
+        spot.thick_start = entry[6].to_i + 1
+        spot.thick_end = entry[7].to_i
+      end
+
       spot.item_rgb = entry[8] if entry.length >= 9
-      spot.block_count = entry[9] if entry.length >= 10
-      spot.block_sizes = entry[10] if entry.length >= 11
-      spot.block_starts = entry[11] if entry.length >= 12
-      
+
+      if entry.length >= 12
+        spot.block_count = entry[9].to_i 
+        spot.block_sizes = entry[10].split(',').map { |v| v.to_i }
+        raise BedError, "Invalid Bed Entry: blockCount does not correspond to number of blockSizes" if spot.block_count != spot.block_sizes.length
+        spot.block_starts = entry[11].split(',').map { |v| spot.low + v.to_i }
+        raise BedError, "Invalid Bed Entry: blockCount does not correspond to number of blockStarts" if spot.block_count != spot.block_starts.length
+      end
+
       return spot
     rescue
       raise BedError, "Invalid Bed Entry!"
@@ -46,16 +54,24 @@ class BedEntry < Spot
     @id
   end
 
-  def to_bed    
-    # Write Bed-6 format by default
-    s = "#{@chr}\t#{low}\t#{high}\t#{name}\t#{@value}\t#{strand}"
-    
+  def to_bed6
+    "#{@chr}\t#{low-1}\t#{high}\t#{name ? name : '.'}\t#{@value ? @value : '.'}\t#{strand}"
+  end
+
+  def to_bed12
+    s = to_bed6
+    s += "\t#{@thick_start ? @thick_start-1 : 0}\t#{@thick_end ? @thick_end : 0}\t#{@item_rgb ? @item_rgb : 0}"
+    s += "\t#{@block_count}\t#{@block_sizes.join(',')}\t#{@block_starts.map { |v| v-low }.join(',')}" if @block_count
+    return s
+  end
+
+  def to_bed
     # Write Bed-12 fields if they are defined
     if @thick_start or @thick_end or @item_rgb or @block_count or @block_sizes or @block_starts
-      s += "\t#{@thick_start}\t#{@thick_end}\t#{@item_rgb}\t#{@block_count}\t#{@block_sizes}\t#{@block_starts}"
+      to_bed12
+    else
+      to_bed6
     end
-    
-    return s
   end
 end
 

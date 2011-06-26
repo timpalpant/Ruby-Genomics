@@ -10,7 +10,6 @@
 		1F010BCF139C6CB3005AFE77 /* romanNumeralize.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = romanNumeralize.rb; sourceTree = "<group>"; };
 		1F010BD0139C6CB3005AFE77 /* romanNumeralize.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = romanNumeralize.xml; sourceTree = "<group>"; };
 		1F170BF31395C6BB00860C94 /* test.bam */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam; sourceTree = "<group>"; };
-		1F170BF41395C87C00860C94 /* test.bam.bai */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bam.bai; sourceTree = "<group>"; };
 		1F17554A13A2D3AF0021DE06 /* batchHeatmaps.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = batchHeatmaps.rb; sourceTree = "<group>"; };
 		1F1CBC2D13A79DA6009F0800 /* regionIntensity.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = regionIntensity.rb; sourceTree = "<group>"; };
 		1F1CBC2F13A79DB9009F0800 /* regionIntensity.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = regionIntensity.xml; sourceTree = "<group>"; };
@@ -29,9 +28,30 @@
 		1F3E322A13B2B1A3009386F6 /* gff_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = gff_spec.rb; sourceTree = "<group>"; };
 		1F3E322B13B2B1B5009386F6 /* macs_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = macs_spec.rb; sourceTree = "<group>"; };
 		1F3E322C13B2B4AD009386F6 /* nucleosome_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = nucleosome_spec.rb; sourceTree = "<group>"; };
+		1F48949E13B7B031007A6661 /* test.bedGraph */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.bedGraph; sourceTree = "<group>"; };
+		1F4894A013B7B03A007A6661 /* test.nukes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.nukes; sourceTree = "<group>"; };
+		1F4894A113B7B042007A6661 /* test.hits */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.hits; sourceTree = "<group>"; };
+		1F4894A213B7B04A007A6661 /* test.macs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.macs; sourceTree = "<group>"; };
+		1F4894A313B7B052007A6661 /* test.affy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.affy; sourceTree = "<group>"; };
+		1F4894A413B7B06E007A6661 /* test.gff */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.gff; sourceTree = "<group>"; };
+		1FA0DF6213B6774F007AB500 /* contig_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = contig_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6313B6774F007AB500 /* scripts_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = scripts_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6513B6805E007AB500 /* sparse_array.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = sparse_array.rb; sourceTree = "<group>"; };
+		1FA0DF6613B6813A007AB500 /* sparse_array_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = sparse_array_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6713B686AA007AB500 /* test.bed */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.bed; sourceTree = "<group>"; };
+		1FA0DF6813B686C8007AB500 /* ucsc_tools_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = ucsc_tools_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6913B686EF007AB500 /* assembly_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = assembly_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6A13B68703007AB500 /* bowtie_hits_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = bowtie_hits_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6B13B68716007AB500 /* spot_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = spot_spec.rb; sourceTree = "<group>"; };
+		1FA0DF6C13B69026007AB500 /* spot_file_examples.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = spot_file_examples.rb; sourceTree = "<group>"; };
+		1FA0DF6D13B6DA32007AB500 /* entry_file_examples.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = entry_file_examples.rb; sourceTree = "<group>"; };
+		1FA0DF6E13B6DB5B007AB500 /* read_file_examples.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = read_file_examples.rb; sourceTree = "<group>"; };
+		1FA0DF6F13B6DB69007AB500 /* read_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = read_spec.rb; sourceTree = "<group>"; };
+		1FB8028F13B4486A003324EC /* wig_math.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = wig_math.rb; sourceTree = "<group>"; };
+		1FBDA06C13B3F39B000A63E1 /* fft_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = fft_spec.rb; sourceTree = "<group>"; };
+		1FBDA06D13B3F3A6000A63E1 /* convolution_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = convolution_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA31395C45000441DD7 /* affy_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = affy_spec.rb; sourceTree = "<group>"; };
 		1FBFEFA41395C50200441DD7 /* stats_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = stats_spec.rb; sourceTree = "<group>"; };
-		1FBFEFA61395C54600441DD7 /* tabix_spec.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = tabix_spec.rb; sourceTree = "<group>"; };
 		1FC9386413970EAA00A4A4F4 /* wigstats.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = wigstats.rb; sourceTree = "<group>"; };
 		1FC9386613970EBA00A4A4F4 /* wigstats.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = wigstats.xml; sourceTree = "<group>"; };
 		1FC9386713970F6800A4A4F4 /* convolution.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = convolution.rb; sourceTree = "<group>"; };
@@ -144,7 +164,6 @@
 		1FD61E3B13909D530013355B /* bed_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bed_spec.rb; sourceTree = "<group>"; };
 		1FD61E3C13909D530013355B /* bedgraph_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = bedgraph_spec.rb; sourceTree = "<group>"; };
 		1FD61E3E13909D530013355B /* fixed_precision_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = fixed_precision_spec.rb; sourceTree = "<group>"; };
-		1FD61E4013909D530013355B /* test-chr.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "test-chr.txt"; sourceTree = "<group>"; };
 		1FD61E4113909D530013355B /* test.sam */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.sam; sourceTree = "<group>"; };
 		1FD61E4213909D530013355B /* test.wig */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.wig; sourceTree = "<group>"; };
 		1FD61E4313909D530013355B /* genome_spec.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = genome_spec.rb; sourceTree = "<group>"; };
@@ -212,7 +231,9 @@
 		1FD61DB313909D530013355B /* common */ = {
 			isa = PBXGroup;
 			children = (
+				1FA0DF6513B6805E007AB500 /* sparse_array.rb */,
 				1F3E322213B2A3A7009386F6 /* contig.rb */,
+				1FB8028F13B4486A003324EC /* wig_math.rb */,
 				1F3E322313B2A3A7009386F6 /* entry_file.rb */,
 				1F3E322413B2A3A7009386F6 /* read_file.rb */,
 				1F3E322513B2A3A7009386F6 /* read.rb */,
@@ -419,6 +440,9 @@
 		1FD61E3A13909D530013355B /* spec */ = {
 			isa = PBXGroup;
 			children = (
+				1FA0DF6613B6813A007AB500 /* sparse_array_spec.rb */,
+				1FA0DF6213B6774F007AB500 /* contig_spec.rb */,
+				1FA0DF6313B6774F007AB500 /* scripts_spec.rb */,
 				1FD61E3B13909D530013355B /* bed_spec.rb */,
 				1FD61E3C13909D530013355B /* bedgraph_spec.rb */,
 				1FD61E3E13909D530013355B /* fixed_precision_spec.rb */,
@@ -433,11 +457,20 @@
 				1FD61E4C13909D530013355B /* wig_spec.rb */,
 				1FBFEFA31395C45000441DD7 /* affy_spec.rb */,
 				1FBFEFA41395C50200441DD7 /* stats_spec.rb */,
-				1FBFEFA61395C54600441DD7 /* tabix_spec.rb */,
 				1F3E322913B2B192009386F6 /* entry_file_spec.rb */,
 				1F3E322A13B2B1A3009386F6 /* gff_spec.rb */,
 				1F3E322B13B2B1B5009386F6 /* macs_spec.rb */,
 				1F3E322C13B2B4AD009386F6 /* nucleosome_spec.rb */,
+				1FBDA06C13B3F39B000A63E1 /* fft_spec.rb */,
+				1FBDA06D13B3F3A6000A63E1 /* convolution_spec.rb */,
+				1FA0DF6813B686C8007AB500 /* ucsc_tools_spec.rb */,
+				1FA0DF6913B686EF007AB500 /* assembly_spec.rb */,
+				1FA0DF6A13B68703007AB500 /* bowtie_hits_spec.rb */,
+				1FA0DF6B13B68716007AB500 /* spot_spec.rb */,
+				1FA0DF6F13B6DB69007AB500 /* read_spec.rb */,
+				1FA0DF6C13B69026007AB500 /* spot_file_examples.rb */,
+				1FA0DF6D13B6DA32007AB500 /* entry_file_examples.rb */,
+				1FA0DF6E13B6DB5B007AB500 /* read_file_examples.rb */,
 			);
 			path = spec;
 			sourceTree = "<group>";
@@ -445,11 +478,16 @@
 		1FD61E3F13909D530013355B /* fixtures */ = {
 			isa = PBXGroup;
 			children = (
-				1F170BF41395C87C00860C94 /* test.bam.bai */,
+				1FA0DF6713B686AA007AB500 /* test.bed */,
 				1F170BF31395C6BB00860C94 /* test.bam */,
-				1FD61E4013909D530013355B /* test-chr.txt */,
 				1FD61E4113909D530013355B /* test.sam */,
 				1FD61E4213909D530013355B /* test.wig */,
+				1F48949E13B7B031007A6661 /* test.bedGraph */,
+				1F4894A013B7B03A007A6661 /* test.nukes */,
+				1F4894A113B7B042007A6661 /* test.hits */,
+				1F4894A213B7B04A007A6661 /* test.macs */,
+				1F4894A313B7B052007A6661 /* test.affy */,
+				1F4894A413B7B06E007A6661 /* test.gff */,
 			);
 			path = fixtures;
 			sourceTree = "<group>";

@@ -2,150 +2,48 @@ require 'spec_helper'
 require 'contig'
 
 describe Contig do
-  TEST_LENGTH = 10
-  TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/fixtures/test-chr.txt')
-  # Should correspond to the data in test-chr.txt
-  TEST_DATA = [0,3,4,9,0,6,44,3,5,7,8,9,5,6,3,1,1,2,3,4,5,6,13,15,18,22]
+  before do
+    @test = Contig.new('chrI')
+    @test.set(100, 1.5)
+    @test.set(101, 1.5)
+    (105..111).each { |bp| @test.set(bp, 2.1234321) }
+  end
   
-  context "with start = step = span = 1" do
-    before do
-      @test = Contig.new(TEST_LENGTH)
+  context "when no resolution is passed" do
+    it "should output to variableStep format with resolution = 1" do
+      @test.to_variable_step.should == "variableStep chrom=chrI span=1\n100\t1.5\n101\t1.5\n105\t2.1234\n106\t2.1234\n107\t2.1234\n108\t2.1234\n109\t2.1234\n110\t2.1234\n111\t2.1234"
     end
     
-    it "should have default start 1" do
-      @test.start.should == 1
-    end
-    
-    it "should have default step 1" do
-      @test.step.should == 1
-    end
-    
-    it "should have default span 1" do
-      @test.span.should == 1
-    end
-    
-    it "should have length #{TEST_LENGTH}" do
-      @test.length.should == TEST_LENGTH
-    end
-    
-    it "should have stop #{TEST_LENGTH}" do
-      @test.stop.should == TEST_LENGTH
-    end
-    
-    it "should include 1..#{TEST_LENGTH}" do
-      for bp in 1..TEST_LENGTH
-        @test.include?(bp).should be_true
-      end
-      
-      @test.include?(0).should be_false
-      @test.include?(-1).should be_false
-      @test.include?(TEST_LENGTH+1).should be_false
-    end
-    
-    it "should include ranges between 1..#{TEST_LENGTH}" do
-      # Too high
-      for bp in -5..TEST_LENGTH+5
-        @test.include?(-1,bp).should be_false
-        @test.include?(0,bp).should be_false
-        @test.include?(@test.stop+1,bp).should be_false
-        @test.include?(@test.stop+2,bp).should be_false
-      end
-      
-      # Too low
-      for bp in -5..TEST_LENGTH+5
-        @test.include?(bp, -1).should be_false
-        @test.include?(bp, 0).should be_false
-        @test.include?(bp, @test.stop+1).should be_false
-        @test.include?(bp, @test.stop+2).should be_false
-      end
-      
-      # Included
-      for start in 1..TEST_LENGTH
-        for stop in 1..TEST_LENGTH
-          @test.include?(start, stop).should be_true
-        end
-      end
+    it "should output to fixedStep format with resolution = 1" do
+      @test.to_fixed_step.should == "fixedStep chrom=chrI start=100 step=1 span=1\n1.5\n1.5\nNaN\nNaN\nNaN\n2.1234\n2.1234\n2.1234\n2.1234\n2.1234\n2.1234\n2.1234"
     end
   end
   
-  context "with start = 25" do
-    before do
-      @test = Contig.new(100, 'unknown', 25, 5, 4)
+  context "when a resolution of 2 is passed" do
+    it "should output to variableStep format with resolution = 2" do
+      @test.to_variable_step(2).should == "variableStep chrom=chrI span=2\n100\t1.5\n106\t2.1234\n108\t2.1234\n110\t2.1234"
     end
     
-    it "should have correct attributes" do
-      @test.start.should == 25
-      @test.step.should == 5
-      @test.span.should == 4
-      @test.stop.should == 124
-      @test.length.should == 100
+    it "should output to fixedStep format with resolution = 2" do
+      @test.to_fixed_step(2).should == "fixedStep chrom=chrI start=100 step=2 span=2\n1.5\nNaN\nNaN\n2.1234\n2.1234\n2.1234"
     end
-  end
-  
-  context "loaded from file" do
-    before do
-      @test = Contig.load_wig(TEST_FILE, 5, 31)
-    end
-    
-    it "should have correct attributes" do
-      @test.chr.should == 'chrXI'
-      @test.start.should == 20
-      @test.step.should == 5
-      @test.span.should == 4
-      @test.stop.should == 45
-      @test.length.should == 26
-    end
-    
-    it "should have correct data" do
-      @test.length.should == TEST_DATA.length
-      
-      TEST_DATA.each_with_index do |value,i|
-        value.should == @test[i]
-      end
-    end
-    
-    it "should account for start base pair" do
-      @test.bases(20,25).length.should == 6
-      @test.bases(20,25).to_a.should == [0,3,4,9,0,6]
-      
-      @test.bases(35,39).length.should == 5
-      @test.bases(35,39).to_a.should == [1,1,2,3,4]
-    end
-    
-    it "should allow Crick indexing" do
-      @test.bases(25,20).length.should == 6
-      @test.bases(25,20).to_a.should == [0,3,4,9,0,6].reverse
-      
-      @test.bases(39,35).length.should == 5
-      @test.bases(39,35).to_a.should == [1,1,2,3,4].reverse
-    end
-    
-    it "should correctly output to String" do
-      @test.to_s.split("\n").length.should == @test.length+1
-    end
-  end
-  
-  context "with variableStep format" do
-    
   end
 end
 
 describe Array do
   before do
-    @test = Array.new(100) { rand }
+    @test = [0,3,4,9,0,6,44,3,5,7,8,9,5,6,3,1,1,2,3,4,5,6,13,15,18,22]
   end
   
-  it "should convert to chromosome with default parameters" do
+  it "should convert to Contig with default parameters: chr=unknown, start=1, step=1, span=1" do
     contig = @test.to_contig
     contig.chr.should == 'unknown'
     contig.start.should == 1
-    contig.step.should == 1
-    contig.span.should == 1
-    contig.stop.should == 100
-    contig.length.should == 100
+    contig.stop.should == @test.length
+    contig.length.should == @test.length
     
     @test.each_with_index do |value,i|
-      contig[i].should == @test[i]
+      contig[i+1].should == @test[i]
     end
   end
   
@@ -153,13 +51,7 @@ describe Array do
     contig = @test.to_contig('chrI', 25, 5, 5)
     contig.chr.should == 'chrI'
     contig.start.should == 25
-    contig.step.should == 5
-    contig.span.should == 5
-    contig.stop.should == 124
-    contig.length.should == 100
-    
-    @test.each_index do |i|
-      contig[i].should == @test[i]
-    end
+    contig.stop.should == 25 + 5*(@test.length-1)+5-1
+    contig.length.should == 5*(@test.length-1)+5
   end
 end

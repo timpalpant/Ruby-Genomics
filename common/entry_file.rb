@@ -61,6 +61,7 @@ class EntryFile
     end
     
     puts "Skipped #{skipped} invalid entries" if ENV['DEBUG']
+    skipped
   end
   
   # Return all of the chromosomes available in this EntryFile
@@ -162,20 +163,14 @@ class TextEntryFile < EntryFile
   end
   
   # Use wc to count the number of entries (assume one entry per line)
-  def count(chr = nil, start = nil, stop = nil)
-    raise EntryFileError, "Tabix only supports queries with start AND stop" if start and stop.nil?
-  
-    line_count = if chr.nil?
-      File.num_lines(@data_file)
-    elsif start.nil? or stop.nil?
+  def count(chr = nil, start = nil, stop = nil)  
+    if not chr.nil?
       %x[ grep -w #{chr} #{@data_file} | wc -l ].chomp.to_i
     else
       num = 0
       self.each(chr, start, stop) { |entry| num += 1 }
       num
     end
-    
-    return line_count
   end
   
   private

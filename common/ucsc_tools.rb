@@ -114,10 +114,10 @@ class UCSCTrackHeader
         
         # Look forward from the equals position until there is a space to get the token value
         cursor = equals_pos + 1
-        quoted = (line[cursor] == '"')
+        quoted = (line[cursor] == '"' or line[cursor] == "'")
         cursor += 1 if quoted
         start = cursor
-        cursor += 1 until cursor == line.length or (not quoted and line[cursor] == ' ') or (quoted and line[cursor] == '"')
+        cursor += 1 until cursor == line.length or (not quoted and line[cursor] == ' ') or (quoted and (line[cursor] == '"' or line[cursor] == "'"))
         stop = cursor - 1
         value = line[start..stop]        
 

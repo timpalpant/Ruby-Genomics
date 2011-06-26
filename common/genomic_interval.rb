@@ -18,9 +18,7 @@ class GenomicInterval
   end
   
   def to_bed
-    value = @value ? @value : '.'
-    id = @id ? @id : '.'
-    "#{@chr}\t#{low}\t#{high}\t#{id}\t#{value}\t#{strand}"
+    "#{@chr}\t#{low}\t#{high}\t.\t.\t#{strand}"
   end
   
   def to_bedgraph

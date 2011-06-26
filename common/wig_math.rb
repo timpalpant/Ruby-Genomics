@@ -5,15 +5,20 @@ require 'stats'
 ##
 module WigMath
   # Number of values in the Wig file
-  def num_values
-    @contigs_index.map { |chr,start,length| length }.sum
+  def num_bases
+    count = 0
+    self.each_chunk do |chunk|
+      count += chunk.to_a.compact.length
+    end
+    
+    return count
   end
   
   # The sum of all values
   def total
     sum = 0
     self.each_chunk do |chunk|
-      sum += chunk.sum
+      sum += chunk.to_a.sum
     end
 
     return sum
@@ -21,16 +26,16 @@ module WigMath
   
   # The mean of all values
   def mean
-    total.to_f / num_values
+    total.to_f / num_bases
   end
   
   # The standard deviation of all values
   def stdev(avg = self.mean)
-    deviances = 0
+    deviances = 0.0
     self.each_chunk do |chunk|
-      deviances += chunk.map { |elem| (elem-avg)**2 }.sum
+      deviances += chunk.to_a.compact.map { |elem| (elem-avg)**2 }.sum
     end
     
-    Math.sqrt(chr_deviances.sum / num_values)
+    Math.sqrt(deviances / num_bases)
   end
 end

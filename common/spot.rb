@@ -1,4 +1,5 @@
 require 'genomic_interval'
+require 'stringio'
 
 ##
 # A genomic interval with an associated value (such as a BedGraph entry)
@@ -7,8 +8,10 @@ require 'genomic_interval'
 class Spot < GenomicInterval
   attr_accessor :id, :value
   
-  def initialize(id = nil)
+  def initialize(chr = nil, start = nil, stop = nil, id = nil, value = nil)
+    super(chr, start, stop)
     @id = id
+    @value = value
   end
   
   def to_s
@@ -16,14 +19,21 @@ class Spot < GenomicInterval
   end
   
   def to_bed
-    "#{chr}\t#{@start}\t#{@stop}\t#{@id}\t#{@value}"
+    value = @value ? @value : '.'
+    id = @id ? @id : '.'
+    "#{@chr}\t#{low}\t#{high}\t#{id}\t#{value}\t#{strand}"
   end
   
-  def to_bedraph
-    "#{chr}\t#{@start}\t#{@stop}\t#{@value}"
+  def to_bedgraph
+    bedgraph = StringIO.new
+    bedgraph << "#{chr}\t#{low}\t#{high}"
+    bedgraph << "\t#{@value}" if @value    
+    bedgraph.string
   end
   
   def to_gff
-    "#{chr}\tSpotArray\tfeature\t#{@start}\t#{@stop}\t#{@value}\t.\t.\tprobe_id=#{@id};count=1"
+    id = @id ? @id : 'no_id'
+    value = @value ? @value : '.'
+    "#{chr}\tSpotArray\tfeature\t#{low}\t#{high}\t#{value}\t.\t.\tprobe_id=#{id};count=1"
   end
 end

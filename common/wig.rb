@@ -30,6 +30,10 @@ class AbstractWigFile
     @contigs_index = Array.new
   end
   
+  # Put any cleanup operations here
+  def close
+  end
+  
   # Open a Wig file with an optional block
   def open(filename, &block)
     wig = self.new(filename)
@@ -40,7 +44,7 @@ class AbstractWigFile
       return wig
     end
     
-    # Place any cleanup operations here
+    close
   end
   
   # Enumerate over the contigs in this Wig file
@@ -68,7 +72,7 @@ class AbstractWigFile
   
   # Return an array of all chromosomes in this Wig file
   def chromosomes
-    @contig_index.collect { |contig_info| contig_info.chr }.uniq
+    @contigs_index.collect { |contig_info| contig_info.chr }.uniq
   end
   
   # Does this Wig file include data for a given locus?
@@ -76,16 +80,10 @@ class AbstractWigFile
     if start.nil?
       chromosomes.include?(chr)
     elsif stop.nil?
-      chromsomes.include?(chr) and start >= chr_start(chr)
+      chromosomes.include?(chr) and start >= chr_start(chr)
     else
-      chromsomes.include?(chr) and start >= chr_start(chr) and stop <= chr_stop(chr)
+      chromosomes.include?(chr) and start >= chr_start(chr) and stop <= chr_stop(chr)
     end
-  end
-  
-  # Get the contigs for a chromosome
-  def chr_contigs(query_chr)
-    raise WigError, "Wig does not include data for chromosome #{query_chr}" unless include?(query_chr)
-    return @contigs_index.select { |contig_info| contig_info.chr == query_chr }
   end
   
   # Get the lowest base pair of data for a chromosome
@@ -94,7 +92,7 @@ class AbstractWigFile
   end
   
   # Get the highest base pair of data for a chromosome
-  def chr_stop(chr)
+  def chr_stop(query_chr)
     chr_contigs(query_chr).collect { |contig_info| contig_info.stop }.max
   end
   
@@ -150,15 +148,16 @@ class AbstractWigFile
   # Output a summary about this BigWigFile
   def to_s
     str = StringIO.new
-    str << "AbstractWigFile: connected to file #{@data_file}\n"
-    @contigs_index.each do |chr,start,stop|
-      str << "\tContig - #{chr}:#{start}-#{stop}\n"
-    end
-    
+    str << "Wig: connected to file #{File.basename(@data_file)}\n"
+    @contigs_index.each { |contig_info| str << "#{contig_info}\n" }
     str << "Mean:\t#{mean}\n"
     str << "Standard deviation:\t#{stdev}"
     
     return str.string
+  end
+  
+  def inspect
+    to_s
   end
   
   ##
@@ -168,6 +167,17 @@ class AbstractWigFile
   # Return a Contig of data from the specified region
   def query(chr, start, stop)
     raise WigError, "Should be overridden in a base class (BigWigFile/WigFile)!"
+  end
+  
+  ##
+  # HELPER METHODS
+  ##
+  private
+  
+  # Get the contigs for a chromosome
+  def chr_contigs(query_chr)
+    raise WigError, "Wig does not include data for chromosome #{query_chr}" unless include?(query_chr)
+    return @contigs_index.select { |contig_info| contig_info.chr == query_chr }
   end
 end
 
@@ -326,7 +336,14 @@ class WigFile < AbstractWigFile
     File.grep_with_linenum(@data_file, 'chrom') do |line_num,line|      
       begin
         info = ContigInfo.parse(line)
-        info.line_start = line_num
+        info.header_line = line_num
+        line_start = line_num
+        first_line = String.new
+        while first_line.nil? or first_line.chomp.empty?
+          line_start += 1
+          first_line = File.lines(@data_file, line_start, line_start).first
+        end
+        info.line_start = line_start
         @contigs_index << info
       rescue
         puts "Not a valid fixedStep/variableStep header" if ENV['DEBUG']
@@ -339,41 +356,52 @@ class WigFile < AbstractWigFile
       # fixedStep lines give the start, so we just need to find the stop
       if contig_info.type == ContigInfo::FIXED_STEP
         # Get the line number of the next contig in the file
-        next_contig_line = @contigs_index.select { |info| info.line_start > contig_info.line_start }.collect { |info| info.line_start }.sort.first
+        next_contig_line = @contigs_index.select { |info| info.header_line > contig_info.header_line }.collect { |info| info.header_line }.sort.first
+        
+        # Get the line immediately before it (with data)
         offset = 0
+        
+        # If there is no contig after this one, then read to EOF
+        if next_contig_line.nil?
+          next_contig_line = File.num_lines(@data_file)
+          offset -= 1
+        end
+        
         last_line = String.new
-        while last_line.empty?
+        while last_line.nil? or last_line.chomp.empty?
           offset += 1
-          last_line = File.lines(@data_file, next_contig_line-offset, next_contig_line-offset).first.chomp
+          last_line = File.lines(@data_file, next_contig_line-offset, next_contig_line-offset).first
         end
         contig_info.line_stop = next_contig_line - offset
         
         # Calculate the stop based on the number of values and the step/span sizes
         num_values = contig_info.line_stop - contig_info.line_start
-        contig_info.stop = contig_info.step*(num_values-1) + contig_info.span
+        contig_info.stop = contig_info.start + contig_info.step*(num_values) + contig_info.span - 1
       # for variableStep lines, we need to find the start and stop
       else
         # Find the start, i.e. the first base pair with data
-        first_line = String.new
-        offset = 0
-        while first_line.empty?
-          offset += 1
-          first_line = File.lines(@data_file, contig_info.line_start+offset, contig_info.line_start+offset).first
-        end
-        contig_info.start = first_line.split("\t").first.to_i
+        contig_info.start = File.lines(@data_file, contig_info.line_start, contig_info.line_start).first.chomp.split("\t").first.to_i
         
         # Find the stop, i.e. the last base pair with data
         # Get the line number of the next contig in the file
-        next_contig_line = @contigs_index.select { |info| info.line_start > contig_info.line_start }.collect { |info| info.line_start }.sort.first
+        next_contig_line = @contigs_index.select { |info| info.header_line > contig_info.header_line }.collect { |info| info.header_line }.sort.first
+        
         # Get the line immediately before it (with data)
         offset = 0
+        
+        # If there is no contig after this one, then read to EOF
+        if next_contig_line.nil?
+          next_contig_line = File.num_lines(@data_file)
+          offset -= 1
+        end
+        
         last_line = String.new
-        while last_line.empty?
+        while last_line.nil? or last_line.chomp.empty?
           offset += 1
-          last_line = File.lines(@data_file, next_contig_line-offset, next_contig_line-offset).first.chomp
+          last_line = File.lines(@data_file, next_contig_line-offset, next_contig_line-offset).first
         end
         contig_info.line_stop = next_contig_line - offset
-        contig_info.stop = last_line.split("\t").first.to_i + contig_info.span
+        contig_info.stop = last_line.split("\t").first.to_i + contig_info.span - 1
       end
     end
   
@@ -395,23 +423,20 @@ class WigFile < AbstractWigFile
     
     # Find the relevant contigs for the requested interval
     @contigs_index.select { |info| info.chr == chr and (info.stop >= start and info.start <= stop) }.sort_by { |info| info.start }.each do |info|
-      # Figure out which bases are covered by this Contig
+      # Clamp to bases that are covered by this Contig
       low = [start, info.start].max
       high = [stop, info.stop].min
       
       if info.type == ContigInfo::FIXED_STEP
         # Figure out what lines in the file we need to get those bases
-        # (info.start_line + 1) is the first line of data
-        start_line = (info.start_line + 1) + (low-info.start)/info.step
-        stop_line = start_line + (high-low)/info.step
+        start_line = info.line_for_bp(low)
+        stop_line = info.line_for_bp(high)
         
         # Query the file for the lines and store them in the Contig
-        bp = info.start + (low-info.start)/info.step
+        bp = info.bp_for_line(start_line)
         File.lines(@data_file, start_line, stop_line) do |line|
           value = line.to_f
-          start_base = [bp, low].max
-          stop_base = [bp+info.span-1, stop].min
-          (start_base..stop_base).each { |base| output.set(bp, value) }
+          (bp..bp+info.span-1).each { |base| output.set(base, value) if low <= base and base <= high }
           bp += info.step
         end
       else
@@ -421,10 +446,10 @@ class WigFile < AbstractWigFile
           entry = line.split("\t")
           start_base = entry.first.to_i
           value = entry.last.to_f
-          stop_base = [bp+info.span-1, high].min
+          stop_base = [start_base+info.span-1, high].min
           
           if start_base >= low
-            (start_base..stop_base).each { |bp| output.set(bp, value) }
+            (start_base..stop_base).each { |base| output.set(base, value) }
           end
           
           # Don't need to go further in the Contig if we've reached our last base
@@ -468,20 +493,35 @@ end
 # Holds info about a Contig in a WigFile
 ##
 class ContigInfo
-  attr_accessor :type, :chr, :start, :stop, :step, :span, :line_start, :line_stop
+  attr_accessor :type, :chr, :start, :stop, :step, :span, :header_line, :line_start, :line_stop
   
   FIXED_STEP = 'fixedStep'
   VARIABLE_STEP = 'variableStep'
   
-  def initialize(type = FIXED_STEP, chr = 'unknown', start = 1, stop = 1, step = 1, span = 1, line_start = nil, line_stop = nil)
+  def initialize(type = FIXED_STEP, chr = 'unknown', start = 1, stop = 1, step = 1, span = 1, header_line = nil, line_start = nil, line_stop = nil)
     @type = type
     @chr = chr
     @start = start
     @stop = stop
     @step = step
     @span = span
+    @header_line = header_line
     @line_start= line_start
     @line_stop = line_stop
+  end
+  
+  # Return which line contains data for a given base pair
+  def line_for_bp(bp)
+    raise WigError, "Cannot compute the line for a base pair with variableStep contigs" if @type == VARIABLE_STEP
+    raise WigError, "Contig does not contain data for base pair #{bp}" if bp < start or bp > stop
+    @line_start + (bp-@start)/@step
+  end
+  
+  # Return the start base pair of a given line number
+  def bp_for_line(line_num)
+    raise WigError, "Cannot compute the base pair for a line with variableStep contigs" if @type == VARIABLE_STEP
+    raise WigError, "Contig does not include line number #{line_num}" if line_num < @line_start or line_num > @line_stop
+    @start + @step * (line_num-@line_start)
   end
   
   # Parse a fixedStep/variableStep line
@@ -518,6 +558,15 @@ class ContigInfo
     end
 
     return info
+  end
+
+  def to_s
+    s = StringIO.new
+    s << "#{@type}, chrom=#{@chr}, start=#{@start}, stop=#{@stop}"
+    s << ", header_line=#{@header_line}" if @header_line
+    s << ", start_line=#{@line_start}" if @line_start
+    s << ", stop_line=#{@line_stop}" if @line_stop
+    return s.string
   end
 end
 

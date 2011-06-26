@@ -5,6 +5,25 @@ require 'stats'
 # have numeric data/values
 ##
 module SpotFile
+  # Get a Spot with a specific id
+  def id(query_id)
+    entries = Array.new
+    skipped = 0
+    File.grep(@data_file, query_id) do |line|
+      begin
+        entries << parse(line)
+      rescue
+        skipped += 1
+      end
+    end
+    
+    raise EntryFileError, "No spot with id #{query_id} in file #{File.basename(@data_file)}" if entries.length == 0
+    raise EntryFileError, "More than one spot with id #{query_id} in file #{File.basename(@data_file)}" if entries.length > 1
+    puts "Skipped #{skipped} invalid spots with id #{query_id}" if ENV['DEBUG']
+    
+    return entries.first
+  end
+  
   ##
   # STATISTICAL METHODS
   ##
@@ -12,11 +31,7 @@ module SpotFile
   # The sum of the values of all spots
   def total
     # Cache for performance
-    if @total.nil?
-      @total = 0
-      self.each { |entry| @total += entry.value }
-    end
-    
+    @total = self.map { |entry| entry.value }.sum if @total.nil?
     return @total
   end
   
@@ -26,12 +41,11 @@ module SpotFile
   end
   
   # The standard deviation of all spots
-  def stdev(mean = self.mean)
+  def stdev(avg = self.mean)
     # Cache for performance
     if @stdev.nil?
-      sum_of_deviances = 0
-      self.each { |entry| sum_of_deviances = (entry.value-mean)**2 }
-      @stdev = sum_of_deviances / count.to_f
+      sum_of_deviances = self.map { |entry| (entry.value-avg)**2 }.sum
+      @stdev = sum_of_deviances.to_f / count
     end
     
     return @stdev
@@ -41,14 +55,13 @@ module SpotFile
   # QUERY METHODS
   ##
   
-  # Return values for the given window, with single-bp resolution (even if inferred)
+  # Return a Contig of values for the given window
   def query(chr, start, stop)
     low = [start, stop].min
     high = [start, stop].max
     length = high - low + 1
     
-    total = Array.new(length, 0)
-    count = Array.new(length, 0)
+    data = Contig.new(chr)
     
     self.each(chr, start, stop) do |spot|
       # Get the high and low spot coordinates, and clamp to the ends of the window
@@ -56,23 +69,11 @@ module SpotFile
       high = [spot.high, high].min
     
       for bp in low..high
-        total[bp-low] += spot.value unless spot.value.nil?
-        count[bp-low] += 1
+        contig.set(bp, spot.value) unless spot.value.nil?
       end
     end
     
-    # Map base pairs without data to nil, and take the mean of overlapping probes
-    avg = Array.new(length) do |i|
-      if count[i] > 0
-        total[i].to_f / count[i]
-      else
-        nil
-      end
-    end
-    
-    # Allow Crick querying
-    avg.reverse! if start > stop
-    return avg.to_contig(chr, start, 1, 1)
+    return contig
   end
   
   ##

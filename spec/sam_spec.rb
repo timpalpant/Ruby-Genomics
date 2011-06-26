@@ -14,8 +14,8 @@ describe SAMEntry do
     end
     
     it "is crick" do
-      @test.watson?.should be_false
-      @test.crick?.should be_true
+      @test.should_not be_watson
+      @test.should be_crick
     end
     
     it "has length 36" do
@@ -31,18 +31,18 @@ describe SAMEntry do
     end
     
     it "should be single-end" do
-      @test.paired?.should be_false
-      @test.unpaired?.should be_true
-      @test.single?.should be_true
+      @test.should_not be_paired
+      @test.should be_unpaired
+      @test.should be_single
     end
     
     it "is mapped" do
-      @test.mapped?.should be_true
-      @test.unmapped?.should be_false
+      @test.should be_mapped
+      @test.should_not be_unmapped
     end
     
     it "is a primary mapping" do
-      @test.primary?.should be_true
+      @test.should be_primary
     end
     
     it "should have equal-length sequence and quality score" do
@@ -58,8 +58,8 @@ describe SAMEntry do
     end
     
     it "is watson" do
-      @test.watson?.should be_true
-      @test.crick?.should be_false
+      @test.should be_watson
+      @test.should_not be_crick
     end
     
     it "has length 123" do
@@ -75,24 +75,28 @@ describe SAMEntry do
     end
     
     it "should be paired-end" do
-      @test.paired?.should be_true
-      @test.unpaired?.should be_false
-      @test.single?.should be_false
+      @test.should be_paired
+      @test.should_not be_unpaired
+      @test.should_not be_single
     end
     
     it "is mapped" do
-      @test.mapped?.should be_true
-      @test.unmapped?.should be_false
+      @test.should be_mapped
+      @test.should_not be_unmapped
     end
     
     it "is a primary mapping" do
-      @test.primary?.should be_true
+      @test.should be_primary
     end
     
     it "should have equal length sequence and quality score" do
       @test.seq.length.should == @test.qual.length
     end
   end
+end
+
+shared_examples "sam file" do
+  
 end
 
 describe SAMFile do

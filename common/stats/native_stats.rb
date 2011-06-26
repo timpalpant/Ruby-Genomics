@@ -9,15 +9,18 @@ module NativeStats
   
   def mean
     numel = self.compact.length
-    self.sum.to_f / numel unless numel.zero?
+    self.sum.to_f / numel unless numel == 0
   end
   
   def variance(avg = self.mean)
-    sum_of_deviance = self.compact.map { |elem| (elem-avg)**2 }.sum
-    return sum_of_deviance / self.compact.size
+    compacted = self.compact
+    return nil if compacted.length == 0
+    sum_of_deviance = compacted.map { |elem| (elem-avg)**2 }.sum
+    return sum_of_deviance / compacted.length
   end
   
   def stdev
+    return nil if self.compact.length == 0
     Math.sqrt(variance)
   end 
   

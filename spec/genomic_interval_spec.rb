@@ -2,15 +2,14 @@ require 'spec_helper'
 require 'genomic_interval'
 
 describe GenomicInterval do
+  CHROM = 'chrI'
   
   context "with Watson coordinates" do 
     WATSON_START = 180
     WATSON_STOP = 200
     
     before do
-      @test = GenomicInterval.new
-      @test.start = WATSON_START
-      @test.stop = WATSON_STOP
+      @test = GenomicInterval.new(CHROM, WATSON_START, WATSON_STOP)
     end
     
     it "should have length #{WATSON_STOP-WATSON_START+1}" do
@@ -39,16 +38,36 @@ describe GenomicInterval do
       @test.high.should == WATSON_STOP
     end
     
+    it "should have center 190" do
+      @test.center.should == 190
+    end
+    
     it "should be watson" do
-      @test.watson?.should be_true
+      @test.should be_watson
     end
     
     it "should not be crick" do
-      @test.crick?.should be_false
+      @test.should_not be_crick
     end
     
-    it "should be invalid" do
-      @test.valid?.should be_true
+    it "should be on the + strand" do
+      @test.strand.should == '+'
+    end
+    
+    it "should be valid" do
+      @test.should be_valid
+    end
+    
+    it "should output to Bed format correctly" do
+      @test.to_bed.should == "#{CHROM}\t#{WATSON_START}\t#{WATSON_STOP}\t.\t.\t+"
+    end
+    
+    it "should output to BedGraph format correctly" do
+      @test.to_bedgraph.should == "#{CHROM}\t#{WATSON_START}\t#{WATSON_STOP}"
+    end
+    
+    it "should output to GFF format correctly" do
+      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{WATSON_START}\t#{WATSON_STOP}\t0\t.\t.\tprobe_id=none;count=1"
     end
   end
   
@@ -57,9 +76,7 @@ describe GenomicInterval do
     CRICK_STOP = 180
     
     before do
-      @test = GenomicInterval.new
-      @test.start = CRICK_START
-      @test.stop = CRICK_STOP
+      @test = GenomicInterval.new(CHROM, CRICK_START, CRICK_STOP)
     end
     
     it "should have length #{CRICK_START-CRICK_STOP+1}" do
@@ -88,16 +105,36 @@ describe GenomicInterval do
       @test.high.should == CRICK_START
     end
     
+    it "should have center 190" do
+      @test.center.should == 190
+    end
+    
     it "should not be watson" do
-      @test.watson?.should be_false
+      @test.should_not be_watson
     end
     
     it "should be crick" do
-      @test.crick?.should be_true
+      @test.should be_crick
+    end
+    
+    it "should be on the - strand" do
+      @test.strand.should == '-'
     end
     
     it "should be valid" do
-      @test.valid?.should be_true
+      @test.should be_valid
+    end
+    
+    it "should output to Bed format correctly" do
+      @test.to_bed.should == "#{CHROM}\t#{CRICK_STOP}\t#{CRICK_START}\t.\t.\t-"
+    end
+    
+    it "should output to BedGraph format correctly" do
+      @test.to_bedgraph.should == "#{CHROM}\t#{CRICK_STOP}\t#{CRICK_START}"
+    end
+    
+    it "should output to GFF format correctly" do
+      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{CRICK_STOP}\t#{CRICK_START}\t0\t.\t.\tprobe_id=none;count=1"
     end
   end
   
@@ -107,51 +144,49 @@ describe GenomicInterval do
     end
     
     it "should have length nil" do
-      @test.length.should == nil
+      @test.length.should be_nil
     end
     
     it "should have low nil" do
-      @test.low.should == nil
+      @test.low.should be_nil
     end
     
     it "should have high nil" do
-      @test.high.should == nil
+      @test.high.should be_nil
+    end
+    
+    it "should have center nil" do
+      @test.center.should be_nil
     end
   end
   
   context "with invalid start coordinate" do
     before do
-      @test = GenomicInterval.new
-      @test.start = -30
-      @test.stop = 4
+      @test = GenomicInterval.new(CHROM, -30, 4)
     end
     
     it "should be invalid" do
-      @test.valid?.should be_false
+      @test.should_not be_valid
     end
   end
   
   context "with invalid stop coordinate" do
     before do
-      @test = GenomicInterval.new
-      @test.start = 9
-      @test.stop = -1
+      @test = GenomicInterval.new(CHROM, 9, -1)
     end
     
     it "should be invalid" do
-      @test.valid?.should be_false
+      @test.should_not be_valid
     end
   end
   
   context "with zero start coordinate" do
     before do
-      @test = GenomicInterval.new
-      @test.start = 0
-      @test.stop = 10
+      @test = GenomicInterval.new(CHROM, 0, 10)
     end
     
     it "should be invalid" do
-      @test.valid?.should be_false
+      @test.should_not be_valid
     end
   end
   
