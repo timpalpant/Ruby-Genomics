@@ -11,6 +11,7 @@ class BedEntry < Spot
   def self.parse(line)
     begin
       entry = line.chomp.split("\t")
+      raise BedError, "Invalid Bed Entry: Bed must have at least 3 columns" if entry.length < 3
         
       spot = self.new
       spot.chr = entry[0]
@@ -22,9 +23,8 @@ class BedEntry < Spot
       spot.value = entry[4].to_f if entry.length >= 5
       
       # Reverse start/stop if on the - strand
-      strand = entry[5] if entry.length >= 6
-      if strand == '-' and spot.start < spot.stop
-        tmp = start.start
+      if entry.length >= 6 and entry[5].chomp == '-' and spot.start < spot.stop
+        tmp = spot.start
         spot.start = spot.stop
         spot.stop = tmp
       end

@@ -16,11 +16,11 @@ describe Spot do
     end
     
     it "should output to Bed format correctly" do
-      @test.to_bed.should == "chrI\t1\t100\tMySpot\t.\t+"
+      @test.to_bed.should == "chrI\t0\t100\tMySpot\t.\t+"
     end
     
     it "should output to BedGraph format correctly" do
-      @test.to_bedgraph.should == "chrI\t1\t100"
+      @test.to_bedgraph.should == "chrI\t0\t100"
     end
     
     it "should output to GFF format correctly" do
@@ -34,11 +34,11 @@ describe Spot do
     end
     
     it "should output to Bed format correctly" do
-      @test.to_bed.should == "chrI\t1\t100\tMySpot\t10.0\t+"
+      @test.to_bed.should == "chrI\t0\t100\tMySpot\t10.0\t+"
     end
     
     it "should output to BedGraph format correctly" do
-      @test.to_bedgraph.should == "chrI\t1\t100\t10.0"
+      @test.to_bedgraph.should == "chrI\t0\t100\t10.0"
     end
     
     it "should output to GFF format correctly" do
@@ -52,11 +52,11 @@ describe Spot do
     end
     
     it "should output to Bed format correctly" do
-      @test.to_bed.should == "chrI\t50\t55\t.\t10.0\t-"
+      @test.to_bed.should == "chrI\t49\t55\t.\t10.0\t-"
     end
     
     it "should output to BedGraph format correctly" do
-      @test.to_bedgraph.should == "chrI\t50\t55\t10.0"
+      @test.to_bedgraph.should == "chrI\t49\t55\t10.0"
     end
     
     it "should output to GFF format correctly" do

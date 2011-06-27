@@ -9,10 +9,13 @@ class BedGraphEntry < Spot
   def self.parse(line)
     begin
       entry = line.chomp.split("\t")
+      raise BedGraphError, "Invalid BedGraph Entry: BedGraph must have at least 3 columns" if entry.length < 3
         
       spot = self.new
       spot.chr = entry[0]
-      spot.start = entry[1].to_i
+      # BedGraph coordinates are 0-based
+      spot.start = entry[1].to_i + 1
+      # and half-open
       spot.stop = entry[2].to_i
       spot.value = entry[3].to_f if entry.length >= 4
         

@@ -21,12 +21,12 @@ class Spot < GenomicInterval
   def to_bed
     value = @value ? @value : '.'
     id = @id ? @id : '.'
-    "#{@chr}\t#{low}\t#{high}\t#{id}\t#{value}\t#{strand}"
+    "#{@chr}\t#{low-1}\t#{high}\t#{id}\t#{value}\t#{strand}"
   end
   
   def to_bedgraph
     bedgraph = StringIO.new
-    bedgraph << "#{chr}\t#{low}\t#{high}"
+    bedgraph << "#{chr}\t#{low-1}\t#{high}"
     bedgraph << "\t#{@value}" if @value    
     bedgraph.string
   end

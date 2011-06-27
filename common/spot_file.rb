@@ -1,4 +1,5 @@
 require 'stats'
+require 'contig'
 
 ##
 # Additional methods mixed in for EntryFile types that also
@@ -43,11 +44,7 @@ module SpotFile
   # The standard deviation of all spots
   def stdev(avg = self.mean)
     # Cache for performance
-    if @stdev.nil?
-      sum_of_deviances = self.map { |entry| (entry.value-avg)**2 }.sum
-      @stdev = sum_of_deviances.to_f / count
-    end
-    
+    @stdev = self.map { |entry| entry.value }.stdev(avg) if @stdev.nil?    
     return @stdev
   end
   
@@ -61,7 +58,7 @@ module SpotFile
     high = [start, stop].max
     length = high - low + 1
     
-    data = Contig.new(chr)
+    contig = Contig.new(chr)
     
     self.each(chr, start, stop) do |spot|
       # Get the high and low spot coordinates, and clamp to the ends of the window

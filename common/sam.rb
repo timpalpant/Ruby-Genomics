@@ -13,6 +13,7 @@ class SAMEntry < Read
   def self.parse(line)
     begin
       record = line.chomp.split("\t")
+      raise SAMError, "Invalid SAM Entry: SAM/BAM alignments must have 11 columns" if record.length < 11
     
       entry = self.new
       entry.qname = record[0]

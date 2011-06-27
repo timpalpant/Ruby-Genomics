@@ -164,7 +164,7 @@ class TextEntryFile < EntryFile
   
   # Use wc to count the number of entries (assume one entry per line)
   def count(chr = nil, start = nil, stop = nil)  
-    if not chr.nil?
+    if not chr.nil? and start.nil?
       %x[ grep -w #{chr} #{@data_file} | wc -l ].chomp.to_i
     else
       num = 0
@@ -202,16 +202,39 @@ class TextEntryFile < EntryFile
   
   # Index all TextEntryFiles with Tabix
   def index
-    # File must be sorted
-    File.sort(@data_file, @sorted_file, "-k#{@chr_col},#{@chr_col} -k#{@start_col},#{@start_col}n")
-    
-    # and BGZipped
-    BGZip.compress(@sorted_file, @bgzipped_file)
-    # Delete the temporary sorted text file
-    File.delete(@sorted_file)
-    
-    # Now Tabix can index it
-    Tabix.index(@bgzipped_file, @chr_col, @start_col, @end_col)
+    begin
+      # Filter unparseable entries
+      # TODO: Find a more efficient way to filter unparseable entries without
+      # having to copy the entire file line by line
+      filtered_file = @data_file + '.filtered'
+      filtered = 0
+      File.open(filtered_file, 'w') do |f|
+        File.foreach(@data_file) do |line|
+          begin
+            parse(line)
+            f.write line
+          rescue
+            filtered += 0
+          end
+        end
+      end
+      puts "Filtered #{filtered} unparseable entries" if filtered > 0 and ENV['DEBUG']
+      
+      # File must be sorted
+      File.sort(filtered_file, @sorted_file, "-k#{@chr_col},#{@chr_col} -k#{@start_col},#{@start_col}n")
+      
+      # and BGZipped
+      BGZip.compress(@sorted_file, @bgzipped_file)
+                
+      # Now Tabix can index it
+      Tabix.index(@bgzipped_file, @chr_col, @start_col, @end_col)
+    rescue
+      raise EntryFileError, "Error indexing file #{File.basename(@data_file)} for lookup!"
+    ensure
+      # Delete the temporary filtered and sorted files
+      File.delete(filtered_file)
+      File.delete(@sorted_file)
+    end
   end
 end
 

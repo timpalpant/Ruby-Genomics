@@ -59,11 +59,11 @@ describe GenomicInterval do
     end
     
     it "should output to Bed format correctly" do
-      @test.to_bed.should == "#{CHROM}\t#{WATSON_START}\t#{WATSON_STOP}\t.\t.\t+"
+      @test.to_bed.should == "#{CHROM}\t#{WATSON_START-1}\t#{WATSON_STOP}\t.\t.\t+"
     end
     
     it "should output to BedGraph format correctly" do
-      @test.to_bedgraph.should == "#{CHROM}\t#{WATSON_START}\t#{WATSON_STOP}"
+      @test.to_bedgraph.should == "#{CHROM}\t#{WATSON_START-1}\t#{WATSON_STOP}"
     end
     
     it "should output to GFF format correctly" do
@@ -126,11 +126,11 @@ describe GenomicInterval do
     end
     
     it "should output to Bed format correctly" do
-      @test.to_bed.should == "#{CHROM}\t#{CRICK_STOP}\t#{CRICK_START}\t.\t.\t-"
+      @test.to_bed.should == "#{CHROM}\t#{CRICK_STOP-1}\t#{CRICK_START}\t.\t.\t-"
     end
     
     it "should output to BedGraph format correctly" do
-      @test.to_bedgraph.should == "#{CHROM}\t#{CRICK_STOP}\t#{CRICK_START}"
+      @test.to_bedgraph.should == "#{CHROM}\t#{CRICK_STOP-1}\t#{CRICK_START}"
     end
     
     it "should output to GFF format correctly" do

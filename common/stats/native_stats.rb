@@ -19,9 +19,9 @@ module NativeStats
     return sum_of_deviance / compacted.length
   end
   
-  def stdev
+  def stdev(avg = self.mean)
     return nil if self.compact.length == 0
-    Math.sqrt(variance)
+    Math.sqrt(variance(avg))
   end 
   
   def median

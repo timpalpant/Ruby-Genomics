@@ -1,9 +1,6 @@
 require 'spec_helper'
 require 'sam'
 
-TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
-TEST_BAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bam')
-
 describe SAMEntry do
   context "single-end entry" do
     # This is a Crick (reverse-complement) entry
@@ -100,6 +97,8 @@ shared_examples "sam file" do
 end
 
 describe SAMFile do
+  TEST_SAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
+  
   before do
     @test_file = TEST_SAM
   end
@@ -146,6 +145,8 @@ describe SAMFile do
 end
 
 describe BAMFile do
+  TEST_BAM = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bam')
+  
   before do
     @test_file = TEST_BAM
   end

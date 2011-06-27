@@ -12,7 +12,8 @@ class Nucleosome < Spot
   def self.parse(line)
     begin
       entry = line.chomp.split("\t")
-      
+      raise NucleosomeError, "Invalid Nucleosome call: Nucleosome calls file must have 8 columns" if entry.length != 8
+  
       nuke = Nucleosome.new
       nuke.chr = entry[0]
       nuke.start = entry[1].to_i

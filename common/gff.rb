@@ -12,6 +12,7 @@ class GFFEntry < Spot
   def self.parse(line)
     begin
       record = line.chomp.split("\t")
+      raise GFFError, "Invalid GFF Entry: GFF must have 9 columns" if record.length != 9
       
       spot = self.new
       spot.chr = record[0]

@@ -7,7 +7,6 @@
 #
 
 require 'spec_helper'
-require 'spot_file_examples'
 require 'bed'
 
 describe BedEntry do
@@ -31,10 +30,10 @@ describe BedEntry do
   end
 
   context "parsed from a line" do
-    TEST_ENTRY = "chr22\t1000\t5000\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488,\t0,3512"
+    BED_ENTRY = "chr22\t1000\t5000\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488,\t0,3512"
 
     before do
-      @test = BedEntry.parse(TEST_ENTRY)
+      @test = BedEntry.parse(BED_ENTRY)
     end
     
     it "should have chromosome chr22" do
@@ -93,54 +92,144 @@ describe BedEntry do
 end
 
 describe BedFile do
-  TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bed')
+  BED_FILE = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bed')
   
   before do
-    @test = BedFile.new(TEST_FILE)
+    @test = BedFile.new(BED_FILE)
   end
   
   after do
     @test.close
   end
   
-  it "should have 10 entries" do
-    @test.count.should == 10
+  it "should allow opening with a block" do
+    BedFile.open(BED_FILE) { |bed| }
   end
   
-  it "should return the number of skipped entries"
-  
-  it "should have 4 chromosomes" do
-    @test.chromosomes
-    @test.chromosomes.length.should == 4
+  context "when iterating over all entries" do
+    it "should have 10 entries" do
+      @test.count.should == 10
+    end
+    
+    it "should return the number of skipped entries" do
+      skipped = @test.each { |entry| entry }
+      skipped.should == 3
+    end
+    
+    it "should have 4 chromosomes" do
+      @test.chromosomes.length.should == 4
+    end
+    
+    it "should iterate over all the entries" do
+      count = 0
+      @test.each { |entry| count += 1 }
+      count.should == 10
+    end
+    
+    it "should allow static iteration over all the entries" do
+      count = 0
+      BedFile.foreach(BED_FILE) { |entrY| count += 1 }
+      count.should == 10
+    end
   end
   
-  it "should iterate over all the entries" do
-    count = 0
-    @test.each { |entry| count += 1 }
-    count.should == 10
+  context "when querying for a specific chromosome" do
+    it "should have 3 entries on chrI" do
+      @test.count('chrI').should == 3
+      
+      count = 0
+      @test.each('chrI') { |entry| count += 1 }
+      count.should == 3
+      
+      @test.chr('chrI').length.should == 3
+      @test['chrI'].length.should == 3
+      
+      count = 0
+      @test.chr('chrI') { |entry| count += 1 }
+      count.should == 3
+    end
+    
+    it "should have 0 entries on chr8" do
+      @test.count('chr8').should == 0
+      
+      count = 0
+      @test.each('chr8') { |entry| count += 1 }
+      count.should == 0
+      
+      @test.chr('chr8').length.should == 0
+      @test['chr8'].length.should == 0
+      
+      count = 0
+      @test.chr('chr8') { |entry| count += 1 }
+      count.should == 0
+    end
   end
   
-  it "should have 3 entries on chrI" do
-    count = 0
-    @test.each('chrI') { |entry| count += 1 }
-    count.should == 3
+  context "when querying for a specific interval" do
+    it "should count the correct number of entries" do
+      @test.count('chrIV', 5, 9).should == 2
+    end
     
-    @test.chr('chrI').length.should == 3
+    it "should return the correct number of entries" do      
+      count = 0
+      @test.each('chrIV', 5, 9) { |entry| count += 1 }
+      count.should == 2
+    end
     
-    count = 0
-    @test.chr('chrI') { |entry| count += 1 }
-    count.should == 3
+    it "should return the correct entries" do
+      @test.each('chrIV', 5, 9) do |entry|
+        entry.chr.should == 'chrIV'
+        entry.high.should >= 5
+        entry.low.should <= 9
+      end
+    end
   end
   
-  it "should have 0 entries on chr8" do
-    count = 0
-    @test.each('chr8') { |entry| count += 1 }
-    count.should == 0
+  context "when querying for a specific spot id" do
+    it "should return a spot with a unique id" do
+      spot = @test.id('Spot2')
+      spot.id.should == 'Spot2'
+      spot.chr.should == 'chrI'
+      spot.start.should == 101
+      spot.stop.should == 95
+      spot.value.should == 13.2
+    end
+
+    it "should raise an error if a specific id is not found" do
+      lambda { @test.id('MyAwesomeSpot') }.should raise_error
+    end
     
-    @test.chr('chr8').length.should == 0
+    it "should raise an error if multiple spots share the same id" do
+      lambda { @test.id('Spot1') }.should raise_error
+    end
+  end
+  
+  context "when computing statistics" do
+    it "should have total = 54.2" do
+      @test.total.should == 54.2
+    end
     
-    count = 0
-    @test.chr('chr8') { |entry| count += 1 }
-    count.should == 0
+    it "should have mean = 5.42" do
+      @test.mean.should == 5.42
+    end
+    
+    it "should have standard deviation = 4.958870839213298" do
+      @test.stdev.should == 4.958870839213298
+    end
+  end
+  
+  it "should allow querying for values" do
+    result = @test.query('chrIII', 10, 20)
+    result.start.should == 16
+    result.stop.should == 20
+    result.length.should == 5
+    result.coverage.should == 5
+    (16..20).each { |bp| result[bp].should == 2.0 }
+  end
+  
+  context "when writing to disk" do
+    it "should output to Bed format"
+    it "should output to BedGraph format"
+    it "should output to GFF format"
   end
 end

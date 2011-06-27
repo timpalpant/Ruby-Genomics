@@ -7,7 +7,6 @@
 #
 
 require 'spec_helper'
-require 'spot_file_examples'
 require 'bowtie_hits'
 
 describe BowtieHitsEntry do

@@ -11,6 +11,7 @@ class MACSEntry < Spot
   def self.parse(line)
     begin
       entry = line.chomp.split("\t")
+      raise MACSEntryError, "Invalid MACS Entry: MACS peak file must have 9 columns" if entry.length != 9
 
       spot = self.new
       spot.chr = entry[0]

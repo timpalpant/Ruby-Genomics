@@ -18,11 +18,11 @@ class GenomicInterval
   end
   
   def to_bed
-    "#{@chr}\t#{low}\t#{high}\t.\t.\t#{strand}"
+    "#{@chr}\t#{low-1}\t#{high}\t.\t.\t#{strand}"
   end
   
   def to_bedgraph
-    "#{@chr}\t#{low}\t#{high}"
+    "#{@chr}\t#{low-1}\t#{high}"
   end
   
   def to_gff

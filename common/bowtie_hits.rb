@@ -12,6 +12,7 @@ class BowtieHitsEntry < Read
   def self.parse(line)
     begin
       entry = line.chomp.split("\t")
+      raise BowtieHitsError, "Invalid Bowtie Entry: Bowtie hits file must have 8 columns" if entry.length != 8
       
       read = self.new
       read.name = entry[0]
