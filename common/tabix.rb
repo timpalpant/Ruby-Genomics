@@ -20,8 +20,14 @@ module Tabix
     %x[ tabix -s #{chr_col} -b #{start_col} -e #{end_col} #{filename} ]
   end
   
-  def self.query(filename, chr, start, stop)
-    %x[ tabix #{filename} #{chr}:#{start}-#{stop} ].split("\n")
+  def self.query(filename, chr, start, stop, &block)
+    if block
+      IO.popen("tabix #{filename} #{chr}:#{start}-#{stop}") do |output|
+        output.each { |line| yield line }
+      end
+    else
+      %x[ tabix #{filename} #{chr}:#{start}-#{stop} ].split("\n")
+    end
   end
 end
 

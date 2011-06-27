@@ -194,9 +194,7 @@ class TextEntryFile < EntryFile
       index() if not indexed?
       low = [start, stop].min
       high = [start, stop].max
-      IO.popen("tabix #{@bgzipped_file} #{chr}:#{low}-#{high}") do |output|
-        output.each { |line| yield line }
-      end
+      Tabix.query(@bgzipped_file, chr, low, high) { |line| yield line }
     end
   end
   
