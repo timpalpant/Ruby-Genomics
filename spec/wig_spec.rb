@@ -43,6 +43,8 @@ shared_examples "wig file" do
       count.should == 3
     end
     
+    it "should merge fragmented contigs"
+    
     it "should iterate over all chunks" do
       count = 0
       @test.each { |chunk| count += 1 }
@@ -102,6 +104,7 @@ describe BigWigFile do
     @test.query_average('chrI', 1, 3).should == 2
   end
   
+  it "should transform all contigs"
   it "should output to BedGraph"
   it "should output to Wig"
 end
@@ -121,6 +124,7 @@ describe WigFile do
     WigFile.open(TEST_WIG) { |wig| }
   end
   
+  it "should transform all contigs"
   it "should output to BedGraph"
   it "should output to BigWig"
 end

@@ -12,6 +12,7 @@ class MACSEntry < Spot
     begin
       entry = line.chomp.split("\t")
       raise MACSEntryError, "Invalid MACS Entry: MACS peak file must have 9 columns" if entry.length != 9
+      raise MACSEntryError, "MACS header detected!" if entry[0] == 'chr' and entry[1] == 'start' and entry[2] == 'end'
 
       spot = self.new
       spot.chr = entry[0]
@@ -32,11 +33,14 @@ class MACSEntry < Spot
   def fold_enrichment
     @value
   end
+  
+  # Can't query by id in MACS peak files since they have no id
+  def id(query_id)
+    raise MACSEntryError, "Cannot query for a MACS peak by id!"
+  end
 end
 
-class MACSFile < TextEntryFile
-  include SpotFile
-  
+class MACSFile < TextEntryFile  
   CHR_COL = 1
   START_COL = 2
   END_COL = 3

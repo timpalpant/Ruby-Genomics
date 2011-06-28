@@ -11,6 +11,14 @@ end
 ##
 class AffyFile < TextEntryFile
   include SpotFile
+  
+  CHR_COL = 1
+  START_COL = 2
+  STOP_COL = 3
+  
+  def initialize(filename)
+    super(filename, CHR_COL, START_COL, STOP_COL)
+  end
 
   # Override #each because Affy files are not strictly line-based
   # We have to look at multiple lines to parse individual entries
@@ -37,8 +45,12 @@ class AffyFile < TextEntryFile
         
         if query_chr.nil?
           yield spot
-        else
+        elsif query_start.nil?
           yield spot if spot.chr == query_chr
+        elsif query_stop.nil?
+          yield spot if spot.chr == query_chr and spot.high >= query_start
+        else
+          yield spot if spot.chr == query_chr and spot.high >= query_start and spot.low <= query_stop
         end
       end
     
@@ -46,6 +58,18 @@ class AffyFile < TextEntryFile
       prev_start = start
       prev_value = value
     end
+  end
+  
+  # Also override count
+  def count(chr = nil, start = nil, stop = nil)
+    count = 0
+    self.each(chr, start, stop) { |entry| count += 1 }
+    count
+  end
+  
+  # Cannot query Affy files by id since they have no id
+  def id(query_id)
+    raise AffyFileError, "Cannot query Affy files by id!"
   end
 end
 

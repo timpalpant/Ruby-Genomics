@@ -128,7 +128,7 @@ describe BedFile do
     
     it "should allow static iteration over all the entries" do
       count = 0
-      BedFile.foreach(BED_FILE) { |entrY| count += 1 }
+      BedFile.foreach(BED_FILE) { |entry| count += 1 }
       count.should == 10
     end
   end
