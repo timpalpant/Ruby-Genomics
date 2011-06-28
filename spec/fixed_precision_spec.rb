@@ -29,6 +29,6 @@ describe Fixnum do
   end
   
   it "should output normally with any argument" do
-    @test.to_s(5).should == '3'
+    @test.to_s(2).should == '3'
   end
 end

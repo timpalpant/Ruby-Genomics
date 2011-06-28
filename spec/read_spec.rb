@@ -16,5 +16,5 @@ describe Read do
   
   it "should correctly output to SAM format"
   
-  it "should correctly output to Bowties hits format"
+  it "should correctly output to Bowtie hits format"
 end

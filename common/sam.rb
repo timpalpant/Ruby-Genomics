@@ -54,7 +54,7 @@ class SAMEntry < Read
   end
 
   def pos
-    @start
+    low
   end
 
   # FLAGS: See SAM specification
@@ -132,6 +132,7 @@ end
 # Best option for iterating over large SAM files
 class SAMFile < TextEntryFile
   extend ReadFile
+  include ReadFileMethods
   
   CHR_COL = 3
   START_COL = 4
@@ -151,6 +152,7 @@ end
 # Access BAM files through stream operations using samtools
 class BAMFile < BinaryEntryFile
   extend ReadFile
+  include ReadFileMethods
   
   def initialize(filename)
     # BAM index is the filename plus the extension .bai

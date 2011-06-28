@@ -35,7 +35,7 @@ class AbstractWigFile
   end
   
   # Open a Wig file with an optional block
-  def open(filename, &block)
+  def self.open(filename, &block)
     wig = self.new(filename)
   
     if block
@@ -44,7 +44,7 @@ class AbstractWigFile
       return wig
     end
     
-    close
+    wig.close
   end
   
   # Enumerate over the contigs in this Wig file
@@ -80,7 +80,7 @@ class AbstractWigFile
     if start.nil?
       chromosomes.include?(chr)
     elsif stop.nil?
-      chromosomes.include?(chr) and start >= chr_start(chr)
+      chromosomes.include?(chr) and start >= chr_start(chr) and start <= chr_stop(chr)
     else
       chromosomes.include?(chr) and start >= chr_start(chr) and stop <= chr_stop(chr)
     end
@@ -195,14 +195,15 @@ class BigWigFile < AbstractWigFile
     info = %x[ bigWigInfo -chroms #{@data_file} ].split("\n")
     raise WigError, "You must first convert your Wig file to BigWig" if info.length < 8
     
-    contig_info = ContigInfo.new
     info[7..-6].each do |line|
       entry = line.chomp.split(' ')
+      
+      contig_info = ContigInfo.new
       contig_info.chr = entry.first
-      # Assume that all chromosomes start at base 1 until
-      # we find a way to get the first base
-      contig_info.start = 1
-      contig_info.stop = entry.last.to_i
+      chr_length = entry.last.to_i
+      contig_info.start = find_start_base(contig_info.chr, chr_length)
+      contig_info.stop = find_stop_base(contig_info.chr, chr_length)
+      
       @contigs_index << contig_info
     end
     
@@ -237,27 +238,28 @@ class BigWigFile < AbstractWigFile
   ##
   
   # Return a Contig of data from the specified region
-  def query(chr, start = nil, stop = nil)
+  def query(chr, start = nil, stop = nil, type = 'mean')
     # Don't query off the ends of chromosomes
     start = chr_start(chr) if start.nil?
     stop = chr_stop(chr) if stop.nil?
     raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr, start, stop)
 
-    # Data is 0-indexed
+    # Data is 0-indexed and half-open
     # bigWigSummary segfaults if query is too big, so use nice, bite-sized chunks
     query_start = start-1
     contig = Contig.new(chr)
-    while query_start <= stop-1
-      query_stop = [query_start+200_000-1, stop-1].min
-      num_values = query_stop-query_start+1
-      chunk = %x[ bigWigSummary #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
+    while query_start <= stop
+      query_stop = [query_start+200_000, stop].min
+      num_values = query_stop-query_start
+      chunk = %x[ bigWigSummary -type=#{type} #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
       raise WigError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
       
       # Store the chunk of values in the Contig
       count = 0
       chunk.split(' ').each_with_index do |value,i|
-        contig.set(query_start+i, value.to_f)
         count += 1
+        next if value == 'n/a' or value == 'nan'
+        contig.set(query_start+i+1, value.to_f)
       end
       raise WigError, "BigWig query did not return the expected number of values! (#{count} != #{num_values})" if count != num_values
       
@@ -271,13 +273,20 @@ class BigWigFile < AbstractWigFile
   def query_average(chr, start, stop)
     # Don't query off the ends of chromosomes
     raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr, start, stop)
-
-    %x[ bigWigSummary #{@data_file} #{chr} #{start-1} #{stop-1} 1 ].to_f
+    %x[ bigWigSummary #{@data_file} #{chr} #{start-1} #{stop} 1 ].to_f
   end
   
   ##
   # OUTPUT METHODS
   ##
+  
+  def to_wig(output_file)
+    BigWig.to_wig(@data_file, output_file)
+  end
+  
+  def to_bedgraph(output_file)
+    BiGWig.to_bedgraph(@data_file, output_file)
+  end
   
   # Write a BigWigFile to a Wig file
   def self.to_wig(input_file, output_file)
@@ -310,6 +319,54 @@ class BigWigFile < AbstractWigFile
   def self.to_bedgraph(input_file, output_file)
     puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
     %x[ bigWigToBedGraph #{input_file} #{output_file} ]
+  end
+
+  ##
+  # HELPER METHODS
+  ##
+
+  private
+
+  # Find the first base pair with data
+  def find_start_base(chr, chr_length)
+    # Start at the first base pair and look forwards
+    chunk_size = 200_000
+    bp = 1
+    while bp <= chr_length
+      start = bp-1
+      stop = [start+chunk_size, chr_length-1].min
+      num_values = stop - start
+      result = %x[ bigWigSummary -type=coverage #{@data_file} #{chr} #{start} #{stop} #{num_values} 2>&1 ]
+      if not result.start_with?('no data')
+        start = result.split(' ').find_index('1')
+        return bp+start unless start.nil?
+      end
+      
+      bp += chunk_size
+    end
+    
+    raise WigError, "Could not find start base pair in BigWig file #{File.basename(@data_file)} for chromosome #{chr}"
+  end
+
+  # Find the last base pair with data
+  def find_stop_base(chr, chr_length)
+    # Start at the last base pair and look backwards
+    chunk_size = 200_000
+    bp = chr_length
+    while bp >= 1
+      start = [1, bp-chunk_size-1].max
+      stop = bp-1
+      num_values = stop - start
+      result = %x[ bigWigSummary -type=coverage #{@data_file} #{chr} #{start} #{stop} #{num_values} 2>&1 ]
+      if not result.start_with?('no data')
+        start = result.split(' ').reverse.find_index('1')
+        return bp-start-1 unless start.nil?
+      end
+      
+      bp -= chunk_size
+    end
+    
+    raise WigError, "Could not find stop base pair in BigWig file #{File.basename(@data_file)} for chromosome #{chr}"
   end
 end
 
@@ -347,7 +404,6 @@ class WigFile < AbstractWigFile
         @contigs_index << info
       rescue
         puts "Not a valid fixedStep/variableStep header" if ENV['DEBUG']
-        next
       end
     end
     

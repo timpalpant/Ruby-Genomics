@@ -32,7 +32,7 @@ class File
   # Takes an optional block
   def self.inverse_grep(filename, search_str, &block)
     if block
-      IO.popen("grep -v '#{search_str}' #{filename}") do |output|
+      IO.popen("grep -v -w '#{search_str}' #{filename}") do |output|
         output.each { |line| yield line }
       end
     else
@@ -74,6 +74,8 @@ class File
   
   # Get lines m..n of a file using tail and head
   def self.lines(filename, start_line, end_line = nil, &block)
+    raise "Cannot get lines < 1 from file!" if start_line < 1
+
     if end_line.nil?  # Read to EOF
       if block
         IO.popen("tail -n+#{start_line} #{filename}") do |output|
@@ -125,12 +127,28 @@ class File
 
   # Find the location of an executable in the $PATH
   def self.which(cmd)
-    %x[ which #{cmd} ]
+    %x[ which #{cmd} ].chomp
+  end
+
+  # Add a newline to the end of a file only if there isn't one already
+  def self.newlinify(input_file, output_file)
+    %x[ sed '${/^$/!s/$/\/;}' #{input_file} > #{output_file} ]
   end
   
   # Concatenate files
   def self.cat(input_files, output_file)
-    %x[ cat #{input_files.join(' ')} > #{output_file} ]
+    raise "Less than 2 input files passed to cat!" if input_files.length < 2
+
+    temp_files = input_files[0..-2].map { |f| f+'.tmp' }
+    begin
+      # Add newlines at the end of files 0..-2 if they don't have them
+      input_files[0..-2].each { |f| File.newlinify(f, f+'.tmp') }
+
+      # Cat all of the files together
+      %x[ cat #{temp_files.join(' ')} #{input_files.last} > #{output_file} ]
+    ensure
+      temp_files.each { |f| File.delete(f) if File.exist?(f) }
+    end
   end
   
   # Sort files

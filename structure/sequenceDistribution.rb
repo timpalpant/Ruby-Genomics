@@ -43,7 +43,7 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file (Fasta format)" ) { |f| options[:input] = f }
   options[:genome] = 'sacCer2'
-  opts.on( '-g', '--genome NAME', "Genome assembly (default sacCer2)" ) { |name| options[:genome] = name }
+  opts.on( '-g', '--genome NAME', "Genome assembly (default: sacCer2)" ) { |name| options[:genome] = name }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
   # Parse the command-line arguments
@@ -57,8 +57,6 @@ ARGV.options do |opts|
   end
 end
 
-
-global_start = Time.now
 
 # Load the genome
 genome = Genome.load(options[:genome])
@@ -91,6 +89,3 @@ File.open(options[:output], 'w') do |f|
   f.puts "G:\t" + g.map { |elem| elem.to_s(5) }.join("\t")
   f.puts "C:\t" + c.map { |elem| elem.to_s(5) }.join("\t")
 end
-
-global_stop = Time.now
-puts "Time elapsed: #{global_stop-global_start}"

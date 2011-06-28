@@ -10,20 +10,6 @@ require 'spec_helper'
 require 'bedgraph'
 
 describe BedGraphEntry do
-  context "instantiated in code" do
-    before do
-      @test = BedGraphEntry.new('chrI', 10, 5, 'myspot', 2.0)
-    end
-    
-    it "should correctly output to Bed-6 format" do
-      @test.to_bed.should == "chrI\t4\t10\tmyspot\t2.0\t-"
-    end
-    
-    it "should correctly output to BedGraph format" do
-      @test.to_bedgraph.should == "chrI\t4\t10\t2.0"
-    end
-  end
-  
   context "parsed from a line" do
     BEDGRAPH_ENTRY = "chr22\t1000\t5000\t960"
     
@@ -49,14 +35,6 @@ describe BedGraphEntry do
     
     it "should have strand +" do
       @test.strand.should == '+'
-    end
-    
-    it "should correctly output to Bed-6 format" do
-      @test.to_bed.should == "chr22\t1000\t5000\t.\t960.0\t+"
-    end
-    
-    it "should correctly output to BedGraph format" do
-      @test.to_bedgraph.should == "chr22\t1000\t5000\t960.0"
     end
   end
 end
