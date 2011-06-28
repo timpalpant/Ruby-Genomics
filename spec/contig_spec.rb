@@ -35,7 +35,7 @@ describe Array do
     @test = [0,3,4,9,0,6,44,3,5,7,8,9,5,6,3,1,1,2,3,4,5,6,13,15,18,22]
   end
   
-  it "should convert to Contig with default parameters: chr=unknown, start=1, step=1, span=1" do
+  it "should convert to Contig with default parameters: chr=unknown, start=1" do
     contig = @test.to_contig
     contig.chr.should == 'unknown'
     contig.start.should == 1

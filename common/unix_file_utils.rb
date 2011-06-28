@@ -1,3 +1,5 @@
+require 'fileutils'
+
 # Encapsulate methods in the File class 
 # that call native Unix command-line utilities
 # such as wc, grep, head, tail...
@@ -116,7 +118,7 @@ class File
         output.each { |line| yield line }
       end
     else
-      return %x[ tail -n#{num_lines} #{filename} ].split("\n")
+      return %x[ tail -n #{num_lines} #{filename} ].split("\n")
     end
   end
 
@@ -132,7 +134,10 @@ class File
 
   # Add a newline to the end of a file only if there isn't one already
   def self.newlinify(input_file, output_file)
-    %x[ sed '${/^$/!s/$/\/;}' #{input_file} > #{output_file} ]
+    FileUtils.copy(input_file, output_file)
+    if not %x[ tail -n 1 #{output_file} ].end_with?("\n")
+      File.open(output_file, 'a') { |f| f.write "\n" }
+    end
   end
   
   # Concatenate files
