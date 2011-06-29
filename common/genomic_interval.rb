@@ -26,7 +26,7 @@ class GenomicInterval
   end
   
   def to_gff
-    "#{@chr}\tSpotArray\tfeature\t#{low}\t#{high}\t0\t.\t.\tprobe_id=none;count=1"
+    "#{@chr}\tSpotArray\tfeature\t#{low}\t#{high}\t.\t#{strand}\t.\tprobe_id=no_id;count=1"
   end
   
   def center

@@ -44,7 +44,7 @@ class Nucleosome < Spot
   end
   
   def to_s
-    "#{@chr}\t#{@start}\t#{@stop}\t#{@dyad}\t#{@dyad_stdev}\t#{@conditional_position}\t#{@dyad_mean}\t#{@occupancy}"
+    "#{@chr}\t#{@start}\t#{@stop}\t#{@dyad}\t#{@dyad_stdev}\t#{@conditional_position}\t#{@dyad_mean}\t#{occupancy}"
   end
 end
 
@@ -62,11 +62,22 @@ class NukeCallsFile < TextEntryFile
   include SpotFile
  
   CHR_COL = 1
+  # Use the dyad as the position for lookups with Tabix
   START_COL = 4
   END_COL = 4
   
   def initialize(filename)
     super(filename, CHR_COL, START_COL, END_COL)
+  end
+  
+  # Can't query nucleosomes by id because they don't have any
+  def id(query_id)
+    raise NucleosomeError, "Cannot query nucleosome calls file by id!"
+  end
+  
+  # Don't allow querying for values since it's not exactly a genomic data set
+  def query(chr = nil, start = nil, stop = nil)
+    raise NucleosomeError, "Cannot query nucleosome calls file for genomic values!"
   end
 
   private

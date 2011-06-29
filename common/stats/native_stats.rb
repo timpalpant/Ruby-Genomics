@@ -4,7 +4,9 @@
 ##
 module NativeStats
   def sum
-    self.compact.inject { |sum, elem| sum + elem }
+    compacted = self.compact
+    return nil if compacted.length == 0
+    compacted.inject(0) { |sum, elem| sum + elem }
   end
   
   def mean
@@ -15,8 +17,8 @@ module NativeStats
   def variance(avg = self.mean)
     compacted = self.compact
     return nil if compacted.length == 0
-    sum_of_deviance = compacted.map { |elem| (elem-avg)**2 }.sum
-    return sum_of_deviance / compacted.length
+    sum_of_deviances = compacted.map { |elem| (elem-avg)**2 }.sum
+    return sum_of_deviances / compacted.length
   end
   
   def stdev(avg = self.mean)
@@ -63,9 +65,7 @@ module NativeStats
     indices.sort { |e1,e2| self[e1] <=> self[e2] }
   end
 
-  def zscore
-    avg = self.mean     
-    sdev = self.stdev
+  def zscore(avg = self.mean, sdev = self.stdev)
     self.map { |elem| (elem-avg)/sdev unless elem.nil? }
   end
 

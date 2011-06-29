@@ -18,6 +18,7 @@ class EntryFile
 
   def initialize(filename, index_file = nil)
     @data_file = File.expand_path(filename)
+    raise EntryFileError, "Cannot find data file #{File.basename(@data_file)}. Does it exist?" if not File.exist?(@data_file)
     @index_file = File.expand_path(index_file) unless index_file.nil?
   end
   
@@ -164,7 +165,7 @@ class TextEntryFile < EntryFile
   
   # Use wc to count the number of entries (assume one entry per line)
   def count(chr = nil, start = nil, stop = nil)  
-    if not chr.nil? and start.nil?
+    if chr and start.nil?
       %x[ grep -w #{chr} #{@data_file} | wc -l ].chomp.to_i
     else
       num = 0

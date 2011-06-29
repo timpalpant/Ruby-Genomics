@@ -34,6 +34,6 @@ class Spot < GenomicInterval
   def to_gff
     id = @id ? @id : 'no_id'
     value = @value ? @value : '.'
-    "#{chr}\tSpotArray\tfeature\t#{low}\t#{high}\t#{value}\t.\t.\tprobe_id=#{id};count=1"
+    "#{@chr}\tSpotArray\tfeature\t#{low}\t#{high}\t#{value}\t#{strand}\t.\tprobe_id=#{id};count=1"
   end
 end

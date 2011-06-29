@@ -8,11 +8,11 @@ require 'spot'
 ##
 class GFFEntry < Spot
   attr_accessor :source, :feature, :frame
-  
+    
   def self.parse(line)
     begin
       record = line.chomp.split("\t")
-      raise GFFError, "Invalid GFF Entry: GFF must have 9 columns" if record.length != 9
+      raise GFFError, "Invalid GFF Entry: GFF must have 9 columns" if record.length < 9
       
       spot = self.new
       spot.chr = record[0]
@@ -20,10 +20,10 @@ class GFFEntry < Spot
       spot.feature = record[2]
       spot.start = record[3].to_i
       spot.stop = record[4].to_i
-      spot.value = record[5].to_f
+      spot.value = record[5].to_f unless record[5] == '.'
       strand = record[6]
       spot.frame = record[7]
-      spot.id = record[8]
+      spot.id = record[8].split(';').first[9..-1]
       
       # Ensure that the coordinates (start/stop) match the strand, if specified
       if strand == '+'
@@ -54,6 +54,17 @@ class GFFEntry < Spot
   
   def score
     @value
+  end
+  
+  # Override #to_gff to use all fields
+  def to_gff
+    source = @source ? @source : 'SpotArray'
+    feature = @feature ? @feature : 'feature'
+    value = @value ? @value : '.'
+    frame = @frame ? @frame : '.'
+    id = @id ? @id : 'no_id'
+    
+    "#{@chr}\t#{source}\t#{feature}\t#{low}\t#{high}\t#{value}\t#{strand}\t#{frame}\tprobe_id=#{id};count=1"
   end
 end
 

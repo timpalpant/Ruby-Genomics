@@ -84,20 +84,20 @@ shared_examples "wig file" do
   end
   
   context "statistics" do
-    it "should have bases of data" do
+    it "should have 124 bases of data" do
       @test.num_bases.should == 124
     end
     
-    it "should have total" do
+    it "should have total = 952" do
       @test.total.should == 952
     end
     
-    it "should have mean" do
+    it "should have mean = 7.67741935483871" do
       @test.mean.should == 7.67741935483871
     end
     
-    it "should have stdev" do
-      @test.stdev.should == 8.413265626471143
+    it "should have stdev = 8.413265626471144" do
+      @test.stdev.should == 8.413265626471144
     end
   end
 end

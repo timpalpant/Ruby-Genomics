@@ -67,7 +67,7 @@ describe GenomicInterval do
     end
     
     it "should output to GFF format correctly" do
-      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{WATSON_START}\t#{WATSON_STOP}\t0\t.\t.\tprobe_id=none;count=1"
+      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{WATSON_START}\t#{WATSON_STOP}\t.\t+\t.\tprobe_id=no_id;count=1"
     end
   end
   
@@ -134,7 +134,7 @@ describe GenomicInterval do
     end
     
     it "should output to GFF format correctly" do
-      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{CRICK_STOP}\t#{CRICK_START}\t0\t.\t.\tprobe_id=none;count=1"
+      @test.to_gff.should == "#{CHROM}\tSpotArray\tfeature\t#{CRICK_STOP}\t#{CRICK_START}\t.\t-\t.\tprobe_id=no_id;count=1"
     end
   end
   

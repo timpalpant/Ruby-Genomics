@@ -24,7 +24,7 @@ describe Spot do
     end
     
     it "should output to GFF format correctly" do
-      @test.to_gff.should == "chrI\tSpotArray\tfeature\t1\t100\t.\t.\t.\tprobe_id=MySpot;count=1"
+      @test.to_gff.should == "chrI\tSpotArray\tfeature\t1\t100\t.\t+\t.\tprobe_id=MySpot;count=1"
     end
   end
   
@@ -42,7 +42,7 @@ describe Spot do
     end
     
     it "should output to GFF format correctly" do
-      @test.to_gff.should == "chrI\tSpotArray\tfeature\t1\t100\t10.0\t.\t.\tprobe_id=MySpot;count=1"
+      @test.to_gff.should == "chrI\tSpotArray\tfeature\t1\t100\t10.0\t+\t.\tprobe_id=MySpot;count=1"
     end
   end
   
@@ -60,7 +60,7 @@ describe Spot do
     end
     
     it "should output to GFF format correctly" do
-      @test.to_gff.should == "chrI\tSpotArray\tfeature\t50\t55\t10.0\t.\t.\tprobe_id=no_id;count=1"
+      @test.to_gff.should == "chrI\tSpotArray\tfeature\t50\t55\t10.0\t-\t.\tprobe_id=no_id;count=1"
     end
   end
 end

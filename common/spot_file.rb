@@ -1,4 +1,3 @@
-require 'stats'
 require 'contig'
 
 ##
@@ -12,7 +11,8 @@ module SpotFile
     skipped = 0
     File.grep(@data_file, query_id) do |line|
       begin
-        entries << parse(line)
+        entry = parse(line)
+        entries << entry if entry.id == query_id
       rescue
         skipped += 1
       end
@@ -29,23 +29,31 @@ module SpotFile
   # STATISTICAL METHODS
   ##
   
+  # The number of spots with values
+  def num_values
+    # Cache for performance
+    compute_stats if @num_values.nil?    
+    return @num_values
+  end
+  
   # The sum of the values of all spots
   def total
     # Cache for performance
-    @total = self.map { |entry| entry.value }.sum if @total.nil?
+    compute_stats if @total.nil? 
     return @total
   end
   
   # The mean value of all spots
   def mean
-    total.to_f / count
+    # Cache for performance
+    compute_stats if @mean.nil?
+    return @mean unless num_values == 0
   end
   
   # The standard deviation of all spots
-  def stdev(avg = self.mean)
-    # Cache for performance
-    @stdev = self.map { |entry| entry.value }.stdev(avg) if @stdev.nil?    
-    return @stdev
+  def stdev
+    compute_stats if @stdev.nil?
+    return @stdev unless num_values == 0
   end
   
   ##
@@ -115,5 +123,35 @@ module SpotFile
       File.delete(tmp_bedgraph) if File.exist?(tmp_bedgraph)
       File.delete(tmp_sorted) if File.exist?(tmp_sorted)
     end
+  end
+  
+  ##
+  # HELPER METHODS
+  ##
+  
+  private
+  
+  # Cache the sum of all values and the number of values
+  # in a single iteration
+  # See: http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+  def compute_stats
+    @num_values = 0
+    @total = 0
+    sum_of_squares = 0.0
+    
+    self.each do |entry|
+      next if entry.value.nil?
+      
+      # Update the count and sum
+      @num_values += 1
+      @total += entry.value
+      
+      # Update the sum of squares total (for computing variance)
+      sum_of_squares += entry.value**2
+    end
+    
+    @mean = @total.to_f / @num_values
+    variance = (sum_of_squares - @total*@mean) / @num_values
+    @stdev = Math.sqrt(variance)
   end
 end

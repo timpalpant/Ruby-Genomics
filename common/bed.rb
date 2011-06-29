@@ -20,7 +20,7 @@ class BedEntry < Spot
       # And half open
       spot.stop = entry[2].to_i  
       spot.id = entry[3] if entry.length >= 4
-      spot.value = entry[4].to_f if entry.length >= 5
+      spot.value = entry[4].to_f if entry.length >= 5 and entry[4] != '.'
       
       # Reverse start/stop if on the - strand
       if entry.length >= 6 and entry[5].chomp == '-' and spot.start < spot.stop

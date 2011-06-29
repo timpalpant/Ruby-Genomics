@@ -6,36 +6,47 @@ require 'stats'
 module WigMath
   # Number of values in the Wig file
   def num_bases
-    count = 0
-    self.each_chunk do |chunk|
-      count += chunk.coverage
-    end
-    
-    return count
+    # Cache for performance
+    compute_stats if @num_bases.nil?
+    return @num_bases
   end
   
   # The sum of all values
   def total
-    sum = 0
-    self.each_chunk do |chunk|
-      sum += chunk.sum
-    end
-
-    return sum
+    # Cache for performance
+    compute_stats if @total.nil?
+    return @total
   end
   
   # The mean of all values
-  def mean
-    total.to_f / num_bases
+  def mean  
+    # Cache for performance
+    compute_stats if @mean.nil?
+    return @mean unless num_bases == 0
   end
   
   # The standard deviation of all values
   def stdev(avg = self.mean)
-    deviances = 0.0
+    compute_stats if @stdev.nil?
+    return @stdev unless num_bases == 0
+  end
+  
+  private
+  
+  # Compute the coverage, total, and stdev in a single iteration
+  def compute_stats
+    @num_bases = 0
+    @total = 0
+    sum_of_squares = 0.0
+    
     self.each_chunk do |chunk|
-      deviances += chunk.to_a.compact.map { |elem| (elem-avg)**2 }.sum
+      @num_bases += chunk.coverage
+      @total += chunk.sum
+      sum_of_squares += chunk.values.compact.map { |elem| elem**2 }.sum
     end
     
-    Math.sqrt(deviances / num_bases)
+    @mean = @total.to_f / @num_bases
+    variance = (sum_of_squares - @total*@mean) / @num_bases
+    @stdev = Math.sqrt(variance)
   end
 end

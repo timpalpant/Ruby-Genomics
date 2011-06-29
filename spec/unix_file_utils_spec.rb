@@ -3,10 +3,10 @@ require 'unix_file_utils'
 require 'fileutils'
 
 describe File do
-  # Reuse other fixtures for testing Unix file utils
-  FILE_UTILS1 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.bed')
-  FILE_UTILS2 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.sam')
-  FILE_UTILS3 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.file')
+  # Fixtures for testing Unix file utils
+  FILE_UTILS1 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.file1')
+  FILE_UTILS2 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.file2')
+  FILE_UTILS3 = File.expand_path(File.dirname(__FILE__) + '/fixtures/test.file3')
   
   it "should count lines" do
     File.num_lines(FILE_UTILS1).should == 13

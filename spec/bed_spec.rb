@@ -209,12 +209,12 @@ describe BedFile do
       @test.total.should == 54.2
     end
     
-    it "should have mean = 5.42" do
-      @test.mean.should == 5.42
+    it "should have mean = 6.775" do
+      @test.mean.should == 6.775
     end
     
-    it "should have standard deviation = 4.958870839213298" do
-      @test.stdev.should == 4.958870839213298
+    it "should have standard deviation = 4.770154609653654" do
+      @test.stdev.should == 4.770154609653654
     end
   end
   

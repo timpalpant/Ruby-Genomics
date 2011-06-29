@@ -115,8 +115,8 @@ describe AffyFile do
       @test.mean.should == 4.98
     end
     
-    it "should have standard deviation = 3.9773860763069004" do
-      @test.stdev.should == 3.9773860763069004
+    it "should have standard deviation = 3.9773860763069" do
+      @test.stdev.should == 3.9773860763068996
     end
   end
   
