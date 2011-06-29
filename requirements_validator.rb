@@ -9,7 +9,6 @@ UNIX_EXE = %w[ head
                sort 
                cat ]
 UCSC_EXE = %w[ bedGraphToBigWig 
-               bedSort 
                bedToBigBed 
                bigBedInfo 
                bigBedSummary 
