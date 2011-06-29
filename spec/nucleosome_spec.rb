@@ -90,6 +90,11 @@ describe NukeCallsFile do
     NukeCallsFile.open(NUKE_CALLS_FILE) { |nukes| }
   end
   
+  it "should allow opening without a block" do
+    nukes = NukeCallsFile.open(NUKE_CALLS_FILE)
+    nukes.close
+  end
+  
   context "when iterating over all entries" do
     it "should have 10 entries" do
       @test.count.should == 10

@@ -24,6 +24,11 @@ describe AffyFile do
     AffyFile.open(AFFY_FILE) { |bed| }
   end
   
+  it "should allow opening without a block" do
+    affy = AffyFile.open(AFFY_FILE)
+    affy.close
+  end
+  
   context "when iterating over all entries" do
     it "should have 10 entries" do
       @test.count.should == 10

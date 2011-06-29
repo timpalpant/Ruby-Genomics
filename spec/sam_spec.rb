@@ -247,6 +247,11 @@ describe SAMFile do
     SAMFile.open(TEST_SAM) { |sam| }
   end
   
+  it "should allow opening without a block" do
+    sam = SAMFile.open(TEST_SAM)
+    sam.close
+  end
+  
   it "should allow static iteration over entries" do
     count = 0
     SAMFile.foreach(TEST_SAM) { |entry| count += 1 }
@@ -280,6 +285,11 @@ describe BAMFile do
   
   it "should allow opening with a block" do
     BAMFile.open(TEST_BAM) { |bam| }
+  end
+  
+  it "should allow opening without a block" do
+    bam = BAMFile.open(TEST_BAM)
+    bam.close
   end
   
   it "should allow static iteration over entries" do

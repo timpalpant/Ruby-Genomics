@@ -54,6 +54,11 @@ describe BedGraphFile do
     BedGraphFile.open(BEDGRAPH_FILE) { |bedgraph| }
   end
   
+  it "should allow opening without a block" do
+    bg = BedGraphFile.open(BEDGRAPH_FILE)
+    bg.close
+  end
+  
   context "when iterating over all entries" do
     it "should have 10 entries" do
       @test.count.should == 10

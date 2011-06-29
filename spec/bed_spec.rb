@@ -106,6 +106,11 @@ describe BedFile do
     BedFile.open(BED_FILE) { |bed| }
   end
   
+  it "should allow opening without a block" do
+    bed = BedFile.open(BED_FILE)
+    bed.close
+  end
+  
   context "when iterating over all entries" do
     it "should have 10 entries" do
       @test.count.should == 10

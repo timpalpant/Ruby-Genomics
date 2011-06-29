@@ -85,6 +85,11 @@ describe GFFFile do
     GFFFile.open(GFF_FILE) { |gff| }
   end
   
+  it "should allow opening without a block" do
+    gff = GFFFile.open(GFF_FILE)
+    gff.close
+  end
+  
   context "when iterating over all entries" do
     it "should have 10 entries" do
       @test.count.should == 10

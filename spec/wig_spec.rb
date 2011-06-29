@@ -117,6 +117,11 @@ describe BigWigFile do
     BigWigFile.open(TEST_BIGWIG) { |bw| }
   end
   
+  it "should allow opening without a block" do
+    bw = BigWigFile.open(TEST_BIGWIG)
+    bw.close
+  end
+  
   it "should allow querying for the average value of a window" do
     @test.query_average('2micron', 100, 101).should == 5.5
     @test.query_average('chrI', 1, 3).should == 2
@@ -140,6 +145,11 @@ describe WigFile do
   
   it "should allow opening with a block" do
     WigFile.open(TEST_WIG) { |wig| }
+  end
+  
+  it "should allow opening without a block" do
+    wig = WigFile.open(TEST_WIG)
+    wig.close
   end
   
   it "should transform all contigs"
