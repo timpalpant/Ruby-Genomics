@@ -125,6 +125,10 @@ class AbstractWigFile
           puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
           
           output = yield(contig_info.chr, chunk_start, chunk_stop)
+          if output.length != chunk_stop-chunk_start+1
+            puts "Transform block did not return the expected number of values! (#{output.length} vs. #{chunk_stop-chunk_start+1})"
+            raise WigError
+          end
           
           # Write this chunk to disk
           File.open(chr_temp_file, 'a') do |f|

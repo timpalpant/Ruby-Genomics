@@ -77,13 +77,14 @@ loci.each do |spot|
   spot.value = spot.start if spot.value.nil? or spot.value < spot.low or spot.value > spot.high
 end
 
-m = loci.num_spots
+m = loci.length
 left_max = loci.collect { |spot| (spot.value-spot.start).abs }.max.to_i
 right_max = loci.collect { |spot| (spot.value-spot.stop).abs }.max.to_i
 # One bonus for odd/even safety
 n = left_max + right_max + 1
 alignment_point = left_max
 puts "Intervals aligned into: #{m}x#{n} matrix"
+puts "Alignment point: #{alignment_point}"
 left_bound = 0
 right_bound = n-1
 if not options[:max].nil? and options[:max] < n
@@ -132,7 +133,9 @@ File.open(options[:output],'w') do |f|
   loci.each do |spot|
     # Get the data for this interval from the wig file
     begin
-      values = wig.query(chr, spot.start, spot.stop)
+      result = wig.query(spot.chr, spot.low, spot.high)
+      values = (spot.low..spot.high).map { |bp| result.get(bp) }
+      values.reverse! if spot.crick?
     rescue
       puts "Skipping spot (#{spot.id},#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
       skipped += 1
@@ -144,10 +147,10 @@ File.open(options[:output],'w') do |f|
     n1 = alignment_point - (spot.value-spot.start).abs.to_i
     n2 = alignment_point + (spot.value-spot.stop).abs.to_i
     # length we are trying to insert should equal the length we are replacing
-    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, (#{chr},#{spot})" if values.length != (n2-n1+1)
+    raise "Spot is not the right length!: #{values.length} vs. #{n2-n1+1}, (#{spot})" if values.length != (n2-n1+1)
       
     entry = Array.new(n, NA_PLACEHOLDER)
-    entry[n1..n2] = values
+    entry[n1..n2] = values.map { |v| v ? v : NA_PLACEHOLDER }
     # Total length should be the matrix width to avoid irregular matrices
     raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
       
@@ -159,4 +162,4 @@ File.open(options[:output],'w') do |f|
   10.times { f.puts marker_line }
 end
 
-puts "#{skipped} spots skipped" if ENV['DEBUG']
+puts "#{skipped} spots skipped"

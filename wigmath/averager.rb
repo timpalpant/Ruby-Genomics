@@ -66,7 +66,6 @@ num_files = wigs.length.to_f
 wigs[1..-1].each do |wig|
   wigs.first.chromosomes.each do |chr|
     raise "Wig files do not have the same chromosomes" unless wig.include?(chr)
-    raise "Wig file chromosome lengths are incompatible" unless wigs.first.chr_length(chr) == wig.chr_length(chr)
   end
 end
 
@@ -78,10 +77,7 @@ assembly = Assembly.load(options[:genome])
 wigs.first.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   sum = wigs.first.query(chr, chunk_start, chunk_stop)
   wigs[1..-1].each do |wig|
-    data = wig.query(chr, chunk_start, chunk_stop)
-    for i in 0...data.length
-      sum[i] += data[i]
-    end
+    sum += wig.query(chr, chunk_start, chunk_stop)
   end
 
   # Return the average for this chunk

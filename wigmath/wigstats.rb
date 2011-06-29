@@ -39,8 +39,6 @@ ARGV.options do |opts|
   
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
-  options[:threads] = 2
-  opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments
@@ -55,13 +53,10 @@ ARGV.options do |opts|
 end
 
 
-# Set the number of threads to use
-AbstractWigFile.max_threads = options[:threads]
-
 # Initialize the Wig file
-wig = BigWigFile.new(options[:input])
-
-# Compute the statistics and write to file
-File.open(options[:output], 'w') do |f|
-  f.puts wig.to_s
+BigWigFile.open(options[:input]) do |wig|
+  # Compute the statistics and write to file
+  File.open(options[:output], 'w') do |f|
+    f.puts wig.to_s
+  end
 end
