@@ -69,10 +69,10 @@ wig = BigWigFile.new(options[:input])
 sum = if not options[:total].nil? and options[:total] > 0
   options[:total].to_f
 else
-  wig.total
+  wig.total.to_f
 end
 
-puts "Normalizing by a factor of #{sum}"
+puts "Normalization factor: #{sum}"
 
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])

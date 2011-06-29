@@ -69,7 +69,6 @@ subtrahend = BigWigFile.new(options[:subtrahend])
 puts "Validating compatibility"
 minuend.chromosomes.each do |chr_id|
   raise "Files have different chromosomes!" unless subtrahend.include?(chr_id)
-  raise "Chromosome #{chr_id} has a different length" unless minuend.chr_length(chr_id) == subtrahend.chr_length(chr_id)
 end
 
 # Initialize the output assembly
@@ -79,11 +78,7 @@ assembly = Assembly.load(options[:genome])
 minuend.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   m_chunk = minuend.query(chr, chunk_start, chunk_stop)
   s_chunk = subtrahend.query(chr, chunk_start, chunk_stop)
-  difference = Array.new(m_chunk.length)
-  for i in 0...m_chunk.length
-    difference[i] = m_chunk[i] - s_chunk[i]
-  end
   
   # Return the difference for this chunk
-  difference
+  m_chunk - s_chunk
 end

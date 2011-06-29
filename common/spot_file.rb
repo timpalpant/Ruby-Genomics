@@ -101,13 +101,13 @@ module SpotFile
         values = query(chr, 1, assembly[chr])
       
         # Write to output file
-        f.puts values.to_s
+        f.puts values.to_fixed_step
       end
     end
   end
   
   # Write this array to BigWig format
-  # By first writing to bedGraph, then calling BedGraph#to_bigwig
+  # By first writing to bedGraph, then calling bedGraphToBigWig
   def to_bigwig(filename, assembly)
     begin
       tmp_bedgraph = File.expand_path(filename + '.bedGraph')

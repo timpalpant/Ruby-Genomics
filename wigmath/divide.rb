@@ -69,7 +69,6 @@ divisor = BigWigFile.new(options[:divisor])
 puts "Validating compatibility" if ENV['DEBUG']
 dividend.chromosomes.each do |chr_id|
   raise "Files have different chromosomes!" unless divisor.include?(chr_id)
-  raise "Chromosome #{chr_id} has a different length" unless dividend.chr_length(chr_id) == divisor.chr_length(chr_id)
 end
 
 # Initialize the output assembly
@@ -79,11 +78,7 @@ assembly = Assembly.load(options[:genome])
 dividend.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
   divisor_chunk = divisor.query(chr, chunk_start, chunk_stop)
-  ratio = Array.new(dividend_chunk.length, 0)
-  for i in 0...ratio.length
-    ratio[i] = dividend_chunk[i] / divisor_chunk[i] unless divisor_chunk[i] == 0
-  end
   
   # Return the ratio for this chunk
-  ratio
+  dividend_chunk / divisor_chunk
 end

@@ -95,6 +95,6 @@ wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   padding_right = query_stop - chunk_stop
   
   chunk = wig.query(chr, query_start, query_stop)
-  smoothed = chunk.gaussian_smooth(options[:sdev], options[:window_size])
+  smoothed = chunk.to_a.gaussian_smooth(options[:sdev], options[:window_size])
   smoothed[padding_left...-padding_right-1]
 end

@@ -81,5 +81,5 @@ assembly = Assembly.load(options[:genome])
 # Run the subtraction on all chromosomes in parallel
 wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
   chunk = wig.query(chr, chunk_start, chunk_stop)
-  chunk.map { |value| (value-mean)/stdev }
+  chunk.map { |value| (value-mean)/stdev unless value.nil? }
 end

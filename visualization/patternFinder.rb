@@ -84,6 +84,7 @@ wigs = ARGV.map { |input_file| BigWigFile.new(input_file) }
 
 puts "\nBeginning averaging\n" if ENV['DEBUG']
 averages = Array.new
+skipped = 0
 wigs.each do |wig|
   # Align and average values from all loci
   puts "\nAveraging values for: #{wig.track_header.name}" if ENV['DEBUG']
@@ -91,8 +92,11 @@ wigs.each do |wig|
   count = Array.new(n, 0)
   loci.each do |spot|
     begin
-      values = wig.query(chr, spot.start, spot.stop)
-    rescue Wig
+      values = wig.query(spot.chr, spot.start, spot.stop).to_a
+      values.reverse! if spot.crick?
+      raise "Wig query did not return the expected number of values!" if values.length != spot.length
+    rescue
+      skipped += 1
       next
     end
     
@@ -124,3 +128,5 @@ File.open(options[:output],'w') do |f|
     f.puts "#{indices[i]}\t#{averages.collect { |avg| avg[i] }.join("\t")}"
   end
 end
+
+puts "Skipped #{skipped} spots"
