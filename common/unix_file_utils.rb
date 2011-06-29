@@ -129,7 +129,9 @@ class File
 
   # Find the location of an executable in the $PATH
   def self.which(cmd)
-    %x[ which #{cmd} ].chomp
+    result = %x[ which #{cmd} ].chomp
+    return nil if result.empty?
+    return result
   end
 
   # Add a newline to the end of a file only if there isn't one already

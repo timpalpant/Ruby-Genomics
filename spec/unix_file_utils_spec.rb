@@ -103,6 +103,10 @@ describe File do
     File.which('gzip').end_with?('gzip').should be_true
   end
   
+  it "should return nil if an executable cannot be found in the $PATH" do
+    File.which('nowaythatthisisarealexename').should be_nil
+  end
+  
   it "should add a newline at the end of a file if it doesn't exist" do
     temp_file = FILE_UTILS1 + '.tmp'
     begin

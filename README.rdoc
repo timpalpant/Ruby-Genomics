@@ -11,7 +11,7 @@ Most of these can be installed easily with MacPorts / package management:
 
   $ sudo port install ruby19 perl5 gnuplot gsl
 
-Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, cat, etc.) For this reason, they will only work under Linux / Mac OS X / Cygwin.
+Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, which, cat, etc.) For this reason, they will only work under Linux / Mac OS X / Cygwin.
 
 All dependencies need to be available in the $PATH.
 
