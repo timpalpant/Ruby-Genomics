@@ -153,10 +153,4 @@ describe MACSFile do
       end
     end
   end
-  
-  context "when writing to disk" do
-    it "should output to Bed format"
-    it "should output to BedGraph format"
-    it "should output to GFF format"
-  end
 end

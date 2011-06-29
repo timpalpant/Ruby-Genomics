@@ -8,7 +8,7 @@ module WigMath
   def num_bases
     count = 0
     self.each_chunk do |chunk|
-      count += chunk.to_a.compact.length
+      count += chunk.coverage
     end
     
     return count
@@ -18,7 +18,7 @@ module WigMath
   def total
     sum = 0
     self.each_chunk do |chunk|
-      sum += chunk.to_a.sum
+      sum += chunk.sum
     end
 
     return sum

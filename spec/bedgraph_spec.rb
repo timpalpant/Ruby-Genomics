@@ -155,10 +155,4 @@ describe BedGraphFile do
     result.coverage.should == 5
     (16..20).each { |bp| result[bp].should == 2.0 }
   end
-  
-  context "when writing to disk" do
-    it "should output to Bed format"
-    it "should output to BedGraph format"
-    it "should output to GFF format"
-  end
 end

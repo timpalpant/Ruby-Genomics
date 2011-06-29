@@ -82,6 +82,24 @@ shared_examples "wig file" do
       result[110].should == 1
     end
   end
+  
+  context "statistics" do
+    it "should have bases of data" do
+      @test.num_bases.should == 124
+    end
+    
+    it "should have total" do
+      @test.total.should == 952
+    end
+    
+    it "should have mean" do
+      @test.mean.should == 7.67741935483871
+    end
+    
+    it "should have stdev" do
+      @test.stdev.should == 8.413265626471143
+    end
+  end
 end
 
 describe BigWigFile do

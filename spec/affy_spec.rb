@@ -129,10 +129,4 @@ describe AffyFile do
     (10..14).each { |bp| result.get(bp).should be_nil }
     (15..18).each { |bp| result[bp].should == 2.0 }
   end
-  
-  context "when writing to disk" do
-    it "should output to Bed format"
-    it "should output to BedGraph format"
-    it "should output to GFF format"
-  end
 end
