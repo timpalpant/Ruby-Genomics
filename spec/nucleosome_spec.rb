@@ -17,7 +17,7 @@ describe Nucleosome do
       @test.dyad_stdev = 23.4
       @test.conditional_position = 0.00012
       @test.dyad_mean = 175
-      @test.value = 520
+      @test.occupancy = 520
     end
     
     it "should correctly output to NukeCalls format" do
@@ -46,6 +46,7 @@ describe Nucleosome do
     
     it "should have dyad 20" do
       @test.dyad.should == 20
+      @test.position.should == 20
     end
     
     it "should have dyad standard deviation 3.2" do
