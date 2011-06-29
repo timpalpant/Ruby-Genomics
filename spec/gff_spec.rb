@@ -194,12 +194,10 @@ describe GFFFile do
     end
     
     it "should have mean = 6.775" do
-      puts @test.mean
       @test.mean.should == 6.775
     end
     
     it "should have standard deviation = 4.770154609653654" do
-      puts @test.stdev
       @test.stdev.should == 4.770154609653654
     end
   end
