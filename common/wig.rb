@@ -101,7 +101,7 @@ class AbstractWigFile
     # Write the output file header
     header_file = output_file+'.header'
     File.open(header_file, 'w') do |f|
-      f.puts @track_header
+      f.puts @track_header.to_s
     end
 
     # Keep track of all the temporary intermediate files (header first)
@@ -116,7 +116,7 @@ class AbstractWigFile
         # Write the header
         chr_temp_file = output_file+'.'+contig_info.chr+'.'+contig_info.start
         File.open(chr_temp_file, 'w') do |f|
-          #f.puts Contig.new(0, chr, 1, 1, 1).to_s
+          f.puts Contig.new(chr).to_fixed_step
         end
         
         chunk_start = contig_info.start
@@ -128,7 +128,7 @@ class AbstractWigFile
           
           # Write this chunk to disk
           File.open(chr_temp_file, 'a') do |f|
-            f.puts output.map { |value| value.to_s(5) }.join("\n")
+            f.puts output.map { |value| value ? value.to_s(5) : 'NaN' }.join("\n")
           end
           
           chunk_start = chunk_stop + 1
