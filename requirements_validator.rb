@@ -18,7 +18,9 @@ UCSC_EXE = %w[ bedGraphToBigWig
                bigWigToBedGraph 
                bigWigToWig 
                wigCorrelate 
-               wigToBigWig ]
+               wigToBigWig
+               twoBitInfo
+               twoBitToFa ]
 
 # Cross-platform way of finding an executable in the $PATH.
 # which('ruby') => /usr/bin/ruby

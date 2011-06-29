@@ -5,21 +5,83 @@ require 'stringio'
 # Wrap UCSC tools programs for using them in Ruby scripts
 ##
 module UCSCTools
-  # Run the specified executable and return the output
-  def self.run(command)
-    command_line = command.split(' ')
-    program = command_line.first
-    args = command_line[1..-1].join(' ')
-
-    raise "Cannot find executable: #{program} in $PATH" if File.which(program).nil?
-    
-    # Execute the program and return the results
-    %x[ #{program} #{args} ]
-  end
-	
   def self.wig_correlate(files)
-    run("wigCorrelate #{files.join(' ')}")
+    %x[ wigCorrelate #{files.map { |f| File.expand_path(f) }.join(' ')} ]
   end
+  
+  def self.bedgraph_to_bigwig(input_file, assembly_file, output_file)
+    %x[ bedGraphToBigWig #{File.expand_path(input_sorted)} #{File.expand_path(assembly_file)} #{File.expand_path(output_file)} ]
+  end
+  
+  def self.bed_to_bigbed
+    raise "Not yet implemented"
+  end
+  
+  def self.bigbed_info
+    raise "Not yet implemented"
+  end
+  
+  def self.bigbed_summary
+    raise "Not yet implemented"
+  end
+  
+  def self.bigbed_to_bed
+    raise "Not yet implemented"
+  end
+  
+  def self.bigwig_info(f)
+    %x[ bigWigInfo -chroms #{File.expand_path(f)} ].split("\n")
+  end
+  
+  def self.bigwig_summary(f, chr, start, stop, num_values, type = 'mean')
+    # Data is 0-indexed and half-open
+    output = %x[ bigWigSummary -type=#{type} #{File.expand_path(f)} #{chr} #{start-1} #{stop} #{num_values} 2>&1 ]
+    raise UCSCToolsError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if output.start_with?('no data in region')
+    values = output.split(' ').map { |v| v.to_f unless v == 'n/a' or v == 'nan' }
+    raise UCSCToolsError, "bigWigSummary did not return the expected number of values!" if values.length != num_values
+    return values
+  end
+  
+  def self.bigwig_to_bedgraph(input_file, output_file)
+    %x[ bigWigToBedGraph #{File.expand_path(input_file)} #{File.expand_path(output_file)} ]
+  end
+  
+  def self.bigwig_to_wig(input_file, output_file)
+    %x[ bigWigToWig #{File.expand_path(input_file)} #{File.expand_path(output_file)} ]
+  end
+  
+  def self.wig_to_bigwig(input_file, assembly_file, output_file)
+    %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly_file)} #{File.expand_path(output_file)} ]
+  end
+  
+  def self.twobit_info(twobit_file)
+    result = Hash.new
+    
+    %x[ twoBitInfo #{File.expand_path(twobit_file)} stdout ].split("\n").each do |line| 
+      entry = line.split("\t")
+      result[entry.first] = entry.last.to_f
+    end
+    
+    return result
+  end
+  
+  def self.twobit_to_fa(twobit_file, chr, start = nil, stop = nil, &block)
+    # TwoBit is 0-indexed and half-open
+    query_string = chr
+    query_string += ":#{start-1}-#{stop}" if start and stop
+    cmd_string = "twoBitToFa #{File.expand_path(twobit_file)}:#{query_string} stdout"
+    
+    if block
+      IO.popen(cmd_string) do |output|
+        output.each { |line| yield line }
+      end
+    else
+      return %x[ cmd_string ]
+    end
+  end
+end
+
+class UCSCToolsError < StandardError
 end
 
 ##

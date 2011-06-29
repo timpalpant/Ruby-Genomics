@@ -1,120 +1,73 @@
 require 'bio'
-require 'genomic_data'
 require 'assembly'
+require 'ucsc_tools'
+require 'stats'
+require 'enumerator'
+require 'stringio'
 
 ##
-# Load an entire genome from a set of Fasta files in a directory
+# Get genomic sequences from 2bit files
 # Loads the sequences as Bio::Sequence::NA
 ##
-class Genome < GenomicData  
-  # Load a genomic reference sequence from a fasta file, or a directory of fasta files
+class Genome < GenomicData
+  # Initialize a 2bit file with a genomic reference sequence
   def initialize(filename)
-    expanded = File.expand_path(filename)
-    if File.file?(expanded)
-      Bio::FlatFile.foreach(Bio::FastaFormat, expanded) do |entry|
-        self[entry.definition] = entry.naseq
-      end
-    elsif File.directory?(expanded)
-      Dir.glob(expanded + '/*').each do |subfile|        
-        if File.file?(subfile)
-          Bio::FlatFile.foreach(Bio::FastaFormat, subfile) do |entry|
-            self[entry.definition] = entry.naseq
-          end
-        end
-      end
-    else
-      raise "Genome to load must be either a single Fasta file or a directory of Fasta files, one per chromosome"
+    @data_file = File.expand_path(filename)
+    @assembly = File.basename(@data_file, '.2bit')
+    
+    UCSCTools.twobit_info(filename).each do |chr,n|
+      self[chr] = n
+    end
+  end
+  
+  # Iterate over the chromosomes with their lengths like an Assembly
+  def each
+    @index.each do |chr,n|
+      yield(chr,n)
+    end
+  end
+  
+  # Get a specific stretch of sequence
+  def sequence(chr, start = nil, stop = nil)
+    s = StringIO.new
+    UCSCTools.twobit_to_fa(@data_file, chr, start, stop) do |line|
+      # Skip the header line
+      next if line.start_with?('>')
+      
+      s << line.chomp
     end
     
-    puts "Loaded #{self.length} chromosomes (#{self.bases} base pairs) from #{File.basename(filename)}" if ENV['DEBUG']
+    Bio::Sequence::NA.new(s.string)
+  end
+  
+  # Alias for sequence
+  def query(chr, start = nil, stop = nil)
+    sequence(chr, start, stop)
   end
   
   # Return the number of base pairs in the genome
-  # length() will return the number of chromosomes
-  def bases
-    self.values.inject(0) { |length,chr| length + chr.length }
+  # Genome#length will return the number of chromosomes
+  def num_bases
+    @index.map { |chr,n| n }.sum
   end
   
   # Reduce this genome to an Assembly object (just chromosome id's and their lengths)
   def to_assembly(name)
     a = Assembly.new(name, nil)
     
-    self.each do |chr, seq|
-      a[chr] = seq.length
+    self.each do |chr, n|
+      a[chr] = n
     end
     
     return a
   end
 
   def to_s
-    str = "Genome #{@assembly.upcase}: containing #{self.bases} base pairs\n"
-    self.each do |chr|
-      str += "\tChromosome #{chr} (length: #{chr.length})\n"
+    str = "Genome #{@assembly}: containing #{num_bases} base pairs\n"
+    self.each do |chr, n|
+      str += "\tChromosome #{chr} (length: #{n})\n"
     end
     
     return str
-  end
-  
-  def composition
-    {'a'=>self.a_count, 't'=>self.t_count, 'g'=>self.g_count, 'c'=>self.c_count}
-  end
-  
-  def a_count
-    count('a')
-  end
-  
-  def a_content
-    base_content('a')
-  end
-  
-  def a_percent
-    (100 * a_content).to_f
-  end
-  
-  def t_count
-    count('t')
-  end
-  
-  def t_content
-   base_content('t')
-  end
-  
-  def t_percent
-    (100 * t_content).to_f
-  end
- 
-  def g_count
-    count('g')
-  end
-  
-  def g_content
-   base_content('g')
-  end
-  
-  def g_percent
-    (100 * g_content).to_f
-  end
- 
-  def c_count
-    count('c')
-  end
-    
-  def c_content
-   base_content('c')
-  end
-  
-  def c_percent
-    (100 * c_content).to_f
-  end
-  
-  
-  private
-  
-  def base_content(base)
-    Rational(count(base), self.bases)
-  end
-  
-  def count(base)
-    self.values.inject(0) { |count,chr| count + chr.count(base) }
   end
 end

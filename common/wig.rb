@@ -192,7 +192,7 @@ class BigWigFile < AbstractWigFile
   def initialize(filename)
     super(filename)
     
-    info = %x[ bigWigInfo -chroms #{@data_file} ].split("\n")
+    info = UCSCTools.bigwig_info(@data_file)
     raise WigError, "You must first convert your Wig file to BigWig" if info.length < 8
     
     info[7..-6].each do |line|
@@ -244,24 +244,24 @@ class BigWigFile < AbstractWigFile
     stop = chr_stop(chr) if stop.nil?
     raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr, start, stop)
 
-    # Data is 0-indexed and half-open
+    
     # bigWigSummary segfaults if query is too big, so use nice, bite-sized chunks
-    query_start = start-1
+    query_start = start
     contig = Contig.new(chr)
     while query_start <= stop
-      query_stop = [query_start+200_000, stop].min
-      num_values = query_stop-query_start
-      chunk = %x[ bigWigSummary -type=#{type} #{@data_file} #{chr} #{query_start} #{query_stop} #{num_values} 2>&1 ]
-      raise WigError, "BigWig does not contain data for the interval #{chr}:#{query_start+1}-#{query_stop+1}" if chunk.start_with?('no data in region')
+      query_stop = [query_start+200_000-1, stop].min
+      num_values = query_stop - query_start + 1
+      begin
+        chunk = UCSCTools.bigwig_summary(@data_file, chr, query_start, query_stop, num_values, type)
+      rescue UCSCToolsError
+        raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}"
+      end
       
       # Store the chunk of values in the Contig
-      count = 0
-      chunk.split(' ').each_with_index do |value,i|
-        count += 1
-        next if value == 'n/a' or value == 'nan'
-        contig.set(query_start+i+1, value.to_f)
+      chunk.each_with_index do |value,i|
+        next if value.nil?
+        contig.set(query_start+i, value.to_f)
       end
-      raise WigError, "BigWig query did not return the expected number of values! (#{count} != #{num_values})" if count != num_values
       
       query_start = query_stop + 1
     end
@@ -273,7 +273,7 @@ class BigWigFile < AbstractWigFile
   def query_average(chr, start, stop)
     # Don't query off the ends of chromosomes
     raise WigError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if not include?(chr, start, stop)
-    %x[ bigWigSummary #{@data_file} #{chr} #{start-1} #{stop} 1 ].to_f
+    UCSCTools.bigwig_summary(@data_file, chr, start, stop, 1).first.to_f
   end
   
   ##
@@ -302,7 +302,7 @@ class BigWigFile < AbstractWigFile
       end
       
       # Extract the data with UCSC tools
-      %x[ bigWigToWig #{input_file} #{data_file} ]
+      UCSCTools.bigwig_to_wig(input_file, data_file)
       
       # Cat the two parts together
       File.cat([header_file, data_file], output_file)
@@ -318,7 +318,7 @@ class BigWigFile < AbstractWigFile
   # Write this BigWig to a BedGraph
   def self.to_bedgraph(input_file, output_file)
     puts "Converting BigWig file (#{File.basename(input_file)}) to BedGraph (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ bigWigToBedGraph #{input_file} #{output_file} ]
+    UCSCTools.bigwig_to_bedgraph(input_file, output_file)
   end
 
   ##
@@ -333,13 +333,13 @@ class BigWigFile < AbstractWigFile
     chunk_size = 200_000
     bp = 1
     while bp <= chr_length
-      start = bp-1
-      stop = [start+chunk_size, chr_length-1].min
-      num_values = stop - start
-      result = %x[ bigWigSummary -type=coverage #{@data_file} #{chr} #{start} #{stop} #{num_values} 2>&1 ]
-      if not result.start_with?('no data')
-        start = result.split(' ').find_index('1')
-        return bp+start unless start.nil?
+      start = bp
+      stop = [start+chunk_size-1, chr_length].min
+      num_values = stop - start + 1
+      begin
+        result = UCSCTools.bigwig_summary(@data_file, chr, start, stop, num_values, 'coverage')
+        return start + result.find_index(1)
+      rescue UCSCToolsError
       end
       
       bp += chunk_size
@@ -354,13 +354,13 @@ class BigWigFile < AbstractWigFile
     chunk_size = 200_000
     bp = chr_length
     while bp >= 1
-      start = [1, bp-chunk_size-1].max
-      stop = bp-1
-      num_values = stop - start
-      result = %x[ bigWigSummary -type=coverage #{@data_file} #{chr} #{start} #{stop} #{num_values} 2>&1 ]
-      if not result.start_with?('no data')
-        start = result.split(' ').reverse.find_index('1')
-        return bp-start-1 unless start.nil?
+      start = [1, bp-chunk_size+1].max
+      stop = bp
+      num_values = stop - start + 1
+      begin
+        result = UCSCTools.bigwig_summary(@data_file, chr, start, stop, num_values, 'coverage')
+        return stop - result.reverse.find_index(1)
+      rescue UCSCToolsError
       end
       
       bp -= chunk_size
@@ -534,7 +534,7 @@ class WigFile < AbstractWigFile
   # For converting wigs to BigWigs without having to load (index them) first
   def self.to_bigwig(input_file, output_file, assembly)
     puts "Converting Wig file (#{File.basename(input_file)}) to BigWig (#{File.basename(output_file)})" if ENV['DEBUG']
-    %x[ wigToBigWig -clip #{File.expand_path(input_file)} #{File.expand_path(assembly.len_file)} #{File.expand_path(output_file)} ]
+    UCSCTools.wig_to_bigwig(input_file, assembly.len_file, output_file)
   end
   
   # For converting wigs to BedGraph without having to load (index them) first

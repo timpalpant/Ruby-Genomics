@@ -1,4 +1,5 @@
 require 'contig'
+require 'ucsc_tools'
 
 ##
 # Additional methods mixed in for EntryFile types that also
@@ -115,7 +116,7 @@ module SpotFile
       # bedGraph must be sorted to call bedGraphToBigWig
       tmp_sorted = tmp_bedgraph + '.sorted'
       File.sort(tmp_bedgraph, tmp_sorted, '-k1,1 -k2,2n')
-      %x[ bedGraphToBigWig #{tmp_sorted} #{File.expand_path(assembly.len_file)} #{File.expand_path(filename)} ]
+      UCSCTools.bedgraph_to_bigwig(tmp_sorted, assembly.len_file, filename)
     rescue
       raise "Error converting Array to BigWig!"
     ensure
