@@ -106,7 +106,7 @@ class AbstractWigFile
 
     # Keep track of all the temporary intermediate files (header first)
     tmp_files = [header_file]
-    @contigs_index.each { |contig_info| tmp_files << output_file+'.'+contig_info.chr+'.'+contig_info.start }
+    @contigs_index.each { |contig_info| tmp_files << "#{output_file}.#{contig_info.chr}.#{contig_info.start}" }
   
     begin
       # Iterate by contig
@@ -114,9 +114,9 @@ class AbstractWigFile
         puts "\nProcessing contig #{contig_info}" if ENV['DEBUG']
 
         # Write the header
-        chr_temp_file = output_file+'.'+contig_info.chr+'.'+contig_info.start
+        chr_temp_file = "#{output_file}.#{contig_info.chr}.#{contig_info.start}"
         File.open(chr_temp_file, 'w') do |f|
-          f.puts Contig.new(chr).to_fixed_step
+          f.puts "fixedStep chrom=#{contig_info.chr} start=#{contig_info.start} step=1 span=1"
         end
         
         chunk_start = contig_info.start
