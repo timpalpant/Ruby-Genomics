@@ -9,6 +9,36 @@
 require 'spec_helper'
 require 'stats'
 
+describe Array, "that is empty" do
+  before do
+    @empty = Array.new
+  end
+  
+  it "should have a sum of nil" do
+    @empty.sum.should be_nil
+  end
+  
+  it "should have a mean of nil" do
+    @empty.mean.should be_nil
+  end
+  
+  it "should have a median of nil" do
+    @empty.median.should be_nil
+  end
+  
+  it "should have stdev nil" do
+    @empty.stdev.should be_nil
+  end
+  
+  it "should have lower quartile nil" do
+    @empty.lower_quartile.should be_nil
+  end
+  
+  it "should have upper quartile nil" do
+    @empty.upper_quartile.should be_nil
+  end
+end
+
 describe Array, "of all zeros" do
   before do
     @zeros = Array.new(10, 0)

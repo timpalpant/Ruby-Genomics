@@ -6,7 +6,7 @@ module NativeStats
   def sum
     compacted = self.compact
     return nil if compacted.length == 0
-    compacted.inject(0) { |sum, elem| sum + elem }
+    self.inject { |sum, elem| sum + elem }
   end
   
   def mean
