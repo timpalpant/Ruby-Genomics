@@ -46,7 +46,7 @@ ARGV.options do |opts|
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input file with reads (BAM)" ) { |f| options[:input] = f }
   opts.on( '-n', '--order N', :required, "Order of frequencies to compute" ) { |n| options[:order] = n.to_i }
-  opts.on( '-t', '--twobit FILE', "Twobit file with genomic reference sequence" ) { |f| options[:twobit] = g }
+  opts.on( '-t', '--twobit FILE', "Twobit file with genomic reference sequence" ) { |f| options[:twobit] = f }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
@@ -66,7 +66,7 @@ end
 genome = Genome.new(options[:twobit])
 
 # What we're searching for
-search = ['a', 't', 'c', 'g'].repeated_permutation(option[:order]).map { |p| p.join }
+search = ['a', 't', 'c', 'g'].repeated_permutation(options[:order]).map { |p| p.join }
 
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
