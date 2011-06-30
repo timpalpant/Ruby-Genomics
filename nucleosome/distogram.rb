@@ -98,10 +98,7 @@ BAMFile.open(options[:input]) do |bam|
     chr_hist = Array.new(num_bins, 0)
     
     # Iterate over the read centers on this chromosome, and bin the read length
-    bam.each(chr) do |read|
-      # Only count paired reads once (use the forward read)
-      next if read.paired? and read.crick?
-      
+    bam.each_read(chr) do |read|
       bin = [[read.length, low].max, high].min - low
       chr_hist[bin] += 1
     end

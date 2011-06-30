@@ -135,7 +135,7 @@ BAMFile.open(options[:input]) do |bam|
       end
     
       # Get all aligned reads for this chunk and map the dyads
-      bam.each(chr, query_start, query_stop).each do |read|
+      bam.each_read(chr, query_start, query_stop).each do |read|
         center = if options[:length]
           if read.watson?
             read.start + offset

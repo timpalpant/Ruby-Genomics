@@ -10,7 +10,6 @@
 #  Provides a layer of abstraction between the storage (Array, Hash, etc.) and the downstream users (Contig)
 #  that allows us to flexibly change implementation details to optimize performance without affecting other classes
 
-require 'google_hash'
 require 'enumerator'
 require 'stats'
 
@@ -18,7 +17,7 @@ class SparseArray
   include Enumerable
   
   def initialize
-    @data = GoogleHashDenseRubyToRuby.new
+    @data = Hash.new
   end
   
   def each

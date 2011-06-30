@@ -1,4 +1,5 @@
 require 'unix_file_utils'
+require 'bio'
 require 'stringio'
 
 ##
@@ -37,9 +38,11 @@ module UCSCTools
     # Data is 0-indexed and half-open
     output = %x[ bigWigSummary -type=#{type} #{File.expand_path(f)} #{chr} #{start-1} #{stop} #{num_values} 2>&1 ]
     raise UCSCToolsError, "BigWig does not contain data for the interval #{chr}:#{start}-#{stop}" if output.start_with?('no data in region')
-    values = output.split(' ').map { |v| v.to_f unless v == 'n/a' or v == 'nan' }
+
+    values = output.split(' ')
     raise UCSCToolsError, "bigWigSummary did not return the expected number of values!" if values.length != num_values
-    return values
+
+    return values.map { |v| v.to_f unless v == 'n/a' or v == 'nan' }
   end
   
   def self.bigwig_to_bedgraph(input_file, output_file)
@@ -59,25 +62,32 @@ module UCSCTools
     
     %x[ twoBitInfo #{File.expand_path(twobit_file)} stdout ].split("\n").each do |line| 
       entry = line.split("\t")
-      result[entry.first] = entry.last.to_f
+      result[entry.first] = entry.last.to_i
     end
     
     return result
   end
   
-  def self.twobit_to_fa(twobit_file, chr, start = nil, stop = nil, &block)
+  def self.twobit_to_fa(twobit_file, chr, start = nil, stop = nil)
     # TwoBit is 0-indexed and half-open
     query_string = chr
     query_string += ":#{start-1}-#{stop}" if start and stop
-    cmd_string = "twoBitToFa #{File.expand_path(twobit_file)}:#{query_string} stdout"
     
-    if block
-      IO.popen(cmd_string) do |output|
-        output.each { |line| yield line }
+    s = StringIO.new
+    IO.popen("twoBitToFa #{File.expand_path(twobit_file)}:#{query_string} stdout") do |output|
+      output.each do |line|
+        # Skip the header line
+        next if line.start_with?('>')
+        s << line.chomp
       end
-    else
-      return %x[ cmd_string ]
     end
+
+    seq = Bio::Sequence::NA.new(s.string)
+    if (start and stop) and seq.length != (stop-start+1)
+      raise UCSCToolsError, "twoBitToFa did not return the expected sequence length!" 
+    end
+
+    return seq
   end
 end
 

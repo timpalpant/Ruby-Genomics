@@ -1,10 +1,9 @@
-<tool id="Distogram" name="Make distogram" version="1.0.0">
-  <description>of paired-end sequencing reads</description>
-  <command interpreter="ruby1.9">distogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
+<tool id="NukeSeqPrefs" name="Compute sequence frequencies" version="1.0.0">
+  <description>of mononucleosome reads</description>
+  <command interpreter="ruby1.9">sequencePreferences.rb -i $input -n $order -t $GALAXY_INDEX_DIR/twobits/$dbkey.2bit -p 6 -o $output</command>
   <inputs>
-    <param name="input" type="data" format="bam" label="Sequencing reads" />
-    <param name="low" type="integer" value="100" label="Low end of read length range" />
-    <param name="high" type="integer" value="200" label="High end of read length range" />
+    <param name="input" type="data" format="bam" label="Mononucleosome reads" />
+    <param name="order" type="integer" value="2" label="Order of frequencies to compute" />
   </inputs>
   <outputs>
     <data name="output" format="tabular" />

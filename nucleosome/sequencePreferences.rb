@@ -14,8 +14,7 @@
 #   -h, --help          Displays help message
 #   -i, --input         Input file with mapped reads (BAM)
 #   -n, --order         Order (1 = single nucleotide, 2 = dinucleotide, etc)
-#   -s, --sequences     Directory with genomic sequences in 2bit format
-#   -g, --genome        Genome assembly to use
+#   -t, --twobit        2bit file with genomic sequences
 #   -o, --output        Output file with nucleotide frequencies
 #
 # == Author
@@ -46,9 +45,8 @@ ARGV.options do |opts|
   
   # Input/output arguments
   opts.on( '-i', '--input FILE', :required, "Input file with reads (BAM)" ) { |f| options[:input] = f }
-  opts.on( '-s', '--sequences DIR', :required, "Directory with sequences in 2bit format" ) { |d| options[:seqdir] = File.expand_path(d) }
-  options[:genome] = 'sacCer2'
-  opts.on( '-g', '--genome ASSEMBLY', "Assembly to use (default: sacCer2)" ) { |g| options[:genome] = g }
+  opts.on( '-n', '--order N', :required, "Order of frequencies to compute" ) { |n| options[:order] = n.to_i }
+  opts.on( '-t', '--twobit FILE', "Twobit file with genomic reference sequence" ) { |f| options[:twobit] = g }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
@@ -65,17 +63,13 @@ ARGV.options do |opts|
 end
 
 # Initialize the Genome
-genome_2bit = options[:seqdir] + '/' + options[:genome] + '.2bit'
-if not File.exist?(genome_2bit)
-  raise "Cannot find directory of FASTA sequences for the genome assembly #{options[:genome]}!"
-end 
-genome = Genome.new(genome_2bit)
+genome = Genome.new(options[:twobit])
 
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
 
 # Callback to get the results from each subprocess
-num_bins = 150
+num_bins = 151
 counts = Array.new(num_bins, 0)
 pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
   # Add the individual chromosome's histogram data to the totals
@@ -86,7 +80,6 @@ end
 
 
 # Process each chromosome in parallel
-# Each chromosome in a different parallel process
 BAMFile.open(options[:input]) do |bam|
   genome.each do |chr, chr_length|
     # Run in parallel processes managed by ForkManager
@@ -94,24 +87,22 @@ BAMFile.open(options[:input]) do |bam|
     
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     
-    chr_hist = Array.new(num_bins, 0)
+    nucleotide_counts = Hash.new(0)
     
-    # Iterate over the read centers on this chromosome, and bin the read length
-    bam.each(chr) do |read|
-      # Only count paired reads once (use the forward read)
-      next if read.paired? and read.crick?
+    # Iterate over the reads on this chromosome, and tally nucleotide frequencies
+    bam.each_read(chr) do |read|
+      # Get the sequence of the read
+      begin
+        seq = genome.sequence(read.chr, read.low, read.high)
+      rescue
+        puts "Could not retrieve sequence for #{read}" if ENV['DEBUG']
+        next
+      end
       
-      bin = [[read.length, low].max, high].min - low
-      chr_hist[bin] += 1
+      
     end
 
-    if ENV['DEBUG']
-      puts "Total number of reads on chromosome #{chr}: #{chr_hist.sum}"
-      puts "Histogram for chromosome #{chr}:"
-      p chr_hist
-    end
-    
-    pm.finish(0, chr_hist)
+    pm.finish(0, nucleotide_counts)
   end
 end
 
@@ -120,7 +111,7 @@ pm.wait_all_children
 
 # Write the histogram to the output file
 File.open(options[:output], 'w') do |f|
-  for length in low..high
-    f.puts "#{length}\t#{histogram[length-low]}"
+  for i in 0...num_bins
+    f.puts "#{num_bins/2 - i}\t#{counts[i]}"
   end
 end
