@@ -66,7 +66,7 @@ end
 genome = Genome.new(options[:twobit])
 
 # What we're searching for
-search = ['a', 't', 'c', 'g'].repeated_permutation(options[:order]).map { |p| p.join }
+search = ['a', 't', 'c', 'g'].repeated_permutation(options[:order]).map { |p| Bio::Sequence::NA.new(p.join) }
 
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
@@ -107,12 +107,10 @@ BAMFile.open(options[:input]) do |bam|
         next
       end
       
-      hist.each do |n, freq|
-        i = n.length/2
-        seq.window_search(n.length) do |subseq|
-          freq[i] += 1 if subseq == n
-          i += 1
-        end
+      i = options[:order] / 2
+      seq.window_search(options[:order]) do |subseq|
+        hist[subseq][i] += 1
+        i += 1
       end
     end
 
