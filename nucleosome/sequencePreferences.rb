@@ -95,7 +95,7 @@ BAMFile.open(options[:input]) do |bam|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     
     hist = Hash.new
-    search.each { |n| hist = Array.new(num_bins, 0) }
+    search.each { |n| hist[n] = Array.new(num_bins, 0) }
     
     # Iterate over the reads on this chromosome, and tally nucleotide frequencies
     bam.each_read(chr) do |read|
