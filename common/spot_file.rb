@@ -1,3 +1,4 @@
+require 'unix_file_utils'
 require 'contig'
 require 'ucsc_tools'
 
@@ -108,17 +109,17 @@ module SpotFile
   
   # Write this array to BigWig format
   # By first writing to bedGraph, then calling bedGraphToBigWig
-  def to_bigwig(filename, assembly)
+  def to_bigwig(output_file, assembly)
     begin
-      tmp_bedgraph = File.expand_path(filename + '.bedGraph')
+      tmp_bedgraph = File.expand_path(output_file + '.bedGraph')
       self.to_bedgraph(tmp_bedgraph)
     
       # bedGraph must be sorted to call bedGraphToBigWig
       tmp_sorted = tmp_bedgraph + '.sorted'
       File.sort(tmp_bedgraph, tmp_sorted, '-k1,1 -k2,2n')
-      UCSCTools.bedgraph_to_bigwig(tmp_sorted, assembly.len_file, filename)
+      UCSCTools.bedgraph_to_bigwig(tmp_sorted, assembly.len_file, output_file)
     rescue
-      raise "Error converting Array to BigWig!"
+      raise "Error converting to BigWig!"
     ensure
       # Delete the temporary intermediate files
       File.delete(tmp_bedgraph) if File.exist?(tmp_bedgraph)

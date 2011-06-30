@@ -88,7 +88,7 @@ end
 
 # Process each chromosome in parallel
 BAMFile.open(options[:input]) do |bam|
-  genome.each do |chr, chr_length|
+  bam.chromosomes.each do |chr|
     # Run in parallel processes managed by ForkManager
     pm.start(chr) and next
     
