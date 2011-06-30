@@ -17,8 +17,7 @@ class Assembly < GenomicData
   
   # Resources directory
   RESOURCES = File.expand_path(File.dirname(__FILE__) + '/../resources')
-  
-  # Genome fasta directory
+  # len file directory
   ASSEMBLY_DIR = RESOURCES + '/assemblies'
   
   attr_reader :name, :len_file
@@ -73,16 +72,22 @@ class Assembly < GenomicData
     self.load(HUMAN_GENOME)
   end
 
-  # Load an assembly specified by name
-  def self.load(name)
-    len_file = ASSEMBLY_DIR + '/' + name + '.len'
-    raise "Specified genome assembly does not exist in resources/assemblies/*" unless File.exist?(len_file)
-
+  # Load an assembly specified by name (builtin) or chrom lengths file
+  def self.load(name_or_file)
+    if File.exist?(File.expand_path(name_or_file))
+      name = File.basename(name_or_file, '.len')
+      len_file = File.expand_path(name_or_file)
+    elsif File.exist?(ASSEMBLY_DIR + '/' + name_or_file + '.len')
+      name = name_or_file
+      len_file = File.expand_path(ASSEMBLY_DIR + '/' + name_or_file + '.len')
+    else
+      raise "Cannot find specified genome assembly file!"
+    end
+    
     assembly = self.new(name, len_file)
     File.foreach(len_file) do |line|
       entry = line.chomp.split("\t")
-      raise "Invalid entry in #{full_name}" if entry.length != 2
-      
+      raise "Invalid entry in len file #{name}" if entry.length != 2
       assembly[entry[0]] = entry[1].to_i
     end
 
