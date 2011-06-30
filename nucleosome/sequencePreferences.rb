@@ -65,16 +65,23 @@ end
 # Initialize the Genome
 genome = Genome.new(options[:twobit])
 
+# What we're searching for
+search = ['a', 't', 'c', 'g'].repeated_permutation(option[:order]).map { |p| p.join }
+
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
 
 # Callback to get the results from each subprocess
 num_bins = 151
-counts = Array.new(num_bins, 0)
+half_bins = num_bins / 2
+counts = Hash.new
+search.each { |n| counts[n] = Array.new(num_bins, 0) }
 pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
   # Add the individual chromosome's histogram data to the totals
-  for i in 0...num_bins
-    counts[i] += data[i]
+  data.each do |n, freq|
+    for i in 0...num_bins
+      counts[n][i] += freq[i]
+    end
   end
 end
 
@@ -87,22 +94,29 @@ BAMFile.open(options[:input]) do |bam|
     
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     
-    nucleotide_counts = Hash.new(0)
+    hist = Hash.new
+    search.each { |n| hist = Array.new(num_bins, 0) }
     
     # Iterate over the reads on this chromosome, and tally nucleotide frequencies
     bam.each_read(chr) do |read|
       # Get the sequence of the read
       begin
-        seq = genome.sequence(read.chr, read.low, read.high)
+        seq = genome.sequence(read.chr, read.center - half_bins, read.center + half_bins)
       rescue
         puts "Could not retrieve sequence for #{read}" if ENV['DEBUG']
         next
       end
       
-      
+      hist.each do |n, freq|
+        i = n.length/2
+        seq.window_search(n.length) do |subseq|
+          freq[i] += 1 if subseq == n
+          i += 1
+        end
+      end
     end
 
-    pm.finish(0, nucleotide_counts)
+    pm.finish(0, hist)
   end
 end
 
@@ -111,7 +125,9 @@ pm.wait_all_children
 
 # Write the histogram to the output file
 File.open(options[:output], 'w') do |f|
+  f.puts "Position\t" + counts.keys.join("\t")
+  
   for i in 0...num_bins
-    f.puts "#{num_bins/2 - i}\t#{counts[i]}"
+    f.puts "#{i-half_bins}\t" + counts.map { |k,v| v[i] }.join("\t")
   end
 end
