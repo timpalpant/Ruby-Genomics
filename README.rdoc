@@ -1,12 +1,43 @@
 = Ruby-Genomics
 
-Description goes here.
+This is a collection of scripts for genomics data processing, primarily high-throughput next-generation sequencing.
 
-=== Examples
+== Examples
 
-=== Loading into Galaxy
+Scripts can be run on the command-line. Calling any script without arguments will display the help, as well as the missing mandatory arguments:
 
-=== External Dependencies
+  $ > ruby wigmath/averager.rb 
+  $ Missing switch: -g or --genome
+  $ Missing switch: -o or --output
+  $ Usage: ruby wigmath/averager.rb file1.bw file2.bw -o output.bw
+  $  -h, --help                       Display this screen
+  $  -p, --threads N                  Number of processes (default: 2)
+  $  -g, --genome ASSEMBLY            Genome assembly
+  $  -o, --output FILE                Output file (BigWig)
+
+=== Convert BedGraph format file into a Wiggle file
+
+  $ ruby dataprocessing/bedGraphToWig.rb -i input.bedGraph -o output.wig
+
+=== Map sequencing reads in BAM format to produce a coverage Wiggle file
+
+  $ ruby sequencing/baseAlignCounts.rb --input reads.bam --genome hg19 --threads 6 --extend 200 --output coverage.wig
+
+== Loading into Galaxy
+
+All of the scripts included in this package include XML configuration files for loading the tools into your own Galaxy instance (http://usegalaxy.org). You can add these tools by adding them to your Galaxy's tool_conf.xml. If you would like to run the functional tests that are included, copy the test/test-data/* directory to Galaxy's test-data directory.
+
+NOTE: The interpreter in the Galaxy config files is hardcoded to 'ruby1.9' (the default name for OS X / MacPorts). If your Ruby interpreter is under a different name, you will have to change the interpreter attribute in the Galaxy config files, or symlink your interpreter under the name 'ruby1.9'.
+
+This setup confers the added benefit of being able to use the tools from a GUI interface, as well as use them in "Workflows" or automated data-processing pipelines.
+
+== Adding your own assemblies
+
+Built-in reference assemblies are found in resources/assemblies/*. If you are working with a genome that is built-in, you may specify it by its name, e.g. 'ce5' or 'sacCer2'. You may also specify assemblies by their filename, e.g. '~/genomes/mygenome.len'.
+
+You can optionally copy your assembly to resources/assemblies/* if you would like to reference it by short name (NOTE: This is mandatory if you are using the tools through Galaxy).
+
+== External Dependencies
 
 1. Ruby 1.9.2
 2. Perl 5.12 (for calling certain external scripts)
@@ -24,14 +55,14 @@ Many of the scripts also rely upon a standard set of Unix command-line utilites 
 All executable dependencies need to be available in the $PATH.
 
 
-=== Required Gems
+== Required Gems
 
 The easiest way to get set up is to use bundler:
 
   $ sudo gem1.9 install bundler
 
 
-=== Setup
+== Setup
 
 Checkout the source tree with git:
 

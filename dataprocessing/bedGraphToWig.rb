@@ -56,7 +56,13 @@ ARGV.options do |opts|
 end
 
 # Load the genome to construct
-a = Assembly.load(options[:genome])
+# Look for the assembly in the built-in resources directory
+builtin = File.dirname(__FILE__) + '/../resources/assemblies/' + options[:genome] + '.len'
+a = if File.exist?(builtin)
+  Assembly.load(builtin)
+else
+  Assembly.load(options[:genome])
+end
 
 # Load the BedGraph data
 BedGraphFile.open(options[:input]) do |bedgraph|

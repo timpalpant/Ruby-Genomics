@@ -7,8 +7,11 @@
 #  Copyright 2011 UNC. All rights reserved.
 #
 
+require 'rbconfig'
 require 'tempfile'
 require 'galaxy_config'
+require 'bio/utils/unix_file_utils'
+require 'bio/utils/ucsc_tools'
 
 module GalaxyTestRunner
   CURRENT_RUBY_INTERPRETER = RbConfig::CONFIG.values_at('bindir', 'ruby_install_name').join('/')
@@ -37,7 +40,7 @@ module GalaxyTestRunner
       begin
         %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{execute_string(config, test, tmp_outputs)} 2>&1 ]
         raise GalaxyTestError, "Error during script execution!" unless $?.success?
-        tests_passed += 1 if compare_output(test.outputs, tmp_outputs)
+        tests_passed += 1 if compare_output(config, test.outputs, tmp_outputs)
       ensure
         tmp_outputs.each { |name, file| File.delete(file) if File.exist?(file) }
       end
@@ -48,9 +51,18 @@ module GalaxyTestRunner
   
   private
   
-  def self.compare_output(expected, actual, stringency = 0)
+  def self.compare_output(config, expected, actual, stringency = 0)
     expected.each do |name, file|
-      diff = %x[ diff #{File.expand_path(TEST_DATA_DIR+'/'+expected[name])} #{File.expand_path(actual[name])} ].chomp.split("\n")
+      # Expand binary files to diff them
+      if config.outputs[name].format == 'bigwig'
+        wig = file + '.wig'
+        UCSCTools.bigwig_to_wig(actual[name], wig)
+        diff = File.diff(TEST_DATA_DIR+'/'+expected[name], wig)
+        File.delete(wig)
+      else
+        diff = File.diff(TEST_DATA_DIR+'/'+expected[name], actual[name])
+      end
+      
       return false unless diff.length <= 2*stringency
     end
     
@@ -66,7 +78,7 @@ module GalaxyTestRunner
       # Replace variables with test parameters
       if test.inputs.include?(varname)
         # If this param is data, look for the file in the test data directory
-        if config.inputs[varname].type == 'data'
+        if config.inputs.include?(varname) and config.inputs[varname].type == 'data'
           TEST_DATA_DIR + '/' + test.inputs[varname]
         else
           test.inputs[varname]

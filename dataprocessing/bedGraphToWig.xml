@@ -7,6 +7,13 @@
   <outputs>
       <data name="output" format="bigwig" metadata_source="input" />
   </outputs>
+  <tests>
+    <test>
+      <param name="input" value="bedGraphToWig.input"/>
+      <param name="dbkey" value="sacCer2"/>
+      <output name="output" file="bedGraphToWig.output"/>
+    </test>
+  </tests>
 	
 <help>
 .. class:: warningmark

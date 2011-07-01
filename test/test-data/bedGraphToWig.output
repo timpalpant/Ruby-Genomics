@@ -1,0 +1,14 @@
+#bedGraph section chrI:9-99
+chrI	9	14	10
+chrI	14	99	2.6
+#bedGraph section chrII:19-29
+chrII	19	24	6
+chrII	24	29	2
+#bedGraph section chrIII:14-19
+chrIII	14	19	2
+#bedGraph section chrIV:0-5
+chrIV	0	1	12
+chrIV	1	2	1
+chrIV	2	3	3
+chrIV	3	4	1.2
+chrIV	4	5	10
