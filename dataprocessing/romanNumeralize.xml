@@ -5,8 +5,14 @@
       <param name="input" type="data" label="Convert Arabic integer chromosome coordinates in" />
   </inputs>
   <outputs>
-      <data format="input" name="output" />
+      <data name="output" format="input" />
   </outputs>
+  <tests>
+    <test>
+      <param name="input" value="romanNumeralize.input"/>
+      <output name="output" file="romanNumeralize.output"/>
+    </test>
+  </tests>
   
 <help>
 .. class:: warningmark

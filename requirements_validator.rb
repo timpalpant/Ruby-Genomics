@@ -7,7 +7,8 @@ UNIX_EXE = %w[ head
                grep 
                wc 
                sort 
-               cat ]
+               cat
+               diff ]
 UCSC_EXE = %w[ bedGraphToBigWig 
                bedToBigBed 
                bigBedInfo 

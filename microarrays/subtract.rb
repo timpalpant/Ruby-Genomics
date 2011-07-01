@@ -21,7 +21,7 @@
 #   Copyright (c) 2011 Timothy Palpant. Licensed under the GPL v3:
 #   http://www.gnu.org/licenses/gpl-3.0.txt
 
-COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../../common')
+COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
