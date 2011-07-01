@@ -1,4 +1,12 @@
-=== Prerequisite Dependencies
+= Ruby-Genomics
+
+Description goes here.
+
+=== Examples
+
+=== Loading into Galaxy
+
+=== External Dependencies
 
 1. Ruby 1.9.2
 2. Perl 5.12 (for calling certain external scripts)
@@ -13,7 +21,7 @@ Most of these can be installed easily with MacPorts / package management:
 
 Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, which, cat, etc.) For this reason, they will only work under Linux / Mac OS X / Cygwin.
 
-All dependencies need to be available in the $PATH.
+All executable dependencies need to be available in the $PATH.
 
 
 === Required Gems
