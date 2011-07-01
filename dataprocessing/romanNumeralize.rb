@@ -62,11 +62,11 @@ end
 File.open(options[:output], 'w') do |f|
   File.foreach(options[:input]) do |line|
     # Replace all instances of chr[1-16] with chr[I-XVI]
-    sacCer2 = line.gsub(/chr[\d]{1,2}/i) do |match|
+    converted = line.gsub(/chr[\d]{1,2}/i) do |match|
       # Convert the chromosome number (an integer) to a Roman Numeral
       'chr' + match[3..-1].to_i.to_roman
     end
-    
-    f.puts sacCer2
+
+    f.puts converted
   end
 end

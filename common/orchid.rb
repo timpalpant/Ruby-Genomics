@@ -1,4 +1,4 @@
-require 'perl'
+require 'bio/utils/perl'
 
 
 ##

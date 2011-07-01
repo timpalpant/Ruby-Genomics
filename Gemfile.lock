@@ -1,3 +1,10 @@
+PATH
+  remote: ~/dev/bioruby-genomic-file
+  specs:
+    bio-genomic-file (0.1.0)
+      bio (>= 1.4.0)
+      parallel-forkmanager (~> 1.5.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -27,6 +34,7 @@ PLATFORMS
 
 DEPENDENCIES
   bio (>= 1.4.0)
+  bio-genomic-file!
   gnuplot (>= 2.3.6)
   gsl (>= 1.14.5)
   parallel-forkmanager (~> 1.5.1)

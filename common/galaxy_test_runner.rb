@@ -8,11 +8,11 @@
 #
 
 require 'tempfile'
-require File.dirname(__FILE__) + '/galaxy_config'
+require 'galaxy_config'
 
 module GalaxyTestRunner
   CURRENT_RUBY_INTERPRETER = RbConfig::CONFIG.values_at('bindir', 'ruby_install_name').join('/')
-  TEST_DATA_DIR = File.expand_path(File.dirname(__FILE__) + '/test/test-data')
+  TEST_DATA_DIR = File.expand_path(File.dirname(__FILE__) + '/../test/test-data')
   
   def self.check_compilation(config)
     %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{config.command.script_name} 2>&1 ]

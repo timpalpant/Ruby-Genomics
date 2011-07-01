@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'bio'
 
 # Dynamically generated API for the GenomeAtlas SOAP web service

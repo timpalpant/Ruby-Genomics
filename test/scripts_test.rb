@@ -1,6 +1,6 @@
 require 'spec_helper'
-require File.dirname(__FILE__) + '/../galaxy_config'
-require File.dirname(__FILE__) + '/../galaxy_test_runner'
+require 'galaxy_config'
+require 'galaxy_test_runner'
 
 ##
 # Ensure that all scripts compile, and run functional tests, if available

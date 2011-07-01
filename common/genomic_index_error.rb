@@ -1,2 +1,0 @@
-class GenomicIndexError < StandardError
-end

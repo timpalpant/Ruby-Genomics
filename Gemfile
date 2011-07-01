@@ -4,6 +4,7 @@ gem 'gsl', '>= 1.14.5'
 gem 'bio', '>= 1.4.0'
 gem 'gnuplot', '>= 2.3.6'
 gem 'parallel-forkmanager', '~> 1.5.1'
+gem "bio-genomic-file", :path => "~/dev/bioruby-genomic-file"
 
 group :development do
   gem 'rake', '~> 0.8.7'

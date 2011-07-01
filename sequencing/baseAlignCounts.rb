@@ -30,11 +30,8 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'forkmanager'
 require 'pickled_optparse'
-require 'assembly'
-require 'wig'
-require 'sam'
-require 'unix_file_utils'
-require 'fileutils'
+require 'bio-genomic-file'
+require 'bio/utils/unix_file_utils'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
