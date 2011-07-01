@@ -62,6 +62,8 @@ ARGV.options do |opts|
   end
 end
 
+CHUNK_SIZE = 200_000
+
 # Initialize the Genome
 genome = Genome.new(options[:twobit])
 
@@ -97,23 +99,34 @@ BAMFile.open(options[:input]) do |bam|
     hist = Hash.new
     search.each { |n| hist[n] = Array.new(num_bins, 0) }
     
-    # Iterate over the reads on this chromosome, and tally nucleotide frequencies
-    bam.each_read(chr) do |read|
-      # Get the sequence of the read
-      begin
-        seq = genome.sequence(read.chr, read.center - half_bins, read.center + half_bins)
-      rescue
-        puts "Could not retrieve sequence for #{read}" if ENV['DEBUG']
-        next
+    # Search by chunks so that we can cache the sequence
+    chunk_start = 1
+    while chunk_start <= genome[chr]
+      chunk_stop = [chunk_start + CHUNK_SIZE - 1, genome[chr]].min
+      puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
+      
+      # Get the genomic sequence for this chunk
+      seq = genome.sequence(chr, chunk_start, chunk_stop)
+      
+      # Iterate over the reads on this chunk, and tally nucleotide frequencies
+      bam.each_read(chr, chunk_start, chunk_stop) do |read|        
+        # Get the sequence for this read
+        left = read.center - half_bins - chunk_start
+        right = read.center + half_bins - chunk_start
+        next if left < 0 or right >= CHUNK_SIZE
+        read_seq = seq[left..right]
+      
+        i = options[:order] / 2
+        read_seq.window_search(options[:order]) do |subseq|
+          hist[subseq][i] += 1
+          i += 1
+        end
       end
       
-      i = options[:order] / 2
-      seq.window_search(options[:order]) do |subseq|
-        hist[subseq][i] += 1
-        i += 1
-      end
+      chunk_start = chunk_stop + 1
     end
 
+    # Return the histogram from this subprocess
     pm.finish(0, hist)
   end
 end
