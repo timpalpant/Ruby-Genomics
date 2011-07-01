@@ -113,15 +113,15 @@ describe AffyFile do
   
   context "when computing statistics" do
     it "should have total = 49.8" do
-      @test.total.should == 49.800000000000004
+      @test.total.should be_within(1e-14).of(49.8)
     end
     
     it "should have mean = 4.98" do
-      @test.mean.should == 4.98
+      @test.mean.should be_within(1e-14).of(4.98)
     end
     
-    it "should have standard deviation = 3.9773860763069" do
-      @test.stdev.should == 3.9773860763068996
+    it "should have standard deviation = 3.9773860763068996" do
+      @test.stdev.should be_within(1e-14).of(3.9773860763068996)
     end
   end
   

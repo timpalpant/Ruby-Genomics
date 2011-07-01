@@ -85,19 +85,19 @@ shared_examples "wig file" do
   
   context "statistics" do
     it "should have 124 bases of data" do
-      @test.num_bases.should == 124
+      @test.num_bases.should be_within(1e-14).of(124)
     end
     
     it "should have total = 952" do
-      @test.total.should == 952
+      @test.total.should be_within(1e-14).of(952)
     end
     
     it "should have mean = 7.67741935483871" do
-      @test.mean.should == 7.67741935483871
+      @test.mean.should be_within(1e-14).of(7.67741935483871)
     end
     
     it "should have stdev = 8.413265626471144" do
-      @test.stdev.should == 8.413265626471144
+      @test.stdev.should be_within(1e-14).of(8.413265626471144)
     end
   end
 end

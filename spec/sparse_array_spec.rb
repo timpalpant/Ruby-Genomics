@@ -283,8 +283,8 @@ describe SparseArray do
       other[6] = 1
       
       product = @test / other
-      product[1].should == (1.0/3)
-      product[2].should == 0.25
+      product[1].should be_within(1e-14).of(1.0/3)
+      product[2].should be_within(1e-14).of(0.25)
       lambda { product[5] }.should raise_error
       lambda { product[6] }.should raise_error
       lambda { product[10] }.should raise_error
@@ -295,15 +295,15 @@ describe SparseArray do
     end
     
     it "should compute the correct sum" do
-      @test.sum.should == 7
+      @test.sum.should be_within(1e-14).of(7)
     end
     
     it "should compute the correct mean" do
-      @test.mean.should == 1.75
+      @test.mean.should be_within(1e-14).of(1.75)
     end
     
     it "should compute the correct standard deviation" do
-      @test.stdev.should == 0.82915619758885
+      @test.stdev.should be_within(1e-14).of(0.82915619758885)
     end
     
     it "should convert to an Array" do

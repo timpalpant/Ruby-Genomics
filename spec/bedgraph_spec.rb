@@ -140,15 +140,15 @@ describe BedGraphFile do
   
   context "when computing statistics" do
     it "should have total = 54.2" do
-      @test.total.should == 54.2
+      @test.total.should be_within(1e-14).of(54.2)
     end
     
     it "should have mean = 6.775" do
-      @test.mean.should == 6.775
+      @test.mean.should be_within(1e-14).of(6.775)
     end
     
     it "should have standard deviation = 4.770154609653654" do
-      @test.stdev.should == 4.770154609653654
+      @test.stdev.should be_within(1e-14).of(4.770154609653654)
     end
   end
   

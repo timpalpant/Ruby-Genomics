@@ -183,15 +183,15 @@ describe NukeCallsFile do
   
   context "when computing statistics" do
     it "should have total = 638" do
-      @test.total.should == 638
+      @test.total.should be_within(1e-14).of(638)
     end
     
     it "should have mean = 63.8" do
-      @test.mean.should == 63.8
+      @test.mean.should be_within(1e-14).of(63.8)
     end
     
     it "should have standard deviation = 146.00397254869472" do
-      @test.stdev.should == 146.00397254869472
+      @test.stdev.should be_within(1e-14).of(146.00397254869472)
     end
   end
   
