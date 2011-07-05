@@ -108,7 +108,7 @@ EntryFile.autodetect(options[:input]) do |input|
       seq = genome.sequence(chr, chunk_start, chunk_stop)
       
       # Iterate over the reads on this chunk, and tally nucleotide frequencies
-      input.each_read(chr, chunk_start, chunk_stop) do |read|        
+      input.each(chr, chunk_start, chunk_stop) do |read|        
         # Get the sequence for this read
         left = read.center - half_bins - chunk_start
         right = read.center + half_bins - chunk_start
