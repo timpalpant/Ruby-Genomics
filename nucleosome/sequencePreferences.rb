@@ -4,15 +4,15 @@
 #   Compute sequence preferences for paired-end nucleosome reads
 #
 # == Usage 
-#   Take paired-end BAM reads and compute the sequence frequencies up to dinucleotides:
+#   Take paired-end input reads and compute the sequence frequencies up to dinucleotides:
 #
-#   sequencePreferences.rb -i bowtie.bam -n 2 -o output.txt
+#   sequencePreferences.rb -i bowtie.input -n 2 -o output.txt
 #
 #   For help use: sequencePreferences.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input file with mapped reads (BAM)
+#   -i, --input         Input file with mapped reads (input)
 #   -n, --order         Order (1 = single nucleotide, 2 = dinucleotide, etc)
 #   -t, --twobit        2bit file with genomic sequences
 #   -o, --output        Output file with nucleotide frequencies
@@ -35,7 +35,7 @@ require 'bio/stats'
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i reads.bam -o dyads.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -i reads.input -o dyads.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -43,7 +43,7 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input file with reads (BAM)" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input file with reads (input)" ) { |f| options[:input] = f }
   opts.on( '-n', '--order N', :required, "Order of frequencies to compute" ) { |n| options[:order] = n.to_i }
   opts.on( '-t', '--twobit FILE', "Twobit file with genomic reference sequence" ) { |f| options[:twobit] = f }
   options[:threads] = 2
@@ -88,8 +88,8 @@ end
 
 
 # Process each chromosome in parallel
-BAMFile.open(options[:input]) do |bam|
-  bam.chromosomes.each do |chr|
+EntryFile.autodetect(options[:input]) do |input|
+  input.chromosomes.each do |chr|
     # Run in parallel processes managed by ForkManager
     pm.start(chr) and next
     
@@ -108,7 +108,7 @@ BAMFile.open(options[:input]) do |bam|
       seq = genome.sequence(chr, chunk_start, chunk_stop)
       
       # Iterate over the reads on this chunk, and tally nucleotide frequencies
-      bam.each_read(chr, chunk_start, chunk_stop) do |read|        
+      input.each_read(chr, chunk_start, chunk_stop) do |read|        
         # Get the sequence for this read
         left = read.center - half_bins - chunk_start
         right = read.center + half_bins - chunk_start
