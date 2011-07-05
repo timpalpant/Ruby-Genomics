@@ -2,7 +2,7 @@
   <description>of mononucleosome reads</description>
   <command interpreter="ruby1.9">sequencePreferences.rb -i $input -n $order -t ${GALAXY_DATA_INDEX_DIR}/twobits/${dbkey}.2bit -p 6 -o $output</command>
   <inputs>
-    <param name="input" type="data" format="bam" label="Mononucleosome reads" />
+    <param name="input" type="data" format="bam,sam,bed" label="Mononucleosome reads" />
     <param name="order" type="integer" value="2" label="Order of frequencies to compute" />
   </inputs>
   <outputs>
