@@ -58,7 +58,7 @@ end
 
 # Load the BigWig files
 puts "\nInitializing BigWig file(s)" if ENV['DEBUG']
-wigs = ARGV.map { |inputfile| BigWigFile.new(inputfile) }
+wigs = ARGV.map { |inputfile| WigFile.autodetect(inputfile) }
 
 puts "\nComputing mean intensity for each region" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|

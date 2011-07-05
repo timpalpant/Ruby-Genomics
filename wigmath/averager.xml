@@ -8,7 +8,7 @@
   </command>
   <inputs>
       <repeat name="inputs" title="BigWig files">
-        <param name="file" type="data" format="bigwig" />
+        <param name="file" type="data" format="bigwig,wig" />
       </repeat>
   </inputs>
   <outputs>

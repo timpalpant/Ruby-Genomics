@@ -2,7 +2,7 @@
   <description>a BigWig file</description>
   <command interpreter="ruby1.9">percenter.rb -i $input -t $T -g $dbkey -p 4 -o $output</command>
   <inputs>
-    <param format="bigwig" name="input" type="data" label="Normalize the data in" />
+    <param format="bigwig,wig" name="input" type="data" label="Normalize the data in" />
     <param name="T" type="integer" value="0" label="Divide by (leave 0 to divide by total coverage)" />
   </inputs>
   <outputs>

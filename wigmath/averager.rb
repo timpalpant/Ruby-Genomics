@@ -60,7 +60,7 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize the wig files to average
-wigs = ARGV.map { |filename| BigWigFile.new(filename) }
+wigs = ARGV.map { |filename| WigFile.autodetect(filename) }
 num_files = wigs.length.to_f
 # Validate their compatibility
 wigs[1..-1].each do |wig|

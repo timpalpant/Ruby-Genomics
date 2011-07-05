@@ -79,7 +79,7 @@ puts "Average will be computed for #{n} bases from #{-alignment_point} to #{n-al
 indices = (-alignment_point..n-alignment_point).to_a
 
 puts "\nInitializing input files\n" if ENV['DEBUG']
-wigs = ARGV.map { |input_file| BigWigFile.new(input_file) }
+wigs = ARGV.map { |input_file| WigFile.autodetect(input_file) }
 
 puts "\nBeginning averaging\n" if ENV['DEBUG']
 averages = Array.new

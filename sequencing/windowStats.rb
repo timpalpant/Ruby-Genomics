@@ -62,7 +62,7 @@ end
 
 # Load the BigWig files
 puts "\nInitializing BigWig file(s)" if ENV['DEBUG']
-wigs = ARGV.map { |inputfile| BigWigFile.new(inputfile) }
+wigs = ARGV.map { |inputfile| WigFile.autodetect(inputfile) }
 
 puts "\nComputing #{options[:stat]} for each window" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|

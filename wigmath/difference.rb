@@ -62,8 +62,8 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize the BigWig files to subtract
-minuend = BigWigFile.new(options[:minuend])
-subtrahend = BigWigFile.new(options[:subtrahend])
+minuend = WigFile.autodetect(options[:minuend])
+subtrahend = WigFile.autodetect(options[:subtrahend])
   
 # Validate that both files have the same chromosomes
 puts "Validating compatibility"

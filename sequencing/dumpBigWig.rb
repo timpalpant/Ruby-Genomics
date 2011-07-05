@@ -55,7 +55,7 @@ end
 
 
 # Load the Wig file
-wig = BigWigFile.new(options[:input])
+wig = BigWigFile.open(options[:input])
 
 # Process each chromosome in chunks
 File.open(option[:output], 'w') do |f|

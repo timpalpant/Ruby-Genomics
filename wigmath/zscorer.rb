@@ -65,7 +65,7 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize the Wig file
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Compute mean and standard deviation
 mean = wig.mean

@@ -2,7 +2,7 @@
   <description>a BigWig file</description>
   <command interpreter="ruby1.9">logger.rb -i $input -b $base -g $dbkey -p 4 -o $output</command>
   <inputs>
-    <param format="bigwig" name="input" type="data" label="BigWig file" />
+    <param format="bigwig,wig" name="input" type="data" label="BigWig file" />
     <param name="base" type="integer" value="2" label="Logarithm base" />
   </inputs>
   <outputs>

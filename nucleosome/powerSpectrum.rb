@@ -59,7 +59,7 @@ end
 
 
 # Initialize the sequencing data
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Iterate over the list of windows
 # and compute the power spectrum for each

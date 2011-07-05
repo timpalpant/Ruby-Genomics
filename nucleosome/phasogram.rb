@@ -73,7 +73,7 @@ num_bins = high - low + 1
 padding = 2 * high
 
 # Initialize the BigWig dyads file
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Initialize the process manager
 pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})

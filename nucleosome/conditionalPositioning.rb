@@ -59,7 +59,7 @@ end
 
 
 puts "Initializing dyads file" if ENV['DEBUG']
-wig = WigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 puts "Computing conditional positioning" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|

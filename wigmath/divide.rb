@@ -62,8 +62,8 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize WigFile files
-dividend = BigWigFile.new(options[:dividend])
-divisor = BigWigFile.new(options[:divisor])
+dividend = WigFile.autodetect(options[:dividend])
+divisor = WigFile.autodetect(options[:divisor])
   
 # Validate that both files have the same chromosomes
 puts "Validating compatibility" if ENV['DEBUG']

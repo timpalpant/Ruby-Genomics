@@ -66,7 +66,7 @@ end
 
 
 # Initialize the sequencing data
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Store the mean spectral density
 total = Vector[(options[:padding]+1)*options[:window]/2]

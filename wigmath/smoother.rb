@@ -79,7 +79,7 @@ padding = options[:sdev] * options[:window_size]
 #end
 
 # Initialize the wig files to smooth
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])

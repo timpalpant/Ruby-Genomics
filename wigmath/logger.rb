@@ -68,7 +68,7 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize the Wig file
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Initialize the output assembly
 assembly = Assembly.load(options[:genome])

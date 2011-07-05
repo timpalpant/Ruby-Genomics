@@ -2,7 +2,7 @@
   <description>of dyads</description>
   <command interpreter="ruby1.9">phasogram.rb -i $input -r $low:$high -p 6 -o $output</command>
   <inputs>
-    <param name="input" type="data" format="bigwig" label="Dyads BigWig file" />
+    <param name="input" type="data" format="bigwig,wig" label="Dyads BigWig file" />
     <param name="low" type="integer" value="0" label="Low end of range (bp)" />
     <param name="high" type="integer" value="1000" label="High end of range (bp)" />
   </inputs>

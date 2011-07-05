@@ -63,7 +63,7 @@ end
 Enumerable.max_threads = options[:threads]
 
 # Initialize Wig file to percentize
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Number to normalize with (divide by)
 sum = if not options[:total].nil? and options[:total] > 0

@@ -117,7 +117,7 @@ marker_line ="Marker\t" +  marker_line.join("\t")
 
 # Initialize the Wig file
 puts "Initializing BigWig file" if ENV['DEBUG']
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Align values for each locus around the alignment point
 skipped = 0

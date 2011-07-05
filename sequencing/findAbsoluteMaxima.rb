@@ -58,7 +58,7 @@ end
 
   
 # Load the wig data
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
   
 # Find the peak in each locus
 File.open(options[:output], 'w') do |f|

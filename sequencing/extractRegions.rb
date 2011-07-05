@@ -58,7 +58,7 @@ end
 
 
 # Load the Wig file
-wig = BigWigFile.new(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 puts 'Writing window values to file'
 File.open(options[:output],'w') do |f|

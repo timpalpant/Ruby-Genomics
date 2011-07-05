@@ -2,7 +2,7 @@
   <description>of sequencing data</description>
   <command interpreter="ruby1.9">spectralDensity.rb -i $input -w $window -s $step -p $padding -o $output</command>
   <inputs>
-    <param format="bigwig" name="input" type="data" label="Sequencing data" />
+    <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
     <param name="window" type="integer" value="1000" label="Window size in base pairs" />
     <param name="step" type="integer" value="100" label="Step size in base pairs" />
     <param name="padding" type="integer" value="1" label="Relative additional padding to increase resolution" />

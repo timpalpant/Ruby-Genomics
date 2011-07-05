@@ -64,8 +64,8 @@ end
 half_nuke = options[:nuke] / 2
 
 # Initialize WigFile files
-absolute = BigWigFile.new(options[:absolute])
-smoothed = BigWigFile.new(options[:smoothed])
+absolute = WigFile.autodetect(options[:absolute])
+smoothed = WigFile.autodetect(options[:smoothed])
   
 # Validate that all files have the same chromosomes
 absolute.chromosomes.each do |chr_id|
