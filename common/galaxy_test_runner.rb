@@ -10,7 +10,7 @@
 require 'rbconfig'
 require 'tempfile'
 require 'galaxy_config'
-require 'bio/utils/unix_file_utils'
+require 'utils/unix'
 require 'bio/utils/ucsc_tools'
 
 module GalaxyTestRunner

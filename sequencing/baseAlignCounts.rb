@@ -31,7 +31,7 @@ require 'bundler/setup'
 require 'forkmanager'
 require 'pickled_optparse'
 require 'bio-genomic-file'
-require 'bio/utils/unix_file_utils'
+require 'utils/unix'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new

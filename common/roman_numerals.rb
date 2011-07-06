@@ -1,4 +1,4 @@
-require 'bio/stats'
+require 'stats'
 
 ##
 # Add methods to the Integer and String classes for working with Roman Numerals

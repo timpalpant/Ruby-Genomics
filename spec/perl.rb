@@ -1,4 +1,4 @@
-require 'bio/utils/unix_file_utils'
+require 'utils/unix'
 
 ##
 # Tools for calling Perl and Perl scripts from within Ruby code

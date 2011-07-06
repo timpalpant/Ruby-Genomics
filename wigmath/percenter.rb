@@ -27,7 +27,7 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
-require 'bio/stats'
+require 'stats'
 require 'pickled_optparse'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.

@@ -2,7 +2,7 @@ require 'bio'
 
 require 'orchid'
 require 'bio/db/pwm'
-require 'bio/stats'
+require 'stats'
 
 # soap4r is broken in Ruby 1.9.2
 # TODO: Implement GenomeAtlasAPI with Savon

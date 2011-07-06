@@ -29,7 +29,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
-require 'bio/stats'
+require 'stats'
 require 'bio/utils/ucsc_tools'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
