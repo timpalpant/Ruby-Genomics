@@ -30,7 +30,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'utils/unix'
-require 'forkmanager'
+require 'utils/parallelizer'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -67,17 +67,10 @@ end
 # Initialize the assembly to generate coverage on
 assembly = Assembly.load(options[:genome])
 
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads])
-
-
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
 BAMFile.open(options[:input]) do |bam|
-  assembly.each do |chr, chr_length|
-    # Run in parallel processes managed by ForkManager
-    pm.start(chr) and next
-    
+  assembly.p_each(:in_processes => options[:threads]) do |chr, chr_length|    
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     
     # Write the chromosome fixedStep header
@@ -99,22 +92,8 @@ BAMFile.open(options[:input]) do |bam|
       query_start = [chunk_start-500, 1].max
       query_stop = [chunk_stop+500, chr_length].min
       
-      # Count the number of reads for this chunk to make sure it's a reasonable number
-      # Adjust the step size to an optimal size
-      count = bam.count(chr, chunk_start, chunk_stop)
-      puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-      if count > 500_000
-        options[:step] = 3*options[:step]/5
-        puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
-        redo
-      elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
-        options[:step] *= 2
-        puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
-        redo
-      end
-      
       # Get all aligned reads for this chunk and map the dyads
-      bam.each(chr, query_start, query_stop).each do |entry|      
+      bam.each(chr, query_start, query_stop) do |entry|      
         # Also clamp to the chunk
         low = [entry.low-chunk_start, 0].max
         high = [entry.high-chunk_start, chunk_size-1].min
@@ -138,13 +117,8 @@ BAMFile.open(options[:input]) do |bam|
       
       chunk_start = chunk_stop + 1
     end
-    
-    pm.finish(0)
   end
 end
-
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
 
 # Write the Wiggle track header
 header_file = options[:output]+'.header'

@@ -25,7 +25,7 @@
 COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
-require 'forkmanager'
+require 'utils/parallelizer'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 
@@ -75,37 +75,20 @@ padding = 2 * high
 # Initialize the BigWig dyads file
 wig = WigFile.autodetect(options[:input])
 
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
-
-# Callback to get the results from each subprocess
-histogram = Array.new(num_bins, 0)
-pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
-  # Add the individual chromosome's histogram data to the totals
-  for i in 0...num_bins
-    histogram[i] += data[i]
-  end
-end
-
-
 # Process each chromosome in parallel
 # Each chromosome in a different parallel process
-wig.chromosomes.each do |chr|
-  # Run in parallel processes managed by ForkManager
-  pm.start(chr) and next
-  
-  puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-  
+histograms = wig.p_map(:in_processes => options[:threads]) do |chr, start, stop|
+  puts "\nProcessing contig #{chr}:#{start}-#{stop}" if ENV['DEBUG']
   chr_hist = Array.new(num_bins, 0)
-  chunk_start = 1
-  chr_length = wig.chr_length(chr)
-  while chunk_start < chr_length
-    chunk_stop = [chunk_start+options[:step]-1, chr_length].min
+  
+  chunk_start = start
+  while chunk_start < stop
+    chunk_stop = [chunk_start+options[:step]-1, stop].min
     puts "Processing chunk #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']    
 
-    # Don't pad off the end of the chromosome
-    query_start = [1, chunk_start-padding].max
-    query_stop = [chunk_stop+padding, chr_length].min
+    # Don't pad off the end of the contig
+    query_start = [start, chunk_start-padding].max
+    query_stop = [chunk_stop+padding, stop].min
     
     # Actual padding
     padding_left = chunk_start - query_start
@@ -126,12 +109,16 @@ wig.chromosomes.each do |chr|
     chunk_start = chunk_stop + 1
   end
   
-  pm.finish(0, chr_hist)
+  chr_hist
 end
 
-
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
+# Add all of the histograms from individual contigs
+histogram = Array.new(num_bins, 0)
+histograms.each do |chr_hist|
+  chr_hist.each_index do |i|
+    histogram[i] += chr_hist[i]
+  end
+end
 
 # Write the histogram to the output file
 File.open(options[:output], 'w') do |f|

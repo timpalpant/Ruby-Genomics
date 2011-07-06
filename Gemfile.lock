@@ -1,9 +1,10 @@
-PATH
-  remote: ~/dev/bioruby-genomic-file
+GIT
+  remote: git://github.com/timpalpant/bioruby-genomic-file.git
+  revision: 286ae6851550526a1d6870d9fa93ca5dca01bbd3
   specs:
-    bio-genomic-file (0.1.0)
+    bio-genomic-file (0.1.3)
       bio (>= 1.4.0)
-      parallel-forkmanager (~> 1.5.1)
+      parallel (~> 0.5.5)
 
 GEM
   remote: http://rubygems.org/
@@ -14,7 +15,7 @@ GEM
     gsl (1.14.7)
       narray (>= 0.5.9)
     narray (0.5.9.9)
-    parallel-forkmanager (1.5.1)
+    parallel (0.5.5)
     pickled_optparse (0.1.1)
     rake (0.8.7)
     rspec (2.6.0)
@@ -37,7 +38,6 @@ DEPENDENCIES
   bio-genomic-file!
   gnuplot (>= 2.3.6)
   gsl (>= 1.14.5)
-  parallel-forkmanager (~> 1.5.1)
   pickled_optparse (>= 0.1.1)
   rake (~> 0.8.7)
   rspec (>= 2.5.0)

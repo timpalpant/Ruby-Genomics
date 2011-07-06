@@ -28,7 +28,7 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'forkmanager'
+require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
 
@@ -68,33 +68,15 @@ genome = Genome.new(options[:twobit])
 
 # What we're searching for
 search = ['a', 't', 'c', 'g'].repeated_permutation(options[:order]).map { |p| Bio::Sequence::NA.new(p.join) }
-
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
-
-# Callback to get the results from each subprocess
 num_bins = 151
 half_bins = num_bins / 2
-counts = Hash.new
-search.each { |n| counts[n] = Array.new(num_bins, 0) }
-pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
-  # Add the individual chromosome's histogram data to the totals
-  data.each do |n, freq|
-    for i in 0...num_bins
-      counts[n][i] += freq[i]
-    end
-  end
-end
 
 
 # Process each chromosome in parallel
+histograms = nil
 EntryFile.autodetect(options[:input]) do |input|
-  input.chromosomes.each do |chr|
-    # Run in parallel processes managed by ForkManager
-    pm.start(chr) and next
-    
+  histograms = input.chromosomes.p_map(:in_processes => options[:threads]) do |chr|    
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-    
     hist = Hash.new
     search.each { |n| hist[n] = Array.new(num_bins, 0) }
     
@@ -126,12 +108,18 @@ EntryFile.autodetect(options[:input]) do |input|
     end
 
     # Return the histogram from this subprocess
-    pm.finish(0, hist)
+    hist
   end
 end
 
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
+# Sum the individual chromosomes histogram data
+counts = Hash.new
+search.each { |n| counts[n] = Array.new(num_bins, 0) }
+data.each do |n, freq|
+  for i in 0...num_bins
+    counts[n][i] += freq[i]
+  end
+end
 
 # Write the histogram to the output file
 File.open(options[:output], 'w') do |f|

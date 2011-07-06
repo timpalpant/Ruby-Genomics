@@ -28,8 +28,9 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'forkmanager'
+require 'utils/parallelizer'
 require 'bio-genomic-file'
+require 'stats'
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -66,27 +67,11 @@ end
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads])
-
-# Callback to get the number of unmapped reads from each subprocess
-total_unmapped = 0
-pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data_structure|
-  begin
-    total_unmapped += data_structure.to_i
-  rescue
-    puts "Number of unmapped reads not received from chromosome #{ident} (child process #{pid})!" if ENV['DEBUG']
-  end
-end
-
-
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
+unmapped_counts = nil
 BAMFile.open(options[:input]) do |bam|
-  assembly.each do |chr, chr_length|
-    # Run in parallel processes managed by ForkManager
-    pm.start(chr) and next
-
+  unmapped_counts = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     unmapped = 0
 
@@ -101,23 +86,9 @@ BAMFile.open(options[:input]) do |bam|
       chunk_stop = [chunk_start+options[:step]-1, chr_length].min
       chunk_size = chunk_stop - chunk_start + 1
       mapped_starts = Array.new(chunk_size, 0)
-      
-      # Count the number of reads for this chunk to make sure it's a reasonable number
-      # Adjust the step size to an optimal size
-      count = bam.count(chr, chunk_start, chunk_stop)
-      puts "#{count} reads in block #{chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
-      if count > 500_000
-        options[:step] = 3*options[:step]/5
-        puts "Shrinking step size - now #{options[:step]}" if ENV['DEBUG']
-        redo
-      elsif count < 100_000 and options[:step] < 1_000_000 and chunk_size == options[:step]
-        options[:step] *= 2
-        puts "Increasing step size - now #{options[:step]}" if ENV['DEBUG']
-        redo
-      end
     
       # Get all aligned reads for this chunk and map the dyads
-      bam.each(chr, chunk_start, chunk_stop).each do |read|
+      bam.each(chr, chunk_start, chunk_stop) do |read|
         begin
           mapped_starts[read.start-chunk_start] += 1 if chunk_start <= read.start and read.start <= chunk_stop
         rescue
@@ -135,12 +106,11 @@ BAMFile.open(options[:input]) do |bam|
     
     # Send the number of unmapped reads on this chromosome back to the parent process
     puts "#{unmapped} unmapped reads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
-    pm.finish(0, unmapped.to_s)
+    unmapped
   end
 end
 
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
+total_unmapped = unmapped_counts.sum
 puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 
 # Write the Wiggle track header

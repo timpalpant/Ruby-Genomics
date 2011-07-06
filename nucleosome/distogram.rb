@@ -27,7 +27,7 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'forkmanager'
+require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
 
@@ -72,28 +72,12 @@ num_bins = high - low + 1
 # Load the genome assembly
 assembly = Assembly.load(options[:genome])
 
-# Initialize the process manager
-pm = Parallel::ForkManager.new(options[:threads], {'tempdir' => '/tmp'})
-
-# Callback to get the results from each subprocess
-histogram = Array.new(num_bins, 0)
-pm.run_on_finish do |pid, exit_code, ident, exit_signal, core_dump, data|
-  # Add the individual chromosome's histogram data to the totals
-  for i in 0...num_bins
-    histogram[i] += data[i]
-  end
-end
-
-
 # Process each chromosome in parallel
 # Each chromosome in a different parallel process
+histograms = nil
 BAMFile.open(options[:input]) do |bam|
-  assembly.each do |chr, chr_length|
-    # Run in parallel processes managed by ForkManager
-    pm.start(chr) and next
-    
+  histograms = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
-    
     chr_hist = Array.new(num_bins, 0)
     
     # Iterate over the read centers on this chromosome, and bin the read length
@@ -108,12 +92,17 @@ BAMFile.open(options[:input]) do |bam|
       p chr_hist
     end
     
-    pm.finish(0, chr_hist)
+    chr_hist
   end
 end
 
-# Wait for all of the child processes (each chromosome) to complete
-pm.wait_all_children
+# Sum the histograms from all of the chromosomes
+histogram = Array.new(num_bins, 0)
+histograms.each do |chr_hist|
+  chr_hist.each_index do |i|
+    histogram[i] += chr_hist[i]
+  end
+end
 
 # Write the histogram to the output file
 File.open(options[:output], 'w') do |f|

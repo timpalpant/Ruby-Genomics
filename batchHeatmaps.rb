@@ -27,8 +27,8 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'forkmanager'
-require 'unix_file_utils'
+require 'utils/parallelizer'
+require 'utils/unix'
 
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -106,26 +106,18 @@ loci_files.each_with_index { |f,i| puts "#{i+1}\t#{File.basename(f)}" }
 # Compute how many heatmaps we will be generating
 puts "\nWill be generating #{data_files.length * loci_files.length} heatmaps"
 
-# Initialize the forkmanager for running in parallel
-pm = Parallel::ForkManager.new(options[:threads])
-
 
 ##
 # HEATMAP GENERATION
 ##
 
-loci_files.each do |loci|
-  #puts "\nProcessing alignment loci #{File.basename(loci)}"
-  
+loci_files.each do |loci|  
   # Make a directory for the output files with the same name as the loci file
   heatmap_dir = options[:output] + '/' + File.basename(loci, '.bed')
   Dir.mkdir(heatmap_dir) unless File.directory?(heatmap_dir)
   
   # Generate a heatmap for each sequencing dataset
-  data_files.each do |input|
-    # Run each heatmap job in a separate process
-    pm.start and next
-    
+  data_files.p_each(:in_processes => options[:threads]) do |input|    
     puts "#{File.basename(input)} x #{File.basename(loci)}"
     
     # Align values in a matrix for a heatmap
@@ -138,12 +130,7 @@ loci_files.each do |loci|
     
     # Remove the aligned matrix unless we are keeping them
     File.delete(aligned_matrix) unless options[:keep]
-
-    pm.finish(0)
   end
 end
-
-# Wait for all of the heatmap jobs to finish
-pm.wait_all_children
 
 puts "Complete!"
