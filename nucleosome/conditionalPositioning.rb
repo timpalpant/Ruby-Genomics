@@ -30,7 +30,8 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'stats'
-require 'bio/utils/ucsc_tools'
+require 'bio/utils/ucsc'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -64,12 +65,12 @@ wig = WigFile.autodetect(options[:input])
 puts "Computing conditional positioning" if ENV['DEBUG']
 File.open(options[:output],'w') do |f|
 	name = "#{options[:input]} Conditional Positioning"
-  f.write UCSCTrackHeader.new(:name => name,
-                              :limits => '0:1e-7')
+  f.write Utils::UCSC::TrackHeader.new(:name => name,
+                                       :limits => '0:1e-7')
 
   wig.each_chr do |chr|
     puts "Processing chromosome #{chr.chr}" if ENV['DEBUG']
-    conditional = Contig.new(chr.length, chr.chr, 73)
+    conditional = Genomics::Contig.new(chr.length, chr.chr, 73)
     for bp in 1...chr.length-147
       window = chr.bases(bp, bp+147)
       conditional[bp] = window[73] / window.sum

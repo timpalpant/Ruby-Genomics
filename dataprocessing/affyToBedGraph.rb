@@ -25,6 +25,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
 require 'pickled_optparse'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new

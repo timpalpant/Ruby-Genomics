@@ -31,6 +31,7 @@ require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'utils/unix'
 require 'utils/parallelizer'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -65,7 +66,7 @@ end
 
 
 # Initialize the assembly to generate coverage on
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
@@ -75,7 +76,7 @@ BAMFile.open(options[:input]) do |bam|
     
     # Write the chromosome fixedStep header
     File.open(options[:output]+'.'+chr, 'w') do |f|
-      f.puts Contig.new(0, chr, 1, 1, 1).to_s
+      f.puts Genomics::Contig.new(0, chr, 1, 1, 1).to_s
     end
     
     chunk_start = 1
@@ -124,7 +125,7 @@ end
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
 	name = "Mean Read Length #{File.basename(options[:input])}"
-	f.puts UCSCTrackHeader.new(:name => name)
+	f.puts Utils::UCSC::TrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
@@ -137,5 +138,5 @@ tmp_files.each { |filename| File.delete(filename) }
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'
-Wig.to_bigwig(options[:output], tmp, assembly)
+TextWigFile.to_bigwig(options[:output], tmp, assembly)
 FileUtils.move(tmp, options[:output])

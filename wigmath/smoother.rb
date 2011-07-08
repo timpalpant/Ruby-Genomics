@@ -30,6 +30,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 #require 'convolution'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -63,9 +64,6 @@ ARGV.options do |opts|
   end
 end
 
-# Set the number of threads to use
-Enumerable.max_threads = options[:threads]
-
 # Gaussian smoothing requires padding of half_window on either end
 padding = options[:sdev] * options[:window_size]
 
@@ -80,10 +78,10 @@ padding = options[:sdev] * options[:window_size]
 wig = WigFile.autodetect(options[:input])
 
 # Initialize the output assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
+wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   # Don't pad off the end of the chromosome
   query_start = [1, chunk_start-padding].max
   query_stop = [chunk_stop+padding, wig.chr_length(chr)].min

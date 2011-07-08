@@ -25,7 +25,9 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
+require 'reference_assembly'
 require 'pickled_optparse'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -55,14 +57,8 @@ ARGV.options do |opts|
 	end
 end
 
-# Load the genome to construct
-# Look for the assembly in the built-in resources directory
-builtin = File.dirname(__FILE__) + '/../resources/assemblies/' + options[:genome] + '.len'
-a = if File.exist?(builtin)
-  Assembly.load(builtin)
-else
-  Assembly.load(options[:genome])
-end
+# Load the assembly (chromosome lengths)
+a = ReferenceAssembly.load(options[:genome])
 
 # Load the BedGraph data
 BedGraphFile.open(options[:input]) do |bedgraph|

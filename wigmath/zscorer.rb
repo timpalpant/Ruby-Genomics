@@ -26,6 +26,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
 require 'pickled_optparse'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -76,10 +77,10 @@ puts "StDev: #{stdev.to_s(5)}"
 raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 
 # Initialize the output assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
+wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   chunk = wig.query(chr, chunk_start, chunk_stop)
   chunk.map { |value| (value-mean)/stdev unless value.nil? }
 end

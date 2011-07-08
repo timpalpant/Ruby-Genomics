@@ -32,6 +32,7 @@ require 'utils/parallelizer'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'utils/unix'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -73,7 +74,7 @@ else
 end
 
 # Initialize the assembly to generate coverage on
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
@@ -151,7 +152,7 @@ puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
   name = "Mapped Coverage #{File.basename(options[:input])}"
-  f.puts UCSCTrackHeader.new(:name => name)
+  f.puts Utils::UCSC::TrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
@@ -164,5 +165,5 @@ tmp_files.each { |filename| File.delete(filename) }
 
 # Conver the output Wig file to BigWig
 tmp = options[:output] + '.tmp'
-Wig.to_bigwig(options[:output], tmp, assembly)
+WigFile.to_bigwig(options[:output], tmp, assembly)
 FileUtils.move(tmp, options[:output])

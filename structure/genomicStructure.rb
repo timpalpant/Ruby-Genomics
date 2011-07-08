@@ -28,6 +28,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'structure/dna_property'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -40,8 +41,7 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  options[:genome] = 'sacCer2'
-  opts.on( '-g', '--genome ASSEMBLY', "Genome assembly (default: sacCer2)" ) { |a| options[:genome] = a }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly TwoBit file" ) { |a| options[:genome] = a }
   options[:property] = 'orchid'
   opts.on( '-p', '--property P', "DNA property to compute (default: orchid)" ) { |p| options[:property] = p.downcase }
   opts.on( '-o', '--output FILE', :required, "Output file (Wig)" ) { |f| options[:output] = f }
@@ -58,8 +58,8 @@ ARGV.options do |opts|
 end
 
 # Load the genome assembly
-a = Assembly.load(options[:genome])
-seq_file = Wig.for_assembly(a)
+a = TwoBit.open(options[:genome])
+seq_file = WigFile.for_assembly(a)
 
 # Run structural computation on all chromosomes
 puts "Computing #{options[:property]} for all chromosomes" if ENV['DEBUG']

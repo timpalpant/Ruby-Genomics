@@ -26,6 +26,7 @@ require 'bundler/setup'
 require 'bio-genomic-file'
 require 'stats'
 require 'pickled_optparse'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -55,6 +56,7 @@ end
 
 
 # Load the GFF file
+mean, stdev = nil, nil
 GFFFile.open(options[:input]) do |gff|
   # Compute mean and standard deviation
   mean = gff.mean

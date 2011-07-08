@@ -25,7 +25,8 @@ COMMON_DIR = File.expand_path(File.dirname(__FILE__) + '/../common')
 $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
-require 'bio/utils/ucsc_tools'
+require 'bio/utils/ucsc'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -53,7 +54,7 @@ end
 
 
 # Call wigCorrelate
-output = UCSCTools.wig_correlate(ARGV)
+output = UCSC.wig_correlate(ARGV)
 
 # Parse the output and write to file
 File.open(options[:output], 'w') do |f|

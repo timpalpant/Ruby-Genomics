@@ -11,7 +11,7 @@ require 'rbconfig'
 require 'tempfile'
 require 'galaxy_config'
 require 'utils/unix'
-require 'bio/utils/ucsc_tools'
+require 'bio/utils/ucsc'
 
 module GalaxyTestRunner
   CURRENT_RUBY_INTERPRETER = RbConfig::CONFIG.values_at('bindir', 'ruby_install_name').join('/')
@@ -38,8 +38,11 @@ module GalaxyTestRunner
       end
       
       begin
-        %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{execute_string(config, test, tmp_outputs)} 2>&1 ]
-        raise GalaxyTestError, "Error during script execution!" unless $?.success?
+        output = %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{execute_string(config, test, tmp_outputs)} 2>&1 ]
+        if not $?.success?
+          puts output
+          raise GalaxyTestError, "Error during script execution!"
+        end
         tests_passed += 1 if compare_output(config, test.outputs, tmp_outputs)
       ensure
         tmp_outputs.each { |name, file| File.delete(file) if File.exist?(file) }
@@ -56,7 +59,7 @@ module GalaxyTestRunner
       # Expand binary files to diff them
       if config.outputs[name].format == 'bigwig'
         wig = file + '.wig'
-        UCSCTools.bigwig_to_wig(actual[name], wig)
+        Bio::Utils::UCSC.bigwig_to_wig(actual[name], wig)
         diff = File.diff(TEST_DATA_DIR+'/'+expected[name], wig)
         File.delete(wig)
       else

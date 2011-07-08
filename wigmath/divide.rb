@@ -28,6 +28,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -58,9 +59,6 @@ ARGV.options do |opts|
   end
 end
 
-# Set the number of threads to use
-Enumerable.max_threads = options[:threads]
-
 # Initialize WigFile files
 dividend = WigFile.autodetect(options[:dividend])
 divisor = WigFile.autodetect(options[:divisor])
@@ -72,10 +70,10 @@ dividend.chromosomes.each do |chr_id|
 end
 
 # Initialize the output assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-dividend.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
+dividend.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   dividend_chunk = dividend.query(chr, chunk_start, chunk_stop)
   divisor_chunk = divisor.query(chr, chunk_start, chunk_stop)
   

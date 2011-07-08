@@ -28,6 +28,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'utils/fixed_precision'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -41,8 +42,7 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input file (Fasta format)" ) { |f| options[:input] = f }
-  options[:genome] = 'sacCer2'
-  opts.on( '-g', '--genome NAME', "Genome assembly (default: sacCer2)" ) { |name| options[:genome] = name }
+  opts.on( '-g', '--genome NAME', :required, "Genome assembly (TwoBit)" ) { |name| options[:genome] = name }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
       
   # Parse the command-line arguments
@@ -58,7 +58,7 @@ end
 
 
 # Load the genome
-genome = Genome.load(options[:genome])
+genome = TwoBit.open(options[:genome])
 
 # Load the sequences as a (# seq x 4) matrix with rows = base pair
 # and columns (Hash) being the base pair count

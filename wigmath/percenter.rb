@@ -29,6 +29,7 @@ require 'bundler/setup'
 require 'bio-genomic-file'
 require 'stats'
 require 'pickled_optparse'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -59,9 +60,6 @@ ARGV.options do |opts|
   end
 end
 
-# Set the number of threads to use
-Enumerable.max_threads = options[:threads]
-
 # Initialize Wig file to percentize
 wig = WigFile.autodetect(options[:input])
 
@@ -75,10 +73,10 @@ end
 puts "Normalization factor: #{sum}"
 
 # Initialize the output assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
-wig.transform(options[:output], assembly) do |chr, chunk_start, chunk_stop|
+wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   chunk = wig.query(chr, chunk_start, chunk_stop)
   chunk.map { |value| value / sum }
 end

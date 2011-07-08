@@ -30,6 +30,7 @@ require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -70,7 +71,7 @@ raise "Invalid range given. Range should be of the format LOW:HIGH" if low >= hi
 num_bins = high - low + 1
 
 # Load the genome assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Process each chromosome in parallel
 # Each chromosome in a different parallel process

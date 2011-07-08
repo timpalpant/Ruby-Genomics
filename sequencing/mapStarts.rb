@@ -31,6 +31,7 @@ require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -65,7 +66,7 @@ end
 
 
 # Load the genome assembly
-assembly = Assembly.load(options[:genome])
+assembly = Genomics::Assembly.load(options[:genome])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
@@ -117,7 +118,7 @@ puts "WARN: #{total_unmapped} unmapped reads" if total_unmapped > 0
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
 	name = "Mapped Reads #{File.basename(options[:input])}"
-	f.puts UCSCTrackHeader.new(:name => name)
+	f.puts Utils::UCSC::TrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file

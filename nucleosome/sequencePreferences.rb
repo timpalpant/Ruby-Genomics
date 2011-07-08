@@ -31,6 +31,7 @@ require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
@@ -64,7 +65,7 @@ end
 CHUNK_SIZE = 200_000
 
 # Initialize the Genome
-genome = Genome.new(options[:twobit])
+genome = TwoBit.open(options[:twobit])
 
 # What we're searching for
 search = ['a', 't', 'c', 'g'].repeated_permutation(options[:order]).map { |p| Bio::Sequence::NA.new(p.join) }

@@ -34,6 +34,7 @@ require 'bio-genomic-file'
 require 'fft'
 require 'gsl'
 include GSL
+include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new

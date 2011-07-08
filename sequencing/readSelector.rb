@@ -29,7 +29,6 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'utils/unix'
 
-
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
