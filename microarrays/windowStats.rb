@@ -63,22 +63,17 @@ end
 
 # Load the BigWig files
 puts "\nInitializing BigWig file(s)" if ENV['DEBUG']
-wigs = ARGV.map { |inputfile| WigFile.autodetect(inputfile) }
+inputs = ARGV.map { |input_file| EntryFile.autodetect(input_file) }
 
 puts "\nComputing #{options[:stat]} for each window" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|
-  basenames = ARGV.map { |inputfile| File.basename(inputfile) }
+  basenames = ARGV.map { |input_file| File.basename(input_file) }
   f.puts "#chr\tstart\tstop\tid\t" + basenames.join("\t")
 
   BedFile.foreach(options[:windows]) do |spot|
-    unless wigs.map { |wig| wig.include?(spot.chr, spot.low, spot.high) }.all?
-      puts "Skipping spot because Wig(s) does not have data for #{spot.query_string}" if ENV['DEBUG']
-      next
-    end
-
-    values = wigs.map do |wig|
+    values = inputs.map do |input|
       begin
-         value = wig.query(spot.chr, spot.start, spot.stop).send(options[:stat])
+         value = input.query(spot.chr, spot.start, spot.stop).send(options[:stat])
       rescue WigError
          value = 'NaN'
       end
