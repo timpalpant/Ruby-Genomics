@@ -6,8 +6,34 @@
     <param format="bigwig,wig" name="divisor" type="data" label="File 2 (divisor)" />
   </inputs>
   <outputs>
-    <data format="input" name="output" metadata_source="dividend" />
+    <data format="bigwig" name="output" metadata_source="dividend" />
   </outputs>
+  <tests>
+    <test>
+	    <param name="dividend" value="wigmath.input1"/>
+	    <param name="divisor" value="wigmath.input2"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="divide.output"/>
+	  </test>
+	  <test>
+	    <param name="dividend" value="wigmath.input1.bw"/>
+	    <param name="divisor" value="wigmath.input2"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="divide.output"/>
+	  </test>
+	  <test>
+	    <param name="dividend" value="wigmath.input1"/>
+	    <param name="divisor" value="wigmath.input2.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="divide.output"/>
+	  </test>
+	  <test>
+	    <param name="dividend" value="wigmath.input1.bw"/>
+	    <param name="divisor" value="wigmath.input2.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="divide.output"/>
+	  </test>
+  </tests>
   
   <help>
     .. class:: warningmark

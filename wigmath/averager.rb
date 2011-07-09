@@ -27,6 +27,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -68,7 +69,7 @@ end
 
 
 # Initialize the output assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
 wigs.first.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
@@ -78,5 +79,5 @@ wigs.first.transform(options[:output], assembly, :in_processes => options[:threa
   end
 
   # Return the average for this chunk
-  sum.map { |value| value / num_files }
+  sum / num_files
 end

@@ -6,8 +6,34 @@
     <param format="bigwig,wig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
   </inputs>
   <outputs>
-    <data format="input" name="output" metadata_source="minuend" />
+    <data format="bigwig" name="output" metadata_source="minuend" />
   </outputs>
+  <tests>
+    <test>
+	    <param name="minuend" value="wigmath.input1"/>
+	    <param name="subtrahend" value="wigmath.input2"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="difference.output"/>
+	  </test>
+	  <test>
+	    <param name="minuend" value="wigmath.input1.bw"/>
+	    <param name="subtrahend" value="wigmath.input2"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="difference.output"/>
+	  </test>
+	  <test>
+	    <param name="minuend" value="wigmath.input1"/>
+	    <param name="subtrahend" value="wigmath.input2.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="difference.output"/>
+	  </test>
+	  <test>
+	    <param name="minuend" value="wigmath.input1.bw"/>
+	    <param name="subtrahend" value="wigmath.input2.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <output name="output" file="difference.output"/>
+	  </test>
+  </tests>
   
   <help>
     .. class:: warningmark

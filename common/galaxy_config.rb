@@ -114,7 +114,7 @@ class GalaxyCommand
 end
 
 class GalaxyInput
-  attr_accessor :name, :type, :label, :format, :value
+  attr_accessor :name, :type, :label, :formats, :value
   
   def initialize(name, type, label)
     @name = name
@@ -133,7 +133,7 @@ class GalaxyInput
     # TODO: Parse all input attributes
     case type
     when 'data'
-      input.format = e.attributes['format']
+      input.formats = e.attributes['format'].split(',') if e.attributes.include?('format')
     end
 
     input.value = e.attributes['value'] if e.attributes.include?('value')

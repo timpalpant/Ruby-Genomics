@@ -29,6 +29,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
+require 'reference_assembly'
 #require 'convolution'
 include Bio
 
@@ -78,7 +79,7 @@ padding = options[:sdev] * options[:window_size]
 wig = WigFile.autodetect(options[:input])
 
 # Initialize the output assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
 wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|

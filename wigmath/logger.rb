@@ -27,6 +27,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
 require 'pickled_optparse'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -68,7 +69,7 @@ end
 wig = WigFile.autodetect(options[:input])
 
 # Initialize the output assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
 wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|

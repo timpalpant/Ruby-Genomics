@@ -29,6 +29,7 @@ require 'bundler/setup'
 require 'bio-genomic-file'
 require 'stats'
 require 'pickled_optparse'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -73,10 +74,9 @@ end
 puts "Normalization factor: #{sum}"
 
 # Initialize the output assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Run the subtraction on all chromosomes in parallel
 wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
-  chunk = wig.query(chr, chunk_start, chunk_stop)
-  chunk.map { |value| value / sum }
+  wig.query(chr, chunk_start, chunk_stop) / sum
 end

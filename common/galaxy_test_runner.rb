@@ -38,6 +38,7 @@ module GalaxyTestRunner
       end
       
       begin
+        puts "Running #{execute_string(config, test, tmp_outputs)}" if ENV['DEBUG']
         output = %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{execute_string(config, test, tmp_outputs)} 2>&1 ]
         if not $?.success?
           puts output
@@ -56,17 +57,28 @@ module GalaxyTestRunner
   
   def self.compare_output(config, expected, actual, stringency = 0)
     expected.each do |name, file|
+      # Automatically fail if the output file does not exist
+      return false if not File.exist?(actual[name])
+      
       # Expand binary files to diff them
       if config.outputs[name].format == 'bigwig'
         wig = file + '.wig'
-        Bio::Utils::UCSC.bigwig_to_wig(actual[name], wig)
-        diff = File.diff(TEST_DATA_DIR+'/'+expected[name], wig)
-        File.delete(wig)
+        begin
+          Bio::Utils::UCSC.bigwig_to_wig(actual[name], wig)
+          diff = File.diff(TEST_DATA_DIR+'/'+expected[name], wig)
+        rescue
+          raise GalaxyTestError, "Error converting bigWig to Wig for diffing!"
+        ensure
+          File.delete(wig) if File.exist?(wig)
+        end
       else
         diff = File.diff(TEST_DATA_DIR+'/'+expected[name], actual[name])
       end
       
-      return false unless diff.length <= 2*stringency
+      if not diff.length <= 2*stringency
+        puts diff
+        return false
+      end
     end
     
     return true
@@ -75,7 +87,7 @@ module GalaxyTestRunner
   # Construct a String to run the script
   # using the parameters in the functional test
   def self.execute_string(config, test, outputs)
-    config.command.str.gsub(/[$]{?\w+[\b\w}]/) do |match|
+    replaced = config.command.str.gsub(/[$]{?\w*[\b\w}]/) do |match|
       varname = match[1..-1].delete('{').delete('}')
       
       # Replace variables with test parameters
@@ -92,6 +104,8 @@ module GalaxyTestRunner
         match
       end
     end
+    
+    replaced.split(' ').join(' ')
   end
 end
 
