@@ -45,7 +45,7 @@ ARGV.options do |opts|
   opts.on( '-i', '--input FILE', :required, "Input SRA archive" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output FASTQ sequences" ) { |f| options[:output] = f }
   opts.on( '-n', '--id N', :required, "ID for additional output files" ) { |n| options[:id] = n }
-  opts.on( '-d', '--directory DIR', :required, "Directory for additional output files" ) { |d| options[:dir] = d }
+  opts.on( '-d', '--directory DIR', :required, "Directory for additional output files" ) { |d| options[:directory] = d }
   
   # Parse the command-line arguments
   opts.parse!
