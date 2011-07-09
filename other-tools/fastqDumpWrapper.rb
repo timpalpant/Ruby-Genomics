@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Wrapper for fastq-dump from sratoolkit 2.0
+#   Wrapper for fastq-dump from sra-toolkit 2.1
 #
 # == Usage 
 #   Dump the reads from the archive test.sra to test.fastq
@@ -13,7 +13,9 @@
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input SRA archive
-#   -o, --output        Output FASTQ reads
+#   -o, --output        Output FASTQ reads file 1
+#   -n, --id            ID for additional output files
+#   -d, --directory     Directory for additional output files
 #
 # == Author
 #   Timothy Palpant
@@ -42,6 +44,8 @@ ARGV.options do |opts|
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input SRA archive" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output FASTQ sequences" ) { |f| options[:output] = f }
+  opts.on( '-n', '--id N', :required, "ID for additional output files" ) { |n| options[:id] = n }
+  opts.on( '-d', '--directory DIR', :required, "Directory for additional output files" ) { |d| options[:dir] = d }
   
   # Parse the command-line arguments
   opts.parse!
@@ -54,16 +58,20 @@ ARGV.options do |opts|
   end
 end
 
-# Get the base directory of the output file
-output_dir = File.dirname(File.expand_path(options[:output]))
+# Call fastq-dump
+output = %x[ fastq-dump -O #{options[:directory]} #{options[:input]} ]
 
-# Call fastq-dump and swallow the output
-# Silence warnings
-output = %x[ fastq-dump -SF -O #{output_dir} #{options[:input]} ]
-
-# Write the output (e.g. "Written 1293 spots")
+# Write the output to the Galaxy summary (e.g. "Written 1293 spots")
 puts output
 
-# Move the output file of fastq-dump to the desired output file name
-# since fastq-dump only lets you specify the folder
-FileUtils.move(options[:input]+'.fastq', options[:output])
+# Reorganize the output(s)  of fastq-dump to fit Galaxy
+# See: http://wiki.g2.bx.psu.edu/Admin/Tools/Multiple%20Output%20Files
+# fastq-dump only lets you specify the folder
+
+# First file
+FileUtils.move(options[:directory]+'/'+options[:input]+'.fastq', options[:output])
+
+# Additional files
+Dir.glob(options[:directory] + '/*').each_with_index do |f,i|
+  FileUtils.move(f, "primary_#{options[:id]}_output#{i+2}_visible_fastq")
+end

@@ -62,18 +62,25 @@ ARGV.options do |opts|
 end
 
 # Load the BigWig files
-puts "\nInitializing BigWig file(s)" if ENV['DEBUG']
+puts "\nInitializing input data file(s)" if ENV['DEBUG']
 inputs = ARGV.map { |input_file| EntryFile.autodetect(input_file) }
+puts "Initialized #{inputs.length} files" if ENV['DEBUG']
+
+# Load the windows
+puts "Loading window coordinates" if ENV['DEBUG']
+loci = Array.new
+BedFile.foreach(options[:windows]) { |spot| loci << spot }
+puts "Loaded #{loci.length} windows" if ENV['DEBUG']
 
 puts "\nComputing #{options[:stat]} for each window" if ENV['DEBUG']
 File.open(options[:output], 'w') do |f|
   basenames = ARGV.map { |input_file| File.basename(input_file) }
   f.puts "#chr\tstart\tstop\tid\t" + basenames.join("\t")
 
-  BedFile.foreach(options[:windows]) do |spot|
+  loci.each do |spot|
     values = inputs.map do |input|
       begin
-         value = input.query(spot.chr, spot.start, spot.stop).send(options[:stat])
+         value = input.query(spot.chr, spot.low, spot.high).send(options[:stat])
       rescue WigError
          value = 'NaN'
       end
@@ -84,3 +91,6 @@ File.open(options[:output], 'w') do |f|
     f.puts "#{spot.to_bed}\t" + values.join("\t")
   end
 end
+
+# Close the inputs
+inputs.each { |i| i.close }

@@ -1,6 +1,6 @@
-<tool id="Fastq-dump" name="Fastq-dump" version="1.0.0">
+<tool id="Fastq-dump" name="Fastq-dump" version="1.1.0">
   <description>of SRA</description>
-  <command interpreter="ruby1.9">fastqDumpWrapper.rb -i $input -o $output</command>
+  <command interpreter="ruby1.9">fastqDumpWrapper.rb -i $input -o $output1 -n $output1.id -d $__new_file_path__</command>
   <inputs>
     <param name="input" type="data" format="sra" label="Short read archive" />
   </inputs>
