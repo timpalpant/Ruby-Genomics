@@ -1,19 +1,19 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Wrapper for fastq-dump from sra-toolkit 2.1
+#   Wrapper for abi-dump from sra-toolkit 2.1
 #
 # == Usage 
-#   Dump the reads from the archive test.sra to test.fastq
+#   Dump the reads from the archive test.sra to test.csfasta and test.quals
 #
-#   fastqDumpWrapper.rb -i test.sra -o test.fastq
+#   abiDumpWrapper.rb -i test.sra -o test.csfasta
 #
-#   For help use: fastqDumpWrapper.rb -h
+#   For help use: abiDumpWrapper.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
 #   -i, --input         Input SRA archive
-#   -o, --output        Output FASTQ reads file 1
+#   -o, --output        Output CSFASTA/QUALs reads file 1
 #   -n, --id            ID for additional output files
 #   -d, --directory     Directory for additional output files
 #
@@ -43,7 +43,7 @@ ARGV.options do |opts|
   
   # List all parameters
   opts.on( '-i', '--input FILE', :required, "Input SRA archive" ) { |f| options[:input] = f }
-  opts.on( '-o', '--output FILE', :required, "Output FASTQ sequences" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output CSFASTA/QUALs" ) { |f| options[:output] = f }
   opts.on( '-n', '--id N', :required, "ID for additional output files" ) { |n| options[:id] = n }
   opts.on( '-d', '--directory DIR', :required, "Directory for additional output files" ) { |d| options[:directory] = d }
   
@@ -59,21 +59,22 @@ ARGV.options do |opts|
 end
 
 # Call fastq-dump, output base calls (not colorspace)
-output = %x[ fastq-dump -F -B -TR -O #{options[:directory]} #{options[:input]} ]
+output = %x[ abi-dump -F -O #{options[:directory]} #{options[:input]} ]
 
 # Write the output to the Galaxy summary (e.g. "Written 1293 spots")
 puts output
 
-# Reorganize the output(s)  of fastq-dump to fit Galaxy
+# Reorganize the output(s) of abi-dump to fit Galaxy
 # See: http://wiki.g2.bx.psu.edu/Admin/Tools/Multiple%20Output%20Files
-# fastq-dump only lets you specify the folder
-output_files = Dir.glob(options[:directory]+'/'+File.basename(options[:input])+'*.fastq')
+# abi-dump only lets you specify the folder
+output_files = Dir.glob(options[:directory]+'/'+File.basename(options[:input])+'*')
 puts "#{output_files.length} output files"
 output_files.each_with_index do |f,i|
   puts "Found file #{File.basename(f)}" if ENV['DEBUG']
+  extension = File.extname(f)
   if i == 0
     FileUtils.move(f, options[:output])   
   else
-    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible_fastqsanger")
+    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible_#{extension}")
   end
 end
