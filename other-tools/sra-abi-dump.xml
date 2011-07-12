@@ -6,7 +6,6 @@
   </inputs>
   <outputs>
     <data name="output1" metadata="input" />
-    <data name="output1" format="abi" metadata="input" />
   </outputs>
   
   <help>

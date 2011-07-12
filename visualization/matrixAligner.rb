@@ -47,6 +47,7 @@ ARGV.options do |opts|
   opts.on( '-l', '--loci FILE', :required, "List of loci to align to (Bed format)" ) { |f| options[:loci] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
   opts.on( '-m', '--max N', "Maximum allowed row length" ) { |n| options[:max] = n.to_i }
+  opts.on( '-s', '--markers N', "Draw markers every N base pairs" ) { |n| options[:ladder] = n.to_i }
       
   # Parse the command-line arguments
   opts.parse!
@@ -61,8 +62,6 @@ end
 
 # Set to whatever empty matrix values should be (e.g. NaN, -, '', etc.)
 NA_PLACEHOLDER = '-'
-# Marker spacing in bp
-MARKER_SPACING = 200
 
 # Load the list of loci to align to
 loci = Array.new
@@ -105,13 +104,15 @@ if not options[:max].nil? and options[:max] < n
 end
 
 # Construct markers for the top and bottom
-marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
-marker = alignment_point % MARKER_SPACING
-while marker < right_bound-left_bound+1
-  marker_line[marker] = '1e30'
-  marker += MARKER_SPACING
+if options.include?(:ladder)
+  marker_line = Array.new(right_bound-left_bound+1, NA_PLACEHOLDER)
+  marker = alignment_point % options[:ladder]
+  while marker < right_bound-left_bound+1
+    marker_line[marker] = '1e30'
+    marker += options[:ladder]
+  end
+  marker_line ="Marker\t" +  marker_line.join("\t")
 end
-marker_line ="Marker\t" +  marker_line.join("\t")
 
 
 # Initialize the Wig file
@@ -125,10 +126,10 @@ File.open(options[:output],'w') do |f|
   # Write a header (required by matrix2png)
   f.puts "ID\t" + (left_bound-alignment_point..right_bound-alignment_point).to_a.join("\t")
   # Add markers
-  10.times { f.puts marker_line }
+  10.times { f.puts marker_line } if options.include?(:ladder)
   
   # Write the data for each row
-  loci.each do |spot|
+  loci.each_with_index do |spot,i|
     # Get the data for this interval from the wig file
     begin
       result = wig.query(spot.chr, spot.low, spot.high)
@@ -153,11 +154,12 @@ File.open(options[:output],'w') do |f|
     raise "Entry is not the right length!: #{entry.length} vs. #{n}, ({chr},#{spot})" if entry.length != n
       
     # Save to the output file
-    f.puts spot.id + "\t" + entry[left_bound..right_bound].join("\t")
+    id = spot.id ? spot.id : "Row #{i+1}"
+    f.puts id + "\t" + entry[left_bound..right_bound].join("\t")
   end
   
   # Add markers at the bottom
-  10.times { f.puts marker_line }
+  10.times { f.puts marker_line } if options.include?(:ladder)
 end
 
 puts "#{skipped} spots skipped"

@@ -75,6 +75,6 @@ output_files.each_with_index do |f,i|
   if i == 0
     FileUtils.move(f, options[:output])   
   else
-    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible_#{extension}")
+    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible")
   end
 end

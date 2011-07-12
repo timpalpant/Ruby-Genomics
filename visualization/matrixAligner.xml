@@ -1,10 +1,24 @@
 <tool id="MatrixAligner" name="Align values in a matrix" version="1.0.0">
   <description>for a heatmap</description>
-  <command interpreter="ruby1.9">matrixAligner.rb -i $input -l $loci -m $M -o $output</command>
+  <command interpreter="ruby1.9">
+    matrixAligner.rb -i $input -l $loci -m $M -o $output
+    #if str( $ladder.draw ) == "true"
+      -s $ladder.spacing
+    #end if
+  </command>
   <inputs>
       <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
       <param format="bed" name="loci" type="data" label="List of intervals (with alignment points)" />
       <param type="integer" name="M" value="4000" label="Maximum row length" />
+      <conditional name="ladder">
+        <param name="draw" type="boolean" checked="false" falsevalue="false" truevalue="true" label="Include marker ladder across X-axis"/>
+        <when value="true">
+          <param name="spacing" type="integer" value="200" label="Draw marker every N base pairs" />
+        </when>
+        <when value="false">
+          <!-- No values here -->
+        </when>
+      </conditional>
   </inputs>
   <outputs>
       <data format="tabular" name="output" />
