@@ -16,17 +16,21 @@ shared_examples "a scripts collection" do |dir|
     # Load the configuration
     config = GalaxyConfig.load(f)
     
-    # Only test scripts and not wrappers for other scripts
+    # Only test scripts and not config files for other executables
     full_path = dir + '/' + config.command.script_name
     describe "#{config.command.script_name}: #{config.long_name}", :if => File.exist?(full_path) do
-      subject { config }
-      
-      it "should compile" do
-        GalaxyTestRunner.check_compilation(subject).should be_true
+      before do
+        @runner = GalaxyTestRunner.new(config)
       end
       
-      it "should pass #{config.tests.length} functional test(s)", :if => config.tests.length > 0 do
-        GalaxyTestRunner.run_tests(subject).should == config.tests.length
+      it "should compile" do
+        @runner.check_compilation.should be_true
+      end
+      
+      config.tests.each_with_index do |t,i|
+        it "should pass test #{i+1}" do
+          @runner.run_test(t).should be_true
+        end
       end
     end
   end

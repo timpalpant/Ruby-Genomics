@@ -9,6 +9,44 @@
   <outputs>
       <data format="tabular" name="output" />
   </outputs>
+  <tests>
+    <test>
+      <param name="input" value="test.wig"/>
+	    <param name="loci" value="test.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output"/>
+    </test>
+    <test>
+      <param name="input" value="test.bw"/>
+	    <param name="loci" value="test.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output"/>
+    </test>
+    <test>
+      <param name="input" value="test.wig"/>
+	    <param name="loci" value="test2.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output2"/>
+    </test>
+    <test>
+      <param name="input" value="test.bw"/>
+	    <param name="loci" value="test2.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output2"/>
+    </test>
+    <test>
+      <param name="input" value="test.wig"/>
+	    <param name="loci" value="test3.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output3"/>
+    </test>
+    <test>
+      <param name="input" value="test.bw"/>
+	    <param name="loci" value="test3.bed"/>
+	    <param name="M" value="4000"/>
+	    <output name="output" file="matrixAligner.output3"/>
+    </test>
+  </tests>
   
 <help>
 .. class:: warningmark

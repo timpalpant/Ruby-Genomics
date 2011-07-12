@@ -13,14 +13,14 @@ end
 desc "Run unit tests"
 task :unit_test => [:check_requirements, :spec]
 
-desc "Run functional tests"
-task :functional_test => [:check_requirements, :test]
-
 desc "Run specs"
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = 'spec/**/*_spec.rb'
   t.rspec_opts = ['-I common', '--color', '--format doc']
 end
+
+desc "Run functional tests"
+task :functional_test => [:check_requirements, :test]
 
 desc "Run script specs"
 RSpec::Core::RakeTask.new(:test) do |t|

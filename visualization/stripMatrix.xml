@@ -7,6 +7,12 @@
   <outputs>
     <data format="tabular" name="output" metadata="input" />
   </outputs>
+  <tests>
+    <test>
+      <param name="input" value="stripMatrix.input"/>
+	    <output name="output" file="stripMatrix.output"/>
+    </test>
+  </tests>
   
   <help>
     .. class:: warningmark

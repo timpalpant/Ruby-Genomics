@@ -1,5 +1,5 @@
 <tool id="PatternFinder" name="Find patterns" version="1.0.0">
-  <description>in Wig files</description>
+  <description>in (Big)Wig files</description>
   <command interpreter="ruby1.9">
     patternFinder.rb -l $loci -o $output
       #for $input in $inputs
@@ -8,13 +8,16 @@
   </command>
   <inputs>
       <param name="loci" type="data" format="bed" label="Loci to align to" />
-      <repeat name="inputs" title="BigWig file">
+      <repeat name="inputs" title="(Big)Wig file">
         <param name="file" type="data" format="bigwig,wig" />
       </repeat>
   </inputs>
   <outputs>
       <data format="tabular" name="output" />
   </outputs>
+  <tests>
+    <!-- TODO -->
+  </tests>
   
 <help>
 .. class:: warningmark
