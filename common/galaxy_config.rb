@@ -184,6 +184,14 @@ class GalaxyTest
 
     return self.new(inputs, outputs)
   end
+  
+  def to_s
+    str = "GalaxyTest: "
+    str += inputs.map { |name, value| "#{name}:#{value}" }.join(', ') + '; '
+    str += outputs.map { |name, file| "#{name}:#{file}" }.join(', ')
+    
+    return str
+  end
 end
 
 class GalaxyConfigError < StandardError

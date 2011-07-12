@@ -7,7 +7,7 @@
       #end for
   </command>
   <inputs>
-      <repeat name="inputs" title="BigWig file">
+      <repeat name="inputs" title="(Big)Wig file">
         <param name="file" type="data" format="bigwig,wig" />
       </repeat>
   </inputs>

@@ -13,56 +13,60 @@ require 'galaxy_config'
 require 'utils/unix'
 require 'bio/utils/ucsc'
 
-module GalaxyTestRunner
+class GalaxyTestRunner
   CURRENT_RUBY_INTERPRETER = RbConfig::CONFIG.values_at('bindir', 'ruby_install_name').join('/')
   TEST_DATA_DIR = File.expand_path(File.dirname(__FILE__) + '/../test/test-data')
   
-  def self.check_compilation(config)
-    %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{config.command.script_name} 2>&1 ]
+  def initialize(galaxy_config)
+    @config = galaxy_config
+  end
+  
+  def check_compilation
+    %x[ #{CURRENT_RUBY_INTERPRETER} #{@config.path}/#{@config.command.script_name} 2>&1 ]
     return $?.success?
   end
   
-  def self.run_tests(config)
-    tests_passed = 0
+  def run_test(test)
+    puts "Running #{test}" if ENV['DEBUG']
     
-    config.tests.each do |test|
-      # Generate temp files for the outputs
-      tmp_outputs = Hash.new
-      test.outputs.each do |name, file| 
-        # Just use Tempfile to generate temp file names
-        tmp_file = Tempfile.new(name)
-        path = tmp_file.path
-        tmp_file.close
-        
-        tmp_outputs[name] = path
-      end
+    # Generate temp files for the outputs
+    tmp_outputs = Hash.new
+    test.outputs.each do |name, file| 
+      # Just use Tempfile to generate temp file names
+      tmp_file = Tempfile.new(name)
+      path = tmp_file.path
+      tmp_file.close
       
-      begin
-        puts "Running #{execute_string(config, test, tmp_outputs)}" if ENV['DEBUG']
-        output = %x[ #{CURRENT_RUBY_INTERPRETER} #{config.path}/#{execute_string(config, test, tmp_outputs)} 2>&1 ]
-        if not $?.success?
-          puts output
-          raise GalaxyTestError, "Error during script execution!"
-        end
-        tests_passed += 1 if compare_output(config, test.outputs, tmp_outputs)
-      ensure
-        tmp_outputs.each { |name, file| File.delete(file) if File.exist?(file) }
-      end
+      tmp_outputs[name] = path
     end
     
-    return tests_passed
+    result = false
+    begin
+      output = %x[ #{CURRENT_RUBY_INTERPRETER} #{@config.path}/#{execute_string(test, tmp_outputs)} 2>&1 ]
+      
+      if not $?.success?
+        puts output
+        raise GalaxyTestError, "Error during script execution!"
+      end
+      
+      result = compare_output(test.outputs, tmp_outputs)
+    ensure
+      tmp_outputs.each { |name, file| File.delete(file) if File.exist?(file) }
+    end
+    
+    return result
   end
   
   private
   
-  def self.compare_output(config, expected, actual, stringency = 0)
-    expected.each do |name, file|
+  def compare_output(expected, actual, stringency = 0)
+    expected.each_key do |name|
       # Automatically fail if the output file does not exist
       return false if not File.exist?(actual[name])
       
       # Expand binary files to diff them
-      if config.outputs[name].format == 'bigwig'
-        wig = file + '.wig'
+      if @config.outputs[name].format == 'bigwig'
+        wig = actual[name] + '.wig'
         begin
           Bio::Utils::UCSC.bigwig_to_wig(actual[name], wig)
           diff = File.diff(TEST_DATA_DIR+'/'+expected[name], wig)
@@ -75,25 +79,22 @@ module GalaxyTestRunner
         diff = File.diff(TEST_DATA_DIR+'/'+expected[name], actual[name])
       end
       
-      if not diff.length <= 2*stringency
-        puts diff
-        return false
-      end
+      return false unless diff.length <= 2*stringency
     end
     
     return true
   end
   
-  # Construct a String to run the script
+  # Construct a execution String to run the script
   # using the parameters in the functional test
-  def self.execute_string(config, test, outputs)
-    replaced = config.command.str.gsub(/[$]{?\w*[\b\w}]/) do |match|
+  def execute_string(test, outputs)
+    replaced = @config.command.str.gsub(/[$]{?\w*[\b\w}]/) do |match|
       varname = match[1..-1].delete('{').delete('}')
       
       # Replace variables with test parameters
       if test.inputs.include?(varname)
         # If this param is data, look for the file in the test data directory
-        if config.inputs.include?(varname) and config.inputs[varname].type == 'data'
+        if @config.inputs.include?(varname) and @config.inputs[varname].type == 'data'
           TEST_DATA_DIR + '/' + test.inputs[varname]
         else
           test.inputs[varname]
