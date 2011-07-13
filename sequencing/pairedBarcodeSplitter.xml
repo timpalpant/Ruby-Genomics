@@ -1,0 +1,16 @@
+<tool id="PairedBarcodeSplitter" name="Mate-paired barcode splitter" version="1.0.0">
+  <command interpreter="ruby1.9">pairedBarcodeSplitter.rb -i $input -b $barcodes -o $output1 -n $output1.id -d $__new_file_path__</command>
+  <inputs>
+      <param name="input" type="data" format="fastq" label="Mate-Paired Reads" />
+      <param name="barcodes" type="data" format="tabular" label="Barcodes file" />
+  </inputs>
+  <outputs>
+      <data format="input" name="output1" metadata_source="input" />
+  </outputs>
+  
+<help>
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

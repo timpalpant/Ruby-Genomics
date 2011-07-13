@@ -32,9 +32,8 @@ module Cheetah
 
         # Execute the loop on the dictionary values
         result = @dictionary[array_name].map do |value|
-          # Recurse, with the current element included in the dictionary
-          @dictionary[element_name] = value
-          Template.new(loop_code, @dictionary).resolve
+          # Recurse, with the current element as the dictionary
+          Template.new(loop_code, {element_name => value}).resolve
         end
         
         result.join(' ')
