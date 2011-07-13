@@ -8,11 +8,7 @@ module Perl
   PERLSCRIPTS = File.expand_path(File.dirname(__FILE__) + '/../resources/perlscripts')
     
   # Run the specified Perl command and return the output
-  def self.run(command)
-    command_line = command.split(' ')
-    script = command_line.first
-    args = command_line[1..-1].join(' ')
-    
+  def self.run(script, args)    
     if not File.exists?(script)
       script = PERLSCRIPTS + '/' + script
       raise "Cannot find Perl script: #{script}" unless File.exists?(script)
@@ -21,6 +17,9 @@ module Perl
     raise "Cannot find Perl interpreter in $PATH" if File.which('perl').nil?
     
     # Execute the Perl script and return the results
-    %x[ perl -I#{PERLSCRIPTS} #{script} #{args} ]
+    %x[ perl -I#{PERLSCRIPTS} #{script} #{args.join(' ')} ]
   end
+end
+
+class PerlError < StandardError
 end

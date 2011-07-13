@@ -10,6 +10,7 @@
 require 'rbconfig'
 require 'tempfile'
 require 'galaxy_config'
+require 'cheetah'
 require 'utils/unix'
 require 'bio/utils/ucsc'
 
@@ -88,25 +89,21 @@ class GalaxyTestRunner
   # Construct a execution String to run the script
   # using the parameters in the functional test
   def execute_string(test, outputs)
-    replaced = @config.command.str.gsub(/[$]{?\w*[\b\w}]/) do |match|
-      varname = match[1..-1].delete('{').delete('}')
-      
-      # Replace variables with test parameters
-      if test.inputs.include?(varname)
-        # If this param is data, look for the file in the test data directory
-        if @config.inputs.include?(varname) and @config.inputs[varname].type == 'data'
-          TEST_DATA_DIR + '/' + test.inputs[varname]
-        else
-          test.inputs[varname]
-        end
-      elsif test.outputs.include?(varname)
-        outputs[varname]
+    # Dictionary of variables to replace in the command string
+    # (inputs and outputs)
+    dictionary = Hash.new
+    
+    test.inputs.each do |varname, value|    
+      # If this param is data, look for the file in the test data directory
+      if @config.inputs.include?(varname) and @config.inputs[varname].type == 'data'
+        dictionary[varname] = TEST_DATA_DIR + '/' + test.inputs[varname]
       else
-        match
+        dictionary[varname] = test.inputs[varname]
       end
     end
     
-    replaced.split(' ').join(' ')
+    outputs.each { |varname, output_file| dictionary[varname] = output_file }
+    Cheetah::Template.new(@config.command.str, dictionary).to_s.split(/\s/).join(' ')
   end
 end
 

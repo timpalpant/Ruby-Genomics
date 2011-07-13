@@ -23,7 +23,7 @@
   <outputs>
       <data format="tabular" name="output" />
   </outputs>
-  <tests>
+  <!-- TODO:<tests>
     <test>
       <param name="input" value="test.wig"/>
 	    <param name="loci" value="test.bed"/>
@@ -60,7 +60,7 @@
 	    <param name="M" value="4000"/>
 	    <output name="output" file="matrixAligner.output3"/>
     </test>
-  </tests>
+  </tests>-->
   
 <help>
 .. class:: warningmark
