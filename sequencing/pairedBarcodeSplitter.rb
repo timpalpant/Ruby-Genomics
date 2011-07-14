@@ -61,17 +61,17 @@ File.foreach(options[:barcodes]) do |line|
   
   entry = line.split("\t")
   raise "Invalid entry in barcodes file: #{line}" if entry.length != 2
-  barcodes[entry[0]] = Sequence::NA.new(entry[1])
+  barcodes[Sequence::NA.new(entry[1])] = entry[0]
 end
 
-barcode_lengths = barcodes.map { |id,seq| seq.length }.uniq
+barcode_lengths = barcodes.map { |seq,id| seq.length }.uniq
 raise "Barcodes have differening lengths!" if barcode_lengths.length != 1
 barcode_length = barcode_lengths.first
 
 # Initialize an output file for each barcode
 outputs = Hash.new
 i = 1
-barcodes.each do |id,seq|
+barcodes.each do |seq,id|
   if i == 1
     outputs[seq] = File.open(options[:output], 'w')
   else
@@ -84,8 +84,11 @@ end
 # Iterate over the mate-paired input file and split the reads based on their barcodes
 Bio::FlatFile.open(Bio::Fastq, options[:input]) do |f|
   while (read = f.next_entry) and (barcode = f.next_entry)
-    str = "@#{read.definition}\n#{read.sequence_string}\n+#{read.definition}\n#{read.quality_string}"
-    outputs[barcode.naseq[0, barcode_length]].puts str
+    index = barcode.naseq.subseq(1, barcode_length)
+    if outputs.include?(index)
+      str = "@#{read.definition} barcode=#{index} id=#{barcodes[index]}\n#{read.sequence_string}\n+#{read.definition}\n#{read.quality_string}"
+      outputs[barcode.naseq[0, barcode_length]].puts str
+    end
   end
 end
 

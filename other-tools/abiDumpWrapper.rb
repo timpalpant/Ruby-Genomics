@@ -58,8 +58,8 @@ ARGV.options do |opts|
   end
 end
 
-# Call fastq-dump, output base calls (not colorspace)
-output = %x[ abi-dump -F -O #{options[:directory]} #{options[:input]} ]
+# Call abi-dump, output all reads in original format
+output = %x[ abi-dump -F -M 1 -O #{options[:directory]} #{options[:input]} ]
 
 # Write the output to the Galaxy summary (e.g. "Written 1293 spots")
 puts output
@@ -71,10 +71,10 @@ output_files = Dir.glob(options[:directory]+'/'+File.basename(options[:input])+'
 puts "#{output_files.length} output files"
 output_files.each_with_index do |f,i|
   puts "Found file #{File.basename(f)}" if ENV['DEBUG']
-  extension = File.extname(f)
+  extension = File.extname(f)[1..-1]
   if i == 0
     FileUtils.move(f, options[:output])   
   else
-    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible")
+    FileUtils.move(f, "#{options[:directory]}/primary_#{options[:id]}_output#{i+1}_visible_#{extension}")
   end
 end

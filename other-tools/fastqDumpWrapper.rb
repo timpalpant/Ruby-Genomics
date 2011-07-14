@@ -59,7 +59,7 @@ ARGV.options do |opts|
 end
 
 # Call fastq-dump, output base calls (not colorspace)
-output = %x[ fastq-dump -F -B -TR -O #{options[:directory]} #{options[:input]} ]
+output = %x[ fastq-dump -B -TR -M 5 -O #{options[:directory]} #{options[:input]} ]
 
 # Write the output to the Galaxy summary (e.g. "Written 1293 spots")
 puts output
