@@ -1,7 +1,8 @@
 <tool id="PairedBarcodeSplitter" name="Mate-paired barcode splitter" version="1.0.0">
-  <command interpreter="ruby1.9">pairedBarcodeSplitter.rb -i $input -b $barcodes -o $output1 -n $output1.id -d $__new_file_path__</command>
+  <command interpreter="ruby1.9">pairedBarcodeSplitter.rb -1 $input1 -2 $input2 -b $barcodes -o $output1 -n $output1.id -d $__new_file_path__</command>
   <inputs>
-      <param name="input" type="data" format="fastq" label="Mate-Paired Reads" />
+      <param name="input1" type="data" format="fastq" label="Forward Reads" />
+      <param name="input1" type="data" format="fastq" label="Reverse Reads" />
       <param name="barcodes" type="data" format="tabular" label="Barcodes file" />
   </inputs>
   <outputs>
@@ -9,6 +10,10 @@
   </outputs>
   
 <help>
+.. class:: warningmark
+
+Mate pairs are not validated. If the mates are not in sync between the two input files, use FASTQ joiner, which matches pairs.
+
 .. class:: warningmark
 
 This tool was contributed by Timothy Palpant.

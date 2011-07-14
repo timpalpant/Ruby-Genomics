@@ -5,7 +5,8 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input file (mate-paired Fastq)
+#   -1, --input1        Input file 1 (mate-paired Fastq)
+#   -2, --input2        Input file 2 (mate-paired Fastq)
 #   -b, --barcodes      Barcodes file (tab-delimeted)
 #   -o, --output        Output file 1
 #   -n, --id            Output file 1 ID
@@ -36,7 +37,8 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-i', '--input FILE', :required, "Input file with mate-paired reads (Fastq)" ) { |f| options[:input] = f }
+  opts.on( '-1', '--input1 FILE', :required, "Input file with forward reads (Fastq)" ) { |f| options[:input1] = f }
+  opts.on( '-2', '--input2 FILE', :required, "Input file with reverse reads (Fastq)" ) { |f| options[:input2] = f }
   opts.on( '-b', '--barcodes FILE', :required, "Barcodes file (tab-delimited)" ) { |f| options[:barcodes] = f }
   opts.on( '-o', '--output FILE', :required, "Output file 1" ) { |f| options[:output] = f }
   opts.on( '-n', '--id N', :required, "ID for additional output files" ) { |n| options[:id] = n }
@@ -82,12 +84,14 @@ barcodes.each do |seq,id|
 end
 
 # Iterate over the mate-paired input file and split the reads based on their barcodes
-Bio::FlatFile.open(Bio::Fastq, options[:input]) do |f|
-  while (read = f.next_entry) and (barcode = f.next_entry)
-    index = barcode.naseq.subseq(1, barcode_length)
-    if outputs.include?(index)
-      str = "@#{read.definition} barcode=#{index} id=#{barcodes[index]}\n#{read.sequence_string}\n+#{read.definition}\n#{read.quality_string}"
-      outputs[barcode.naseq[0, barcode_length]].puts str
+Bio::FlatFile.open(Bio::Fastq, options[:input1]) do |f1|
+  Bio::FlatFile.open(Bio::Fastq, options[:input2]) do |f2|
+    while (read = f1.next_entry) and (barcode = f2.next_entry)
+      index = barcode.naseq.subseq(1, barcode_length)
+      if outputs.include?(index)
+        str = "@#{read.definition} barcode=#{index} id=#{barcodes[index]}\n#{read.sequence_string}\n+#{read.definition}\n#{read.quality_string}"
+        outputs[barcode.naseq[0, barcode_length]].puts str
+      end
     end
   end
 end

@@ -101,6 +101,10 @@
     
     .. class:: warningmark
     
+    If you included markers when you created an aligned matrix, you must specify the range to use for the color scheme!
+    
+    .. class:: warningmark
+    
     This tool was contributed by Timothy Palpant.
   </help>
 </tool>
