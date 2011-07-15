@@ -32,6 +32,7 @@ require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'utils/unix'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -74,7 +75,7 @@ if options[:length]
 end
 
 # Load the genome assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
@@ -86,7 +87,7 @@ BAMFile.open(options[:input]) do |bam|
 
     # Write the chromosome fixedStep header
     File.open(options[:output]+'.'+chr, 'w') do |f|
-      f.puts Genomics::Contig.new(0, chr, 1, 1, 1).to_s
+      f.puts "fixedStep chrom=#{chr} start=1 step=1"
     end
     
     chunk_start = 1
@@ -141,8 +142,8 @@ puts "WARN: #{total_unmapped} unmapped dyads" if total_unmapped > 0
 # Write the Wiggle track header
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
-	name = "Mapped Dyads #{File.basename(options[:input])}"
-	f.puts Utils::UCSC::TrackHeader.new(:name => name)
+  name = "Mapped Dyads #{File.basename(options[:input])}"
+  f.puts Utils::UCSC::TrackHeader.new(:name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
@@ -155,5 +156,5 @@ tmp_files.each { |filename| File.delete(filename) }
 
 # Convert the output to BigWig
 tmp = options[:output] + '.tmp'
-WigFile.to_bigwig(options[:output], tmp, assembly)
+TextWigFile.to_bigwig(options[:output], tmp, assembly)
 FileUtils.move(tmp, options[:output])

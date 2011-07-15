@@ -1,0 +1,24 @@
+<tool id="bar2wig" name="BAR-to-Wig" version="1.0">
+  <description>converter</description>
+  <command interpreter="ruby1.9">barToWigWrapper.rb -i $input -t $threshold -s $step -o $output</command>
+  <inputs>
+    <param name="input" type="data" format="bar" label="Affymetrix BAR file" />
+    <param name="threshold" type="float" value="0" label="Threshold" />
+    <param name="step" type="integer" value="1" label="Step size" />
+  </inputs>
+  <outputs>
+    <data name="output" format="wig" metadata="input" />
+  </outputs>
+  
+  <help>
+    PARAMETERS:
+    
+        - threshold is the minimal signal strength (default value 0.0)
+        - step specifies the increment of the indices when sampling the  
+          data and must be an integer >= 1 (default 1)
+
+    .. class:: warningmark
+    
+    This tool was written by Istvan Albert and wrapped for Galaxy by Timothy Palpant.
+  </help>
+</tool>

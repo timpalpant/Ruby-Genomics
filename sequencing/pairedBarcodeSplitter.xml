@@ -2,11 +2,11 @@
   <command interpreter="ruby1.9">pairedBarcodeSplitter.rb -1 $input1 -2 $input2 -b $barcodes -o $output1 -n $output1.id -d $__new_file_path__</command>
   <inputs>
       <param name="input1" type="data" format="fastq" label="Forward Reads" />
-      <param name="input1" type="data" format="fastq" label="Reverse Reads" />
+      <param name="input2" type="data" format="fastq" label="Reverse Reads" />
       <param name="barcodes" type="data" format="tabular" label="Barcodes file" />
   </inputs>
   <outputs>
-      <data format="input" name="output1" metadata_source="input" />
+      <data format="input1" name="output1" metadata_source="input1" />
   </outputs>
   
 <help>
