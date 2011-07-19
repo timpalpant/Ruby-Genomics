@@ -1,55 +1,54 @@
 #
 #  convolution.rb
 #  BioRuby
-#  Compute convolutions of Arrays with GSL
+#  Compute convolutions with fftw3
+#  Good resource: http://morse.cs.byu.edu/450/lectures/lect21/fft.slides.printing.6.pdf
 #
 #  Created by Timothy Palpant on 6/1/11.
 #  Copyright 2011 UNC. All rights reserved.
 #
 
-# Compute efficient convolutions with the FFT
-
-require 'gsl'
-include GSL
+require 'fftw3'
 
 module Math
-  # Convolve Arrays a and b
+  # Convolve the real NArrays a and b
   def self.convolve(a,b)
-    raise 'Cannot convolve Arrays of unequal length!' if a.length != b.length
+    raise "Cannot convolve NArrays of unequal length!" if a.length != b.length
   
-    # Convolution is multiplication in frequency space
-    v1 = a.to_gslv.fft
-    v2 = b.to_gslv.fft
- 
-    return (v1 * v2).ifft.to_complex.fftshift.real.to_a
+    # Convolution is multiplication in frequency space:
+    # Take the DFT
+    f1 = FFTW3.fft(a)
+    f2 = FFTW3.fft(b)
+    # Multiply in frequency space, and invert the DFT
+    FFTW3.ifft(f1 * f2).real / a.length
   end
   
-  # Should only be used if computing a gaussian a few times,
-  # otherwise, the filter should be Fourier transformed once
-  # and then it can be reused
-  def self.gaussian_filter(a, sdev, window_m = 3)
-    g = Filter.gaussian(sdev, window_m)
-    
-    # Pad the gaussian vector with zeros to make it the same size as a
-    padded = Vector[a.length]
-    padded[a.length/2-g.length/2..a.length/2+g.length/2] = g
-    
-    # Convolve the array with the Gaussian filter
-    convolve(a, padded)
+  # Apply the filter f to the NArray a
+  # Convenience method for applying filters without having to figure out padding
+  def self.filter(a, f)
+    convolve(a, f.fft(a.length))[0...a.length]
   end
 end
 
-class Filter < Array
-  # Return a Gaussian vector (of length 2*sdev*window_m)
+class Filter < NArray
+  # Return a box filter (of length n)
+  def self.box(n)
+    self.float(n).fill(1.0 / n)
+  end
+  
+  # Return a Gaussian filter (of length 2*sdev*window_m)
   def self.gaussian(sdev, window_m = 3)
     half_window = sdev*window_m
-    g = Vector[2*half_window+1]
-    #coeff = 1 / (sdev*Math.sqrt(2*Math::PI))
+    g = self.float(2*half_window+1)
     for x in -half_window..half_window
       g[x+half_window] = Math.exp(-((x**2)/(2*(sdev**2))))
     end
     g /= g.sum
     
-    return self.new(g.to_a)
+    return g
+  end
+  
+  def fft(n)
+  
   end
 end

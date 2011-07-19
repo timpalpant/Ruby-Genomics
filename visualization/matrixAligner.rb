@@ -64,8 +64,7 @@ end
 NA_PLACEHOLDER = '-'
 
 # Load the list of loci to align to
-loci = Array.new
-BedFile.foreach(options[:loci]) { |spot| loci << spot }
+loci = BedFile.open(options[:loci]).to_a
 
 # Validation and default alignment points
 loci.each do |spot|

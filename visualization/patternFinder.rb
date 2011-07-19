@@ -60,8 +60,7 @@ end
 
 # Load the list of loci to align to
 puts 'Loading the list of alignment loci' if ENV['DEBUG']
-loci = Array.new
-BedFile.foreach(options[:loci]) { |spot| loci << spot }
+loci = BedFile.open(options[:loci]).to_a
 
 # Validation and default alignment points
 loci.each do |spot|

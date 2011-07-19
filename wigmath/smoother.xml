@@ -9,6 +9,50 @@
   <outputs>
       <data format="input" name="output" metadata_source="input" />
   </outputs>
+  <tests>
+    <test>
+	    <param name="input" value="wigmath.input1"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="20"/>
+	    <param name="W" value="3"/>
+	    <output name="output" file="smoother.output1"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input1.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="20"/>
+	    <param name="W" value="3"/>
+	    <output name="output" file="smoother.output1"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input2"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="10"/>
+	    <param name="W" value="2"/>
+	    <output name="output" file="smoother.output2"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input2.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="10"/>
+	    <param name="W" value="2"/>
+	    <output name="output" file="smoother.output2"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input3"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="25"/>
+	    <param name="W" value="3"/>
+	    <output name="output" file="smoother.output3"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input3.bw"/>
+	    <param name="dbkey" value="sacCer2"/>
+	    <param name="S" value="25"/>
+	    <param name="W" value="3"/>
+	    <output name="output" file="smoother.output3"/>
+	  </test>
+  </tests>
   
 <help>
 .. class:: warningmark

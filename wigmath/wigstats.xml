@@ -7,6 +7,16 @@
   <outputs>
       <data format="tabular" name="output" />
   </outputs>
+  <tests>
+    <test>
+	    <param name="input" value="wigmath.input1"/>
+	    <output name="output" file="wigstats.output"/>
+	  </test>
+	  <test>
+	    <param name="input" value="wigmath.input1.bw"/>
+	    <output name="output" file="wigstats.output"/>
+	  </test>
+  </tests>
   
 <help>
 .. class:: warningmark
