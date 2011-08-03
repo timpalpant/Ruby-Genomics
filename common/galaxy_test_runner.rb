@@ -58,6 +58,24 @@ class GalaxyTestRunner
     return result
   end
   
+  # Generate the expected output files for all tests
+  # and place them in output_dir
+  def generate_test_outputs(output_dir)
+    @config.tests.each do |t|
+      outputs = Hash.new
+      t.outputs.each do |name, file|
+        outputs[name] = File.expand_path(output_dir + '/' + file)
+      end
+      
+      # Run the test
+      output = %x[ #{CURRENT_RUBY_INTERPRETER} #{@config.path}/#{execute_string(t, outputs)} 2>&1 ]
+      if not $?.success?
+        puts output
+        raise GalaxyTestError, "Error during script execution!"
+      end
+    end
+  end
+  
   private
   
   def compare_output(expected, actual, stringency = 0)

@@ -1,6 +1,0 @@
-Wig: connected to file wigmath.input1
-fixedStep, chrom=chrXI, start=20, stop=148, header_line=2, start_line=3, stop_line=28
-fixedStep, chrom=chrI, start=1, stop=15, header_line=32, start_line=34, stop_line=48
-variableStep, chrom=2micron, start=100, stop=111, header_line=49, start_line=50, stop_line=54
-Mean:	7.67741935483871
-Standard deviation:	8.413265626471144

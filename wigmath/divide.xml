@@ -6,7 +6,7 @@
     <param format="bigwig,wig" name="divisor" type="data" label="File 2 (divisor)" />
   </inputs>
   <outputs>
-    <data format="bigwig" name="output" metadata_source="dividend" />
+    <data format="wig" name="output" metadata_source="dividend" />
   </outputs>
   <tests>
     <test>

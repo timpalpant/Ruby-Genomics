@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/timpalpant/bioruby-genomic-file.git
-  revision: 3a139da152ed84c060231b9e37716e1d7a28b12a
+  revision: 95669979a0500237cfd4d17def108d67c13e8093
   specs:
     bio-genomic-file (0.2.0)
       bio (>= 1.4.0)
@@ -36,6 +36,7 @@ DEPENDENCIES
   bio (>= 1.4.0)
   bio-genomic-file!
   fftw3 (~> 0.3.0)
+  narray (~> 0.5.9.9)
   pickled_optparse (>= 0.1.1)
   rake (~> 0.8.7)
   rspec (>= 2.5.0)

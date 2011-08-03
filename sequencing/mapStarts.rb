@@ -71,7 +71,7 @@ assembly = Genomics::Assembly.load(options[:genome])
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
 unmapped_counts = nil
-BAMFile.open(options[:input]) do |bam|
+EntryFile.autodetect(options[:input]) do |bam|
   unmapped_counts = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     unmapped = 0

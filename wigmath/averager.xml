@@ -14,7 +14,7 @@
       </repeat>
   </inputs>
   <outputs>
-      <data format="bigwig" name="output" />
+      <data format="wig" name="output" />
   </outputs>
   <tests>
 	  <!-- TODO -->

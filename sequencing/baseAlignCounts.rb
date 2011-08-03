@@ -79,7 +79,7 @@ assembly = Genomics::Assembly.load(options[:genome])
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
 unmapped_counts = nil
-BAMFile.open(options[:input]) do |bam|
+EntryFile.autodetect(options[:input]) do |bam|
   unmapped_counts = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     unmapped = 0
@@ -102,7 +102,7 @@ BAMFile.open(options[:input]) do |bam|
       query_start = [chunk_start-padding, 1].max
       query_stop = [chunk_stop+padding, chr_length].min
     
-      # Get all aligned reads for this chunk and map the dyads
+      # Get all aligned reads for this chunk and map the read coverage
       bam.each(chr, query_start, query_stop) do |entry|
         # Calculate the read stop based on specified in silico extension
         # or the read length
@@ -162,8 +162,3 @@ File.cat(tmp_files, options[:output])
 
 # Delete the individual chromosome files created by each process
 tmp_files.each { |filename| File.delete(filename) }
-
-# Conver the output Wig file to BigWig
-tmp = options[:output] + '.tmp'
-WigFile.to_bigwig(options[:output], tmp, assembly)
-FileUtils.move(tmp, options[:output])
