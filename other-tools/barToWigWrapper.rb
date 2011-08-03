@@ -45,8 +45,8 @@ ARGV.options do |opts|
 end
 
 # Call bar2wig
-bar2wig_script = File.expand_path('./bar2wig.py')
-args = ['-i', options[:input]]
+bar2wig_script = File.expand_path(File.dirname(__FILE__) + '/bar2wig.py')
+args = [options[:input]]
 args << '-t' << options[:threshold] if options.include?(:threshold)
 args << '-s' << options[:step] if options.include?(:step)
 Python.run(bar2wig_script, args)

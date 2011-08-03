@@ -17,6 +17,6 @@ module Python
     raise "Cannot find Python interpreter in $PATH" if File.which('python').nil?
     
     # Execute the Python script and return the results
-    %x[ python -I#{PYTHONSCRIPTS} #{script} #{args.join(' ')} ]
+    %x[ python #{script} #{args.join(' ')} ]
   end
 end
