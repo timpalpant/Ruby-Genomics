@@ -27,6 +27,7 @@ require 'bundler/setup'
 require 'bio-genomic-file'
 require 'pickled_optparse'
 require 'reference_assembly'
+require 'wig_transform'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -70,15 +71,18 @@ wig = WigFile.autodetect(options[:input])
 mean = wig.mean
 puts "Mean: #{mean.to_s(5)}"
 
-stdev = wig.stdev(mean)
+stdev = wig.stdev
 puts "StDev: #{stdev.to_s(5)}"
 raise "Cannot compute Z-scores for StDev = 0!" if stdev == 0
 
 # Initialize the output assembly
 assembly = ReferenceAssembly.load(options[:genome])
 
-# Run the subtraction on all chromosomes in parallel
+# Run the z-scoring on all chromosomes in parallel
 wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   chunk = wig.query(chr, chunk_start, chunk_stop)
-  chunk.map { |value| (value-mean)/stdev unless value.nil? }
+  chunk.each do |bp,value| 
+    chunk.set(bp, (value-mean)/stdev)
+  end
+  chunk
 end

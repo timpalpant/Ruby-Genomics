@@ -27,3 +27,9 @@ RSpec::Core::RakeTask.new(:test) do |t|
   t.pattern = 'test/**/*_test.rb'
   t.rspec_opts = ['-I common', '--color', '--format doc']
 end
+
+desc "Generate functional test outputs"
+RSpec::Core::RakeTask.new(:generate_outputs) do |t|
+  t.pattern = 'test/generate_outputs.rb'
+  t.rspec_opts = ['-I common', '--color', '--format doc']
+end

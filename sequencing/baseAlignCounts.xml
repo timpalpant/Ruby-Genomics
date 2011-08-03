@@ -2,17 +2,17 @@
   <description>of sequencing reads</description>
   <command interpreter="ruby1.9">baseAlignCounts.rb -i $input -g $dbkey -x $X -p 4 -o $output</command>
   <inputs>
-    <param name="input" type="data" format="bam" label="Sequencing reads" />
+    <param name="input" type="data" format="bam,sam,bed,bedgraph" label="Sequencing reads" />
     <param name="X" type="integer" value="0" label="In Silico extension (leave 0 for read length)" />
   </inputs>
   <outputs>
-    <data name="output" format="bigwig" />
+    <data name="output" format="wig" />
   </outputs>
   
   <help>
     .. class:: warningmark
     
-    This tool requires sequencing reads in BAM format.
+    This tool requires sequencing reads in SAM/BAM/Bed/BedGraph format.
     
     .. class:: warningmark
     

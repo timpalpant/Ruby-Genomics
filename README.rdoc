@@ -40,17 +40,10 @@ You can optionally copy your assembly to resources/assemblies/* if you would lik
 == External Dependencies
 
 1. Ruby 1.9.2
-2. Perl 5.12 (for calling certain external scripts)
-3. GNU Scientific Library (GSL) (for certain scripts)
-4. GNUPlot (for certain scripts)
-5. SAMTools (for working with BAM files)
-6. Tabix
-
-Most of these can be installed easily with MacPorts / package management:
-
-  $ sudo port install ruby19 perl5 gnuplot gsl
-
-Many of the scripts also rely upon a standard set of Unix command-line utilites (head, tail, grep, wc, sort, which, cat, etc.) For this reason, they will only work under Linux / Mac OS X / Cygwin.
+2. Tabix
+3. Perl 5.12 (for calling certain external scripts)
+4. SAMTools (for working with BAM files)
+5. fftw3
 
 All executable dependencies need to be available in the $PATH.
 
@@ -59,7 +52,7 @@ All executable dependencies need to be available in the $PATH.
 
 The easiest way to get set up is to use bundler:
 
-  $ sudo gem1.9 install bundler
+  $ sudo gem install bundler
 
 
 == Setup
@@ -75,4 +68,4 @@ Use bundler to install the rest of the requirements:
 
 Run the tests to ensure that everything is set up correctly:
 
-  $ rake1.9
+  $ rake

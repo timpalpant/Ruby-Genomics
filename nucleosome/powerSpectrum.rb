@@ -29,7 +29,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
-require 'fft'
+require 'fftw3'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -71,24 +71,25 @@ File.open(options[:output], 'w') do |f|
   BedFile.foreach(options[:loci]) do |spot|
     next if spot.length <= 1
     
-    # Compute the power spectrum
+    # Get the data from the Wig
     begin
-      p = wig.query(chr, spot.start, spot.stop).power_spectrum
+      data = NArray.to_na(wig.query(chr, spot.start, spot.stop).to_a)
     rescue WigError
       next
     end
     
+    # Compute the power spectrum
+    p = FFTW3.fft(data).abs**2
     # Normalize
-    total = p.sum
-    p.map! { |e| e / total }
+    p /= p.sum
     
     # Decide whether the window is crystal, bistable, or other
     # based on definitions in Vaillant et al. 2010
-    sorted_indices = p.sort_index.reverse
-    sorted = sorted_indices.map { |i| p[i] }
+    sorted_indices = p.sort_index[p.length-1..1]
+    sorted = p[sorted_indices]
     
-    num_nukes = sorted_indices.map { |e| e + 1 }
-    period = num_nukes.map { |n| spot.length / n }
+    num_nukes = sorted_indices + 1
+    period = num_nukes.collect { |n| spot.length / n }
     ratio = sorted[0] / sorted[1]
     mean_period = (period[0]+period[1]) / 2
     last_freq = [100, p.length-1].min

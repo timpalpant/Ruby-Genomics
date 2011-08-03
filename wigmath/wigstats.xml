@@ -1,18 +1,14 @@
 <tool id="WigStats" name="Compute basic statistics" version="1.0.0">
-  <description>on a BigWig file</description>
+  <description>on a (Big)Wig file</description>
   <command interpreter="ruby1.9">wigstats.rb -i $input -o $output</command>
   <inputs>
       <param format="bigwig,wig" name="input" type="data" label="BigWig file" />
   </inputs>
   <outputs>
-      <data format="tabular" name="output" />
+      <data format="text" name="output" />
   </outputs>
   
 <help>
-.. class:: warningmark
-
-This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-
 .. class:: warningmark
 
 This tool was contributed by Timothy Palpant.

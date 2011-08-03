@@ -4,10 +4,6 @@ require 'galaxy_test_runner'
 
 ##
 # Ensure that all scripts compile, and run functional tests, if available
-#
-# NOTE: Cryptic Ruby global variables
-# $? is the Process::Status object of the last process to terminate
-# $?.success? is true if the error code returned is 0, false otherwise
 ##
 
 shared_examples "a scripts collection" do |dir|

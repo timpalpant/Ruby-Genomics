@@ -2,7 +2,7 @@
   <description>of sequencing reads</description>
   <command interpreter="ruby1.9">mapStarts.rb -i $input -g $dbkey -p 4 -o $output</command>
   <inputs>
-      <param name="input" type="data" format="sam" label="Sequencing reads" />
+      <param name="input" type="data" format="sam,bam,bed,bedgraph" label="Sequencing reads" />
   </inputs>
   <outputs>
       <data name="output" format="wig" />
@@ -11,7 +11,7 @@
 <help>
 .. class:: warningmark
 
-This tool requires sequencing reads in BAM format.
+This tool requires sequencing reads in SAM/BAM/Bed/BedGraph format.
 
 .. class:: warningmark
 

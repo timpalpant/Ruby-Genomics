@@ -28,6 +28,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'reference_assembly'
+require 'wig_transform'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.

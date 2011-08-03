@@ -6,7 +6,7 @@
     <param name="base" type="integer" value="2" label="Logarithm base" />
   </inputs>
   <outputs>
-    <data format="bigwig" name="output" metadata_source="input" />
+    <data format="wig" name="output" metadata_source="input" />
   </outputs>
   <tests>
     <test>

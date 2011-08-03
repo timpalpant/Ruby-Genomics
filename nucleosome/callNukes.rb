@@ -6,13 +6,13 @@
 # == Usage 
 #   Identify nucleosome centers in file1.wig:
 #
-#   callNukes.rb -r absoluteDyads.wig -s smoothedDyads.wig -n 147 -o nucCenters.wig
+#   callNukes.rb -r dyadsDyads.wig -s smoothedDyads.wig -n 147 -o nucCenters.wig
 #
 #   For help use: callNukes.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
-#   -a, --absolute      Absolute positioning (dyads) file
+#   -a, --dyads      dyads positioning (dyads) file
 #   -s, --smoothed      Smoothed positioning (dyads) file
 #   -n, --nuke-size     Assumed size of a nucleosome (in base pairs)
 #   -o, --output        Output file
@@ -30,6 +30,8 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
 require 'stats'
+require 'reference_assembly'
+require 'narray'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -43,8 +45,9 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-a', '--absolute FILE', :required, "Absolute positioning (dyads) file" ) { |f| options[:absolute] = f }
-  opts.on( '-c', '--smoothed FILE', :required, "smoothed positioning file (smoothed)" ) { |f| options[:smoothed] = f }
+  opts.on( '-d', '--dyads FILE', :required, "dyads positioning (dyads) file" ) { |f| options[:dyads] = f }
+  opts.on( '-s', '--smoothed FILE', :required, "smoothed positioning file (smoothed)" ) { |f| options[:smoothed] = f }
+  opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   options[:nuke] = 147;
   opts.on( '-n', '--nuke-size BP', "Assumed size of a nucleosome (in base pairs)" ) { |num| options[:nuke] = num.to_i }
   opts.on( '-o', '--output FILE', :required, "Output file (Nucleosome centers)" ) { |f| options[:output] = f }
@@ -63,52 +66,74 @@ end
 
 # Half nuke size for searching windows
 half_nuke = options[:nuke] / 2
+CHUNK_SIZE = 500_000
 
-# Initialize WigFile files
-absolute = WigFile.autodetect(options[:absolute])
+# Initialize the reference assembly
+assembly = ReferenceAssembly.load(options[:genome])
+
+# Initialize the Wig files
+dyads = WigFile.autodetect(options[:dyads])
 smoothed = WigFile.autodetect(options[:smoothed])
-  
-# Validate that all files have the same chromosomes
-absolute.chromosomes.each do |chr_id|
-  raise("Files have different chromosomes!") unless smoothed.chromosomes.include?(chr_id)
-end
-  
-File.open(options[:output],'w') do |f|
+
+puts "Beginning nucleosome-calling" if ENV['DEBUG']
+File.open(options[:output], 'w') do |f|
   # Header line
-  f.puts NukeCalls::HEADER
+  f.puts NukeCallsFile::HEADER
 
   # Iterate over all chromosomes
-  absolute.chromosomes.each do |chr|
-    # Load the chromosome
-    absolute_chr = absolute[chr]
-    # Map nil values on the ends of chromosomes (from smoothing) to zero
-    smoothed_chr = smoothed[chr].map { |value| value.nil? ? 0 : value }
+  dyads.chromosomes.each do |chr|
+    puts "Processing chromosome #{chr}" if ENV['DEBUG']
+    chr_length = assembly[chr]
+    
+    # Load the entire chromosome as NArrays (for memory efficiency)
+    puts "...loading data" if ENV['DEBUG']
+    dyads_chr = NArray.sint(chr_length)
+    smoothed_chr = NArray.sfloat(chr_length)
+    
+    start = 1
+    while start < chr_length
+      stop = [start+CHUNK_SIZE, chr_length].min
+      
+      dyads.query(chr, start, stop).each do |bp, value|
+        dyads_chr[bp-1] = value
+      end
+      
+      smoothed.query(chr, start, stop).each do |bp, value|
+        smoothed_chr[bp-1] = value
+      end
+      
+      start = stop + 1
+    end
 
-    smoothed_chr.sort_index.reverse.each do |i|
+    puts "...sorting" if ENV['DEBUG']
+    sorted_indices = smoothed_chr.sort_index
+    puts "...calling nucleosomes" if ENV['DEBUG']
+    for j in 1..chr_length
+      # Iterate in descending order
+      i = sorted_indices[chr_length-j]
       if smoothed_chr[i] > 0
-        nuke = Nucleosome.new
+        nuke = Genomics::Nucleosome.new
+        nuke.chr = chr
         nuke.start = [0, i-half_nuke].max
         nuke.stop = [i+half_nuke, smoothed_chr.length-1].min
         nuke.dyad = i
         
         nuke.occupancy = 0
-        weighted_sum, smoothed_sum = 0, 0
+        weighted_sum, smoothed_sum, sum_of_squares = 0, 0, 0
         for bp in nuke.start..nuke.stop
-          nuke.occupancy += absolute_chr[bp]
-          weighted_sum += absolute_chr[bp] * bp
+          nuke.occupancy += dyads_chr[bp]
+          weighted_sum += dyads_chr[bp] * bp
           smoothed_sum += smoothed_chr[bp]
+          sum_of_squares += dyads_chr[bp] * bp**2
         end
         nuke.occupancy = nuke.occupancy.to_i
 
+        # If we found a nucleosome, compute its dyad / fuzziness
         if nuke.occupancy > 0
           nuke.dyad_mean = (weighted_sum / nuke.occupancy).to_i
           nuke.conditional_position = smoothed_chr[i] / smoothed_sum
-
-          sum_of_squares = 0
-          for bp in nuke.start..nuke.stop
-            sum_of_squares += absolute_chr[bp] * (bp - nuke.dyad_mean)**2
-          end
-          nuke.dyad_stdev = Math.sqrt(sum_of_squares.to_f / nuke.occupancy)
+          variance = (sum_of_squares - weighted_sum*nuke.dyad_mean) / nuke.occupancy
+          nuke.dyad_stdev = Math.sqrt(variance)
           
           # Write nucleosome to output
           f.puts nuke.to_s

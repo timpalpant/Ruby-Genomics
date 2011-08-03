@@ -31,15 +31,13 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'pickled_optparse'
 require 'bio-genomic-file'
-require 'fft'
-require 'gsl'
-include GSL
+require 'fftw3'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i reads.sam -o dyads.wig"
+  opts.banner = "Usage: ruby #{__FILE__} -i nukes.wig -w 1000 -s 100 -o output.txt"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -70,37 +68,35 @@ end
 wig = WigFile.autodetect(options[:input])
 
 # Store the mean spectral density
-total = Vector[(options[:padding]+1)*options[:window]/2]
+total = NArray.float((options[:padding]+1)*options[:window]/2)
 count = 0
 
 # Iterate over all the windows and compute the power spectrum
-wig.chromosomes.each do |chr|
+wig.each do |chr|
   puts "Processing chromosome #{chr}" if ENV['DEBUG']
   
   bp = 1
-  stop = wig.chr_length(chr)
+  stop = wig.chr_stop(chr)
   while bp + options[:window] < stop
     # Demean
-    data = wig.query(chr, bp, bp+options[:window]-1).to_gslv
+    data = wig.query(chr, bp, bp+options[:window]-1)
     data -= data.mean
     
     # Pad with zeros
-    padded = Vector[(options[:padding]+1)*data.length]
-    padded[0..data.length-1] = data
+    padded = NArray.float((options[:padding]+1)*data.length)
+    padded[0...data.length] = data.to_a
     
     # Compute the power spectrum and normalize
-    p = padded.power_spectrum.to_gslv
+    p = FFTW3.fft(padded).abs**2
     total_power = p.sum
     p /= total_power unless total_power == 0
     
     # Add to the total
-    total[0..p.length-1] += p
+    total[0...p.length] += p
     count += 1
     
     # Move to the next window
     bp += options[:step]
-    # Hack to force GC for large genomes
-    GC.start if count % 500 == 0
   end
 end
 

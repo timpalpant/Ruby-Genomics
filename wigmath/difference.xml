@@ -6,7 +6,7 @@
     <param format="bigwig,wig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
   </inputs>
   <outputs>
-    <data format="bigwig" name="output" metadata_source="minuend" />
+    <data format="wig" name="output" metadata_source="minuend" />
   </outputs>
   <tests>
     <test>
