@@ -7,7 +7,7 @@
     #end if
   </command>
   <inputs>
-      <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
+      <param format="bigwig" name="input" type="data" label="Sequencing data" />
       <param format="bed" name="loci" type="data" label="List of intervals (with alignment points)" />
       <param type="integer" name="M" value="4000" label="Maximum row length" />
       <conditional name="ladder">

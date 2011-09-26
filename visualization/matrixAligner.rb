@@ -135,7 +135,7 @@ File.open(options[:output],'w') do |f|
       values = (spot.low..spot.high).map { |bp| result.get(bp) }
       values.reverse! if spot.crick?
     rescue
-      puts "Skipping spot (#{spot.id},#{chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
+      puts "Skipping spot (#{spot.id},#{spot.chr}:#{spot.start}-#{spot.stop},#{spot.value}) because data could not be retrieved" if ENV['DEBUG']
       skipped += 1
       next
     end

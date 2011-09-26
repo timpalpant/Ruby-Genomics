@@ -66,7 +66,7 @@ end
 
 # Half nuke size for searching windows
 half_nuke = options[:nuke] / 2
-CHUNK_SIZE = 500_000
+CHUNK_SIZE = 10_000_000
 
 # Initialize the reference assembly
 assembly = ReferenceAssembly.load(options[:genome])

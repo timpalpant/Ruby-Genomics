@@ -91,7 +91,8 @@ wigs.each do |wig|
   count = Array.new(n, 0)
   loci.each do |spot|
     begin
-      values = wig.query(spot.chr, spot.start, spot.stop).to_a
+      contig = wig.query(spot.chr, spot.start, spot.stop)
+      values = (spot.start..spot.stop).map { |bp| contig.get(bp) }
       values.reverse! if spot.crick?
       raise "Wig query did not return the expected number of values!" if values.length != spot.length
     rescue

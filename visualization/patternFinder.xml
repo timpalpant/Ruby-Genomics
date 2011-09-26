@@ -9,7 +9,7 @@
   <inputs>
       <param name="loci" type="data" format="bed" label="Loci to align to" />
       <repeat name="inputs" title="(Big)Wig file">
-        <param name="file" type="data" format="bigwig,wig" />
+        <param name="file" type="data" format="bigwig" />
       </repeat>
   </inputs>
   <outputs>

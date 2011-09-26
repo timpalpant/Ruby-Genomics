@@ -1,3 +1,4 @@
+require 'utils/parallelizer'
 require 'bio/wig'
 
 module Bio
@@ -30,7 +31,7 @@ module Bio
       
         chunk_start = contig_info.start
         while chunk_start <= contig_info.stop
-          chunk_stop = [chunk_start+CHUNK_SIZE-1, contig_info.stop].min
+          chunk_stop = [chunk_start+1_000_000-1, contig_info.stop].min
           puts "Processing chunk #{contig_info.chr}:#{chunk_start}-#{chunk_stop}" if ENV['DEBUG']
         
           output = yield(contig_info.chr, chunk_start, chunk_stop)

@@ -7,10 +7,10 @@
       #end for
   </command>
   <inputs>
-	  <param name="file1" type="data" format="bigwig,wig" />
-	  <param name="file2" type="data" format="bigwig,wig" />
+	  <param name="file1" type="data" format="bigwig" />
+	  <param name="file2" type="data" format="bigwig" />
       <repeat name="inputs" title="(Big)Wig file">
-        <param name="file" type="data" format="bigwig,wig" />
+        <param name="file" type="data" format="bigwig" />
       </repeat>
   </inputs>
   <outputs>

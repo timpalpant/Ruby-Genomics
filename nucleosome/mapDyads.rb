@@ -33,6 +33,7 @@ require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'utils/unix'
 require 'reference_assembly'
+require 'narray'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -80,57 +81,41 @@ assembly = ReferenceAssembly.load(options[:genome])
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
 unmapped_counts = nil
-BAMFile.open(options[:input]) do |bam|
+EntryFile.autodetect(options[:input]) do |bam|
   unmapped_counts = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
+    mapped = 0
     unmapped = 0
-
-    # Write the chromosome fixedStep header
-    File.open(options[:output]+'.'+chr, 'w') do |f|
-      f.puts "fixedStep chrom=#{chr} start=1 step=1"
-    end
     
-    chunk_start = 1
-    while chunk_start < chr_length		
-      # Allocate memory for this chunk
-      chunk_stop = [chunk_start+options[:step]-1, chr_length].min
-      chunk_size = chunk_stop - chunk_start + 1
-      mapped_starts = Array.new(chunk_size, 0)
-      
-      # Pad the query because SAMTools only returns reads that physically overlap the given window
-      # It is likely that our 36bp reads may be physically outside the chunk window
-      # but the dyad will be within the chunk window (since the DNA strands are actually ~150bp)
-      query_start = [chunk_start-500, 1].max
-      query_stop = [chunk_stop+500, chr_length].min
-      
-      # Get all aligned reads for this chunk and map the dyads
-      bam.each_read(chr, query_start, query_stop) do |read|
-        center = if options[:length]
-          if read.watson?
-            read.start + offset
-          else
-            read.start - offset
-          end
+    mapped_starts = NArray.sint(chr_length)
+    # Get all aligned reads for this chunk and map the dyads
+    bam.each(chr) do |read|
+      center = if options[:length]
+        if read.watson?
+          read.start + offset
         else
-          read.center
+          read.start - offset
         end
+      else
+        read.center
+      end
           
-        begin
-          mapped_starts[center-chunk_start] += 1 if chunk_start <= center and center <= chunk_stop
-        rescue
-          unmapped += 1
-        end
+      begin
+        mapped_starts[center-1] += 1
+        mapped += 1
+      rescue
+        unmapped += 1
       end
+    end
       
-      # Write this chunk to disk
-      File.open(options[:output]+'.'+chr, 'a') do |f|
-        f.puts mapped_starts.join("\n")
-      end
-      
-      chunk_start = chunk_stop + 1
+    # Write this chunk to disk
+    File.open(options[:output]+'.'+chr, 'w') do |f|
+      f.puts "fixedStep chrom=#{chr} start=1 step=1 span=1"
+      mapped_starts.each { |bp| f.puts bp }
     end
     
     # Send the number of unmapped reads on this chromosome back to the parent process
+    puts "#{mapped} mapped dyads on chromosome #{chr}" if ENV['DEBUG']
     puts "#{unmapped} unmapped dyads on chromosome #{chr}" if unmapped > 0 and ENV['DEBUG']
     unmapped
   end
@@ -143,7 +128,7 @@ puts "WARN: #{total_unmapped} unmapped dyads" if total_unmapped > 0
 header_file = options[:output]+'.header'
 File.open(header_file, 'w') do |f|
   name = "Mapped Dyads #{File.basename(options[:input])}"
-  f.puts Utils::UCSC::TrackHeader.new(:name => name)
+  f.puts Utils::UCSC::TrackHeader.new(:type => 'wiggle_0', :name => name)
 end
 
 # Concatenate all of the individual chromosomes into the output file
@@ -153,8 +138,3 @@ File.cat(tmp_files, options[:output])
 
 # Delete the individual chromosome files created by each process
 tmp_files.each { |filename| File.delete(filename) }
-
-# Convert the output to BigWig
-tmp = options[:output] + '.tmp'
-TextWigFile.to_bigwig(options[:output], tmp, assembly)
-FileUtils.move(tmp, options[:output])
