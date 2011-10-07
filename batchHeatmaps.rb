@@ -85,7 +85,7 @@ raise "Invalid range! Should be of the form MIN:MAX" if min >= max
 data_files = if File.file?(options[:data])
   [options[:data]]
 elsif File.directory?(options[:data])
-  Dir.glob(options[:data]+'/*').select { |f| File.file?(f) and File.extname(f) == '.bw' or File.extname(f) == '.bigwig' }
+  Dir.glob(options[:data]+'/*').select { |f| File.file?(f) and File.extname(f) == '.bw' or File.extname(f) == '.bigwig' or File.extname(f) == '.wig' }
 else
   raise "Sequencing data parameter is neither a single file nor a directory! Exiting..."
 end

@@ -82,7 +82,14 @@ File.open(options[:output], 'w') do |f|
       if p1.nil? or m1.nil?
         invalid_coordinates += 1
       else
-        f.puts "#{spot.chr}\t#{m1}\t#{p1}\t#{spot.id}\t#{spot.value}\t#{spot.strand}"
+        if spot.watson?
+          start = m1.high
+          stop = p1.low
+        else
+          start = m1.low
+          stop = p1.high
+        end
+        f.puts "#{spot.chr}\t#{start}\t#{stop}\t#{spot.id}\t#{spot.value}\t#{spot.strand}"
       end
     end
   end

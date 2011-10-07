@@ -78,7 +78,7 @@ File.open(options[:output], 'w') do |f|
 
     values = wigs.map do |wig|
       begin
-         value = wig.query(spot.chr, spot.start, spot.stop).send(options[:stat])
+         value = wig.query(spot.chr, spot.low, spot.high).send(options[:stat])
       rescue WigError
          value = 'NaN'
       end

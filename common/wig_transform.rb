@@ -17,10 +17,10 @@ module Bio
 
       # Keep track of all the temporary intermediate files (header first)
       tmp_files = [header_file]
-      @contigs_index.each { |contig_info| tmp_files << "#{output_file}.#{contig_info.chr}.#{contig_info.start}" }
+      @index.each { |c| tmp_files << "#{output_file}.#{c.chr}.#{c.start}" }
   
       # Iterate by chromosome
-      @contigs_index.p_each(opts) do |contig_info|
+      @index.p_each(opts) do |contig_info|
         puts "\nProcessing contig #{contig_info}" if ENV['DEBUG']
 
         # Write the header
