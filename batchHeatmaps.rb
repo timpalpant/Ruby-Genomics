@@ -45,10 +45,18 @@ ARGV.options do |opts|
   opts.on( '-d', '--data DIR', :required, "Sequencing data directory" ) { |f| options[:data] = File.expand_path(f) }
   opts.on( '-l', '--loci DIR', :required, "Directory of alignment files" ) { |f| options[:loci] = File.expand_path(f) }
   opts.on( '-k', '--keep-matrices', "Keep aligned heatmap matrices" ) { |b| options[:keep] = b }
+  options[:m] = 4000
+  opts.on( '-m', '--maxwidth N', "Maximum heatmap width (default: 4kb)" ) { |n| options[:m] = n.to_i }
+  options[:m] = 200
+  opts.on( '-s', '--markers N', "Place alignment markers every N bp (default: 200)" ) { |n| options[:markers] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   options[:range] = '-3:3'
-  opts.on( '-r', '--range MIN:MAX', "Range to use for heatmaps (default: -3:3)" ) { |s| options[:range] = s }
+  opts.on( '-r', '--range MIN:MAX', :required, "Range to use for heatmaps" ) { |s| options[:range] = s }
+  options[:mincolor] = 'blue'
+  opts.on( '-a', '--mincolor COLOR/R:G:B', "Color for minimum value" ) { |s| options[:mincolor] = s }
+  options[:maxcolor] = 'yellow'
+  opts.on( '-b', '--maxcolor COLOR/R:G:B', "Color for maximum value" ) { |s| options[:maxcolor] = s }
   opts.on( '-o', '--output DIR', "Output directory (default: loci directory)" ) { |f| options[:output] = File.expand_path(f) }
   
   # Parse the command-line arguments
@@ -85,7 +93,7 @@ raise "Invalid range! Should be of the form MIN:MAX" if min >= max
 data_files = if File.file?(options[:data])
   [options[:data]]
 elsif File.directory?(options[:data])
-  Dir.glob(options[:data]+'/*').select { |f| File.file?(f) and File.extname(f) == '.bw' or File.extname(f) == '.bigwig' }
+  Dir.glob(options[:data]+'/**/*').select { |f| File.file?(f) and File.extname(f) == '.bw' or File.extname(f) == '.bigwig' or File.extname(f) == '.wig' }
 else
   raise "Sequencing data parameter is neither a single file nor a directory! Exiting..."
 end
@@ -96,7 +104,7 @@ data_files.each_with_index { |f,i| puts "#{i+1}\t#{File.basename(f)}" }
 loci_files = if File.file?(options[:loci])
   [options[:loci]]
 elsif File.directory?(options[:loci])
-  Dir.glob(options[:loci]+'/*').select { |f| File.file?(f) and File.extname(f) == '.bed' }
+  Dir.glob(options[:loci]+'/**/*').select { |f| File.file?(f) and File.extname(f) == '.bed' }
 else
   raise "Alignment loci parameter is neither a single file nor a directory! Exiting..."
 end
@@ -104,7 +112,8 @@ puts "\nQueued #{loci_files.length} alignment loci file(s) to process:"
 loci_files.each_with_index { |f,i| puts "#{i+1}\t#{File.basename(f)}" }
 
 # Compute how many heatmaps we will be generating
-puts "\nWill be generating #{data_files.length * loci_files.length} heatmaps"
+num_heatmaps = data_files.length * loci_files.length
+puts "\nWill be generating #{num_heatmaps} heatmaps"
 
 
 ##
@@ -122,11 +131,11 @@ loci_files.each do |loci|
     
     # Align values in a matrix for a heatmap
     aligned_matrix = heatmap_dir + '/' + File.basename(input) + '.matrix'
-    %x[ ruby1.9 visualization/matrixAligner.rb -m 4000 -i #{input} -l #{loci} -o #{aligned_matrix} ]
+    %x[ ruby1.9 visualization/matrixAligner.rb -m #{options[:m]} -s #{options[:markers]} -i #{input} -l #{loci} -o #{aligned_matrix} ]
     
     # Generate a heatmap with matrix2png (must be on the PATH)
     heatmap = heatmap_dir + '/' + File.basename(File.basename(input, '.bw'), '.bigwig') + '.png'
-    %x[ matrix2png -data #{aligned_matrix} -range #{min}:#{max} -mincolor blue -maxcolor yellow -bkgcolor white -missingcolor gray -title "#{File.basename(input)} aligned to #{File.basename(loci)} (+/- 500 bp)" -b -s > #{heatmap} ]
+    %x[ matrix2png -data #{aligned_matrix} -range #{min}:#{max} -mincolor #{options[:mincolor]} -maxcolor #{options[:maxcolor]} -bkgcolor white -missingcolor gray -title "#{File.basename(input)} aligned to #{File.basename(loci)} (markers = 200bp)" -b -s > #{heatmap} ]
     
     # Remove the aligned matrix unless we are keeping them
     File.delete(aligned_matrix) unless options[:keep]
