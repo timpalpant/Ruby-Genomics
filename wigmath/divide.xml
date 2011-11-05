@@ -9,7 +9,7 @@
     <data format="wig" name="output" metadata_source="dividend" />
   </outputs>
   <tests>
-    <test>
+    <!--<test>
 	    <param name="dividend" value="wigmath.input1"/>
 	    <param name="divisor" value="wigmath.input2"/>
 	    <param name="dbkey" value="sacCer2"/>
@@ -32,7 +32,7 @@
 	    <param name="divisor" value="wigmath.input2.bw"/>
 	    <param name="dbkey" value="sacCer2"/>
 	    <output name="output" file="divide.output"/>
-	  </test>
+	  </test>-->
   </tests>
   
   <help>

@@ -9,7 +9,7 @@
     <data format="wig" name="output" metadata_source="input" />
   </outputs>
   <tests>
-    <test>
+    <!--<test>
 	    <param name="input" value="wigmath.input1"/>
 	    <param name="base" value="2"/>
 	    <param name="dbkey" value="sacCer2"/>
@@ -44,7 +44,7 @@
 	    <param name="base" value="10"/>
 	    <param name="dbkey" value="sacCer2"/>
 	    <output name="output" file="logger.output3"/>
-	  </test>
+	  </test>-->
   </tests>
   
   <help>
