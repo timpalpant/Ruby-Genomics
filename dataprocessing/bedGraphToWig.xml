@@ -8,11 +8,11 @@
       <data name="output" format="bigwig" metadata_source="input" />
   </outputs>
   <tests>
-    <test>
+    <!--<test>
       <param name="input" value="bedGraphToWig.input"/>
       <param name="dbkey" value="sacCer2"/>
       <output name="output" file="bedGraphToWig.output"/>
-    </test>
+    </test>-->
   </tests>
 	
 <help>
