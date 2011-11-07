@@ -1,0 +1,65 @@
+<!-- Add to galaxy/tool_conf.xml within the <toolbox></toolbox> section -->
+  <label text="RubyGenomics Tools" id="lieblab" />
+  <section name="RubyGenomics: Data Processing" id="Ruby-Genomics-dataprocessing">
+    <tool file="Ruby-Genomics/dataprocessing/romanNumeralize.xml" />
+    <tool file="Ruby-Genomics/dataprocessing/bedToWig.xml" />
+    <tool file="Ruby-Genomics/dataprocessing/bedGraphToWig.xml" />
+    <tool file="Ruby-Genomics/dataprocessing/affyToBedGraph.xml" />
+    <tool file="Ruby-Genomics/dataprocessing/gffToWig.xml" />
+    <tool file="Ruby-Genomics/other-tools/bar2wig.xml" />
+  </section>
+  <section name="RubyGenomics: Nucleosome" id="Ruby-Genomics-nukes">
+    <tool file="Ruby-Genomics/nucleosome/callNukes.xml" />
+    <tool file="Ruby-Genomics/nucleosome/mapDyads.xml" />
+    <tool file="Ruby-Genomics/nucleosome/conditionalPositioning.xml" />
+    <tool file="Ruby-Genomics/nucleosome/powerSpectrum.xml" />
+    <tool file="Ruby-Genomics/nucleosome/findNuke.xml" />
+    <tool file="Ruby-Genomics/nucleosome/findNFRs.xml" />
+    <tool file="Ruby-Genomics/nucleosome/distogram.xml" />
+    <tool file="Ruby-Genomics/nucleosome/phasogram.xml" />
+    <tool file="Ruby-Genomics/nucleosome/sequencePreferences.xml" />
+  </section>
+  <section name="RubyGenomics: Sequencing" id="Ruby-Genomics-seq">
+    <tool file="Ruby-Genomics/other-tools/tagdust.xml" />
+    <!-- Duplicated Galaxy functionality, but much more efficient -->
+    <tool file="Ruby-Genomics/sequencing/readSelector.xml" />
+    <tool file="Ruby-Genomics/sequencing/pairedBarcodeSplitter.xml" />
+    <tool file="Ruby-Genomics/sequencing/windowStats.xml" />
+    <tool file="Ruby-Genomics/sequencing/regionIntensity.xml" />
+    <tool file="Ruby-Genomics/sequencing/baseAlignCounts.xml" />
+    <tool file="Ruby-Genomics/sequencing/mapStarts.xml" />
+    <tool file="Ruby-Genomics/sequencing/rollingReadLength.xml" />
+    <tool file="Ruby-Genomics/sequencing/extractRegions.xml" />
+    <tool file="Ruby-Genomics/sequencing/dumpBigWig.xml" />
+    <tool file="Ruby-Genomics/sequencing/findAbsoluteMaxima.xml" />
+    <tool file="Ruby-Genomics/sequencing/spectralDensity.xml" />
+  </section>
+  <section name="RubyGenomics: WigMath" id="Ruby-Genomics-wig">
+    <tool file="Ruby-Genomics/wigmath/averager.xml" />
+    <tool file="Ruby-Genomics/wigmath/sum.xml" />
+    <tool file="Ruby-Genomics/wigmath/difference.xml" />
+    <tool file="Ruby-Genomics/wigmath/divide.xml" />
+    <tool file="Ruby-Genomics/wigmath/percenter.xml" />
+    <tool file="Ruby-Genomics/wigmath/zscorer.xml" />
+    <tool file="Ruby-Genomics/wigmath/smoother.xml" />
+    <tool file="Ruby-Genomics/wigmath/logger.xml" />
+    <tool file="Ruby-Genomics/wigmath/wigstats.xml" />
+  </section>
+  <section name="RubyGenomics: Visualization" id="Ruby-Genomics-vis">
+    <tool file="Ruby-Genomics/visualization/patternFinder.xml" />
+    <tool file="Ruby-Genomics/visualization/matrixAligner.xml" />
+    <tool file="Ruby-Genomics/other-tools/matrix2png.xml" />
+    <tool file="Ruby-Genomics/visualization/stripMatrix.xml" />
+  </section>
+  <section name="RubyGenomics: UCSC Tools" id="UCSC-tools">
+    <tool file="Ruby-Genomics/ucsc-tools/wigCorrelate.xml" />
+    <tool file="Ruby-Genomics/ucsc-tools/bigWigToWig.xml" />
+  </section>
+  <section name="RubyGenomics: SRA-toolkit" id="SRA-toolkit">
+    <tool file="Ruby-Genomics/other-tools/sra-fastq-dump.xml" />
+    <tool file="Ruby-Genomics/other-tools/sra-abi-dump.xml" />
+  </section>
+  <section name="RubyGenomics: Motif Finding" id="Other-tools">
+    <tool file="meme/meme.xml" />
+    <tool file="Ruby-Genomics/other-tools/memeMarkov.xml" />
+  </section>
