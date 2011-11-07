@@ -6,7 +6,7 @@ gem 'fftw3', '~> 0.3.0'
 gem "bio-genomic-file", :git => 'git://github.com/timpalpant/bioruby-genomic-file.git'
 
 group :development do
-  gem 'rake', '~> 0.8.7'
+  gem 'rake', '~> 0.9.0'
   gem 'rspec', '>= 2.5.0'
   gem 'simplecov', '>= 0.4.0'
 end

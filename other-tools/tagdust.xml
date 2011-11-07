@@ -1,5 +1,5 @@
 <tool id="tagdust" name="Filter adapter sequences" version="1.0.0">
-  <description>in a FASTQ file</description>
+  <description>in a FASTQ file with TagDust</description>
   <command>tagdust -o $clean -a $artifacts -fdr $fdr -trim5 $trim5 -trim3 $trim3 ${GALAXY_DATA_INDEX_DIR}/tagdust-sequences.fa $input</command>
   <inputs>
     <param name="input" type="data" format="fastq" label="Input data" />

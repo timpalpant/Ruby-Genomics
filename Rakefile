@@ -8,6 +8,7 @@ task :default => :functional_test
 desc "Check for required executables"
 task :check_requirements do
   validate_requirements()
+  puts "All external requirements were found in the $PATH"
 end
 
 desc "Run unit tests"

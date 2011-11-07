@@ -14,7 +14,6 @@
     <tool file="Ruby-Genomics/nucleosome/conditionalPositioning.xml" />
     <tool file="Ruby-Genomics/nucleosome/powerSpectrum.xml" />
     <tool file="Ruby-Genomics/nucleosome/findNuke.xml" />
-    <tool file="Ruby-Genomics/nucleosome/findNFRs.xml" />
     <tool file="Ruby-Genomics/nucleosome/distogram.xml" />
     <tool file="Ruby-Genomics/nucleosome/phasogram.xml" />
     <tool file="Ruby-Genomics/nucleosome/sequencePreferences.xml" />
@@ -23,7 +22,6 @@
     <tool file="Ruby-Genomics/other-tools/tagdust.xml" />
     <!-- Duplicated Galaxy functionality, but much more efficient -->
     <tool file="Ruby-Genomics/sequencing/readSelector.xml" />
-    <tool file="Ruby-Genomics/sequencing/pairedBarcodeSplitter.xml" />
     <tool file="Ruby-Genomics/sequencing/windowStats.xml" />
     <tool file="Ruby-Genomics/sequencing/regionIntensity.xml" />
     <tool file="Ruby-Genomics/sequencing/baseAlignCounts.xml" />
