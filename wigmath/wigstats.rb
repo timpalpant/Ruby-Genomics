@@ -58,6 +58,6 @@ end
 WigFile.autodetect(options[:input]) do |wig|
   # Compute the statistics and write to file
   File.open(options[:output], 'w') do |f|
-    f.puts wig.summary
+    f.puts wig.to_s
   end
 end

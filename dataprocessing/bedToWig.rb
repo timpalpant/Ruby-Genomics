@@ -26,6 +26,7 @@ $LOAD_PATH << COMMON_DIR unless $LOAD_PATH.include?(COMMON_DIR)
 require 'bundler/setup'
 require 'bio-genomic-file'
 require 'pickled_optparse'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -57,7 +58,7 @@ ARGV.options do |opts|
 end
 
 # Load the genome to construct
-a = Assembly.load(options[:genome])
+a = ReferenceAssembly.load(options[:genome])
 
 # Load the Bed data
 BedFile.open(options[:input]) do |bed|

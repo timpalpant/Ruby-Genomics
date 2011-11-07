@@ -1,9 +1,9 @@
 <tool id="Difference" name="Subtract" version="1.0.0">
   <description>two BigWig files</description>
-  <command interpreter="ruby1.9">difference.rb -m $minuend -s $subtrahend -g $dbkey -p 4 -o $output</command>
+  <command interpreter="ruby1.9">difference.rb -m $minuend -s $subtrahend -g $dbkey -p 1 -o $output</command>
   <inputs>
-    <param format="bigwig" name="minuend" type="data" label="File 1 (minuend)" />
-    <param format="bigwig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
+    <param format="bigwig,wig" name="minuend" type="data" label="File 1 (minuend)" />
+    <param format="bigwig,wig" name="subtrahend" type="data" label="File 2 (subtrahend)" />
   </inputs>
   <outputs>
     <data format="wig" name="output" metadata_source="minuend" />

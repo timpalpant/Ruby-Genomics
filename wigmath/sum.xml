@@ -1,7 +1,7 @@
 <tool id="WigSum" name="Add" version="1.0.0">
   <description>multiple BigWig files</description>
   <command interpreter="ruby1.9">
-    sum.rb -g $dbkey -p 4 -o $output
+    sum.rb -g $dbkey -p 1 -o $output
       #for $input in $inputs
         ${input.file}
       #end for
@@ -12,7 +12,7 @@
       </repeat>
   </inputs>
   <outputs>
-      <data format="input" name="output" />
+      <data format="wig" name="output" />
   </outputs>
   
 <help>

@@ -8,13 +8,7 @@
 #
 #   batchHeatmaps.rb -d seqs -l aligns -o output_dir
 #
-#   For help use: wigCorrelate.rb -h
-#
-# == Options
-#   -h, --help          Displays help message
-#   -d, --data          Sequencing data
-#   -l, --loci          Loci to align to
-#   -o, --output        Output directory
+#   For help use: batchHeatmaps.rb -h
 #
 # == Author
 #   Timothy Palpant
@@ -47,16 +41,16 @@ ARGV.options do |opts|
   opts.on( '-k', '--keep-matrices', "Keep aligned heatmap matrices" ) { |b| options[:keep] = b }
   options[:m] = 4000
   opts.on( '-m', '--maxwidth N', "Maximum heatmap width (default: 4kb)" ) { |n| options[:m] = n.to_i }
-  options[:m] = 200
-  opts.on( '-s', '--markers N', "Place alignment markers every N bp (default: 200)" ) { |n| options[:markers] = n.to_i }
+  options[:markers] = 200
+  opts.on( '-s', '--markers N', "Alignment markers (default: 200bp)" ) { |n| options[:markers] = n.to_i }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of threads to use (default: 2)" ) { |n| options[:threads] = n.to_i }
   options[:range] = '-3:3'
   opts.on( '-r', '--range MIN:MAX', :required, "Range to use for heatmaps" ) { |s| options[:range] = s }
   options[:mincolor] = 'blue'
-  opts.on( '-a', '--mincolor COLOR/R:G:B', "Color for minimum value" ) { |s| options[:mincolor] = s }
+  opts.on( '-a', '--mincolor COLOR/R:G:B', "Color for minimum value (default: blue)" ) { |s| options[:mincolor] = s }
   options[:maxcolor] = 'yellow'
-  opts.on( '-b', '--maxcolor COLOR/R:G:B', "Color for maximum value" ) { |s| options[:maxcolor] = s }
+  opts.on( '-b', '--maxcolor COLOR/R:G:B', "Color for maximum value (default: yellow)" ) { |s| options[:maxcolor] = s }
   opts.on( '-o', '--output DIR', "Output directory (default: loci directory)" ) { |f| options[:output] = File.expand_path(f) }
   
   # Parse the command-line arguments
@@ -131,11 +125,11 @@ loci_files.each do |loci|
     
     # Align values in a matrix for a heatmap
     aligned_matrix = heatmap_dir + '/' + File.basename(input) + '.matrix'
-    %x[ ruby1.9 visualization/matrixAligner.rb -m #{options[:m]} -s #{options[:markers]} -i #{input} -l #{loci} -o #{aligned_matrix} ]
+    %x[ ruby1.9 visualization/matrixAligner.rb -m #{options[:m]} -s #{options[:markers]} -i '#{input}' -l '#{loci}' -o '#{aligned_matrix}' ]
     
     # Generate a heatmap with matrix2png (must be on the PATH)
     heatmap = heatmap_dir + '/' + File.basename(File.basename(input, '.bw'), '.bigwig') + '.png'
-    %x[ matrix2png -data #{aligned_matrix} -range #{min}:#{max} -mincolor #{options[:mincolor]} -maxcolor #{options[:maxcolor]} -bkgcolor white -missingcolor gray -title "#{File.basename(input)} aligned to #{File.basename(loci)} (markers = 200bp)" -b -s > #{heatmap} ]
+    %x[ matrix2png -data '#{aligned_matrix}' -range #{min}:#{max} -mincolor #{options[:mincolor]} -maxcolor #{options[:maxcolor]} -bkgcolor white -missingcolor gray -title "#{File.basename(input)} aligned to #{File.basename(loci)} (markers = #{options[:markers]})" -b -s > '#{heatmap}' ]
     
     # Remove the aligned matrix unless we are keeping them
     File.delete(aligned_matrix) unless options[:keep]

@@ -46,6 +46,7 @@ module Bio
       end
       
       # Concatenate all of the temp file pieces into the final output
+      puts "Concatenating transformed Wig contigs" if ENV['DEBUG']
       File.cat(tmp_files, output_file)
     ensure
       # Delete the individual temp files created by each process

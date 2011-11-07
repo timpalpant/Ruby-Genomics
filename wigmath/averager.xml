@@ -1,16 +1,16 @@
 <tool id="WigAvg" name="Average" version="1.0.0">
   <description>multiple BigWig files</description>
   <command interpreter="ruby1.9">
-    averager.rb -g $dbkey -p 4 -o $output $file1 $file2
+    averager.rb -g $dbkey -p 1 -o $output $file1 $file2
       #for $input in $inputs
         ${input.file}
       #end for
   </command>
   <inputs>
-	  <param name="file1" type="data" format="bigwig" />
-	  <param name="file2" type="data" format="bigwig" />
+	  <param name="file1" type="data" format="bigwig,wig" />
+	  <param name="file2" type="data" format="bigwig,wig" />
       <repeat name="inputs" title="(Big)Wig file">
-        <param name="file" type="data" format="bigwig" />
+        <param name="file" type="data" format="bigwig,wig" />
       </repeat>
   </inputs>
   <outputs>

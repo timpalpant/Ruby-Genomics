@@ -73,7 +73,7 @@ File.open(options[:output], 'w') do |f|
     
     # Get the data from the Wig
     begin
-      data = NArray.to_na(wig.query(chr, spot.start, spot.stop).to_a)
+      data = NArray.to_na(wig.query(spot.chr, spot.low, spot.high).to_a)
     rescue WigError
       next
     end
@@ -104,7 +104,7 @@ File.open(options[:output], 'w') do |f|
       spot.value = "Other"
     end
     
-    f.puts "#{spot.id}\t#{chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{sorted[0]}\t#{num_nukes[0]}\t#{period[0]}\t#{sorted[1]}\t#{num_nukes[1]}\t#{period[1]}\t\t#{p[0..last_freq].to_a.join("\t")}" 
+    f.puts "#{spot.id}\t#{spot.chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{sorted[0]}\t#{num_nukes[0]}\t#{period[0]}\t#{sorted[1]}\t#{num_nukes[1]}\t#{period[1]}\t\t#{p[0..last_freq].to_a.join("\t")}" 
   end
 end
 

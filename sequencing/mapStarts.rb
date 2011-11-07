@@ -31,6 +31,7 @@ require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
 require 'stats'
+require 'reference_assembly'
 include Bio
 
 # This hash will hold all of the options parsed from the command-line by OptionParser.
@@ -66,7 +67,7 @@ end
 
 
 # Load the genome assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Process each chromosome in chunks
 # Each chromosome in a different parallel process
@@ -78,7 +79,7 @@ EntryFile.autodetect(options[:input]) do |bam|
 
     # Write the chromosome fixedStep header
     File.open(options[:output]+'.'+chr, 'w') do |f|
-      f.puts Contig.new(0, chr, 1, 1, 1).to_s
+      f.puts "fixedStep chrom=#{chr} start=1 step=1 span=1"
     end
     
     chunk_start = 1
