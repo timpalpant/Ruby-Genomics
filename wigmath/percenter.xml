@@ -1,5 +1,5 @@
 <tool id="Percenter" name="Normalize" version="1.0.0">
-  <description>a BigWig file</description>
+  <description>a (Big)Wig file</description>
   <command interpreter="ruby1.9">percenter.rb -i $input -t $T -g $dbkey -p 1 -o $output</command>
   <inputs>
     <param format="bigwig,wig" name="input" type="data" label="Normalize the data in" />
@@ -48,10 +48,6 @@
   </tests>
   
   <help>
-    .. class:: warningmark
-    
-    This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-    
     .. class:: warningmark
     
     This tool was contributed by Timothy Palpant.

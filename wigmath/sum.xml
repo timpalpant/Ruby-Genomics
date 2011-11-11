@@ -1,5 +1,5 @@
 <tool id="WigSum" name="Add" version="1.0.0">
-  <description>multiple BigWig files</description>
+  <description>multiple (Big)Wig files</description>
   <command interpreter="ruby1.9">
     sum.rb -g $dbkey -p 1 -o $output
       #for $input in $inputs
@@ -7,8 +7,8 @@
       #end for
   </command>
   <inputs>
-      <repeat name="inputs" title="Wig file">
-        <param name="file" type="data" format="bigwig" />
+      <repeat name="inputs" title="(Big)Wig file">
+        <param name="file" type="data" format="bigwig,wig" />
       </repeat>
   </inputs>
   <outputs>
@@ -16,10 +16,6 @@
   </outputs>
   
 <help>
-.. class:: warningmark
-
-This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-
 .. class:: warningmark
 
 This tool was contributed by Timothy Palpant.

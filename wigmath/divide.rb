@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Find the division of 2 BigWig files
+#   Find the division of two (Big)Wig files
 #
 # == Usage 
 #   Divide file2.bw into file1.bw:
@@ -35,7 +35,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -1 file1.bw -2 file2.bw -o output.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -1 file1.bw -2 file2.bw -o output.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts

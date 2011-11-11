@@ -1,0 +1,40 @@
+<tool id="WigAvg" name="Normalize to input" version="1.0.0">
+  <description>and merge replicates</description>
+  <command interpreter="ruby1.9">
+    replicateMerger.rb -g $dbkey -p 1 -r $relative -a $absolute
+      #for $input in $inputs
+        ${input.signal},${input.input}
+      #end for
+  </command>
+  <inputs>
+    <repeat name="inputs" title="Replicate">
+      <param name="signal" type="data" format="bigwig,wig" />
+      <param name="input" type="data" format="bigwig,wig" />
+    </repeat>
+    <param name="base" type="integer" value="2" label="Logarithm base for relative difference" />
+  </inputs>
+  <outputs>
+      <data format="wig" name="relative" />
+      <data format="wig" name="absolute" />
+  </outputs>
+  <tests>
+	  <!-- TODO -->
+  </tests>
+
+
+<help>
+This tool produces 2 output files, one that is the normalized absolute difference between the signal and input:
+
+Z(signal-input)
+
+and one that is the normalize relative difference:
+
+Z(Log2(signal/input))
+
+If multiple replicates are provided, they are averaged after computing the absolute and relative differences for each replicate as above.
+  
+.. class:: warningmark
+
+This tool was contributed by Timothy Palpant.
+</help>
+</tool>

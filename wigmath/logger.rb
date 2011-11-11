@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Log-transform BigWig files
+#   Log-transform (Big)Wig files
 #
 # == Examples
 #   This command processes seqData.bw:
@@ -34,7 +34,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -b 2 -o output.log2.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -b 2 -o output.log2.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts

@@ -36,7 +36,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -o output.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -o output.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -44,7 +44,7 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input (Big)Wig file" ) { |f| options[:input] = f }
   opts.on( '-t', '--total NUM', "Number to divide each value by (optional)" ) { |n| options[:total] = n.to_f }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Find the difference between 2 BigWig files
+#   Find the difference between two (Big)Wig files
 #
 # == Usage 
 #   Subtract file2.bw from file1.bw:
@@ -35,7 +35,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -m file1.bw -s file2.bw -p -o output.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -m file1.bw -s file2.bw -p -o output.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -43,12 +43,12 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-m', '--minuend FILE', :required, "File 1 (BigWig)" ) { |f| options[:minuend] = f }
-  opts.on( '-s', '--subtrahend FILE', :required, "File 2 (BigWig)" ) { |f| options[:subtrahend] = f }
+  opts.on( '-m', '--minuend FILE', :required, "File 1 (Big)Wig)" ) { |f| options[:minuend] = f }
+  opts.on( '-s', '--subtrahend FILE', :required, "File 2 (Big)Wig" ) { |f| options[:subtrahend] = f }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
-  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output file (Big)Wig" ) { |f| options[:output] = f }
       
   # Parse the command-line arguments
   opts.parse!

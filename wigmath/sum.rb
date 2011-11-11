@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Sums BigWig Files
+#   Sums (Big)Wig Files
 #
 # == Usage 
 #   Sum file1.bw and file2.bw:
@@ -34,7 +34,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} file1.bw file2.bw -o output.bw"
+  opts.banner = "Usage: ruby #{__FILE__} file1.bw file2.bw -o output.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -42,7 +42,6 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  options[:step] = 500_000
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }

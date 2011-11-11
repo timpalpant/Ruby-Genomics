@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Gaussian smooths BigWig Files
+#   Gaussian smooths (Big)Wig Files using FFT-based convolution
 #
 # == Usage 
 #   Smooth file1.bw:
@@ -37,7 +37,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i file1.bw -o file1.smoothed.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -i file1.bw -o file1.smoothed.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -45,7 +45,7 @@ ARGV.options do |opts|
   end
   
   # List all parameters
-  opts.on( '-i', '--input FILE', :required, "Input file (BigWig)" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input (Big)Wig file" ) { |f| options[:input] = f }
   options[:sdev] = 20
   opts.on( '-s', '--sdev NUM', "Standard deviation of the Gaussian in base pairs (default 20)" ) { |num| options[:sdev] = num.to_i }
   options[:window_size] = 3

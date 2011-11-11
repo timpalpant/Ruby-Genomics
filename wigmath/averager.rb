@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Averages multiple BigWig Files
+#   Averages multiple (Big)Wig Files
 #
 # == Usage 
 #   Average file1.bw and file2.bw:
@@ -34,7 +34,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} file1.bw file2.bw -o output.bw"
+  opts.banner = "Usage: ruby #{__FILE__} file1.bw file2.bw -o output.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -45,7 +45,7 @@ ARGV.options do |opts|
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
-  opts.on( '-o', '--output FILE', :required, "Output file (BigWig)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output (Big)Wig file" ) { |f| options[:output] = f }
       
   # Parse the command-line arguments
   opts.parse!
@@ -61,6 +61,8 @@ end
 # Initialize the wig files to average
 wigs = ARGV.map { |filename| WigFile.autodetect(filename) }
 num_files = wigs.length.to_f
+raise "No reason to average < 2 wig files!" if num_files < 1
+
 # Validate their compatibility
 wigs[1..-1].each do |wig|
   wigs.first.chromosomes.each do |chr|

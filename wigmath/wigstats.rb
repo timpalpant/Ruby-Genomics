@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Compute basic statistics on BigWig files
+#   Compute basic descriptive statistics on (Big)Wig files
 #
 # == Examples
 #   This command processes seqData.bw:
@@ -39,7 +39,7 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input (Big)Wig file" ) { |f| options[:input] = f }
   opts.on( '-o', '--output FILE', :required, "Output file" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments

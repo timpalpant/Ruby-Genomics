@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby1.9
 
 # == Synopsis 
-#   Z-score BigWig files
+#   Z-score (Big)Wig files
 #
 # == Examples
 #   This command processes seqData.bw:
@@ -11,7 +11,7 @@
 #
 # == Options
 #   -h, --help          Displays help message
-#   -i, --input         Input BigWig file to Z-score
+#   -i, --input         Input (Big)Wig file to Z-score
 #   -o, --output        Output Z-scored Wig file
 #
 # == Author
@@ -33,7 +33,7 @@ include Bio
 # This hash will hold all of the options parsed from the command-line by OptionParser.
 options = Hash.new
 ARGV.options do |opts|
-  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -o output.zscored.bw"
+  opts.banner = "Usage: ruby #{__FILE__} -i input.bw -o output.zscored.wig"
   # This displays the help screen, all programs are assumed to have this option.
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -41,11 +41,11 @@ ARGV.options do |opts|
   end
   
   # Input/output arguments
-  opts.on( '-i', '--input FILE', :required, "Input BigWig file" ) { |f| options[:input] = f }
+  opts.on( '-i', '--input FILE', :required, "Input (Big)Wig file" ) { |f| options[:input] = f }
   options[:threads] = 2
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
-  opts.on( '-o', '--output FILE', "Output BigWig file (Z-scored)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output Wig file (Z-scored)" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments
   opts.parse!
@@ -55,11 +55,6 @@ ARGV.options do |opts|
     puts opts.missing_switches
     puts opts
     exit
-  end
-  
-  # Construct default output filename if not specified
-  if options[:output].nil?
-    options[:output] = File.basename(options[:input], '.bw') + '.zscored.bw'
   end
 end
 

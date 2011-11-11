@@ -1,5 +1,5 @@
 <tool id="Divide" name="Divide" version="1.0.0">
-  <description>two BigWig files</description>
+  <description>two (Big)Wig files</description>
   <command interpreter="ruby1.9">divide.rb -1 $dividend -2 $divisor -g $dbkey -p 1 -o $output</command>
   <inputs>
     <param format="bigwig,wig" name="dividend" type="data" label="File 1 (dividend)" />
@@ -36,10 +36,6 @@
   </tests>
   
   <help>
-    .. class:: warningmark
-
-    This tool requires BigWig formatted data. If your data is in Wig format, use the Convert Formats -> Wig-to-BigWig tool.
-    
     .. class:: warningmark
     
     This tool was contributed by Timothy Palpant.

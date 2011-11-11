@@ -1,10 +1,9 @@
 <tool id="GaussianSmoother" name="Gaussian smooth" version="1.0.0">
-  <description>a BigWig file</description>
-  <command interpreter="ruby1.9">smoother.rb -i $input -s $S -w $W -g $dbkey -p 1 -o $output</command>
+  <description>a (Big)Wig file</description>
+  <command interpreter="ruby1.9">smoother.rb -i $input -s $S -w 3 -g $dbkey -p 1 -o $output</command>
   <inputs>
       <param name="input" type="data" format="bigwig,wig" label="Smooth the data in" />
       <param name="S" type="integer" value="20" optional="true" label="Standard deviation of the Gaussian in base pairs" />
-      <param name="W" type="integer" value="3" optional="true" label="Number of standard deviations +/- to make a window" />
   </inputs>
   <outputs>
       <data format="wig" name="output" metadata_source="input" />

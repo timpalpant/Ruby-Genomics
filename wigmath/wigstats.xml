@@ -2,7 +2,7 @@
   <description>on a (Big)Wig file</description>
   <command interpreter="ruby1.9">wigstats.rb -i $input -o $output</command>
   <inputs>
-      <param format="bigwig,wig" name="input" type="data" label="BigWig file" />
+      <param format="bigwig,wig" name="input" type="data" label="(Big)Wig file" />
   </inputs>
   <outputs>
       <data format="text" name="output" />
