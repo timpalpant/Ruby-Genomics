@@ -14,8 +14,8 @@
     <param name="base" type="integer" value="2" label="Logarithm base for relative difference" />
   </inputs>
   <outputs>
-      <data format="wig" name="relative" />
-      <data format="wig" name="absolute" />
+      <data format="wig" name="relative" label="Relative difference on ${on_string}" />
+      <data format="wig" name="absolute" label="Absolute difference on ${on_string}" />
   </outputs>
   <tests>
 	  <!-- TODO -->

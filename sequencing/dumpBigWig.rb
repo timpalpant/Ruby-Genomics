@@ -54,13 +54,25 @@ ARGV.options do |opts|
   end
 end
 
+CHUNK_SIZE = 1_000_000
 
 # Load the Wig file
-wig = BigWigFile.open(options[:input])
+wig = WigFile.autodetect(options[:input])
 
 # Process each chromosome in chunks
-File.open(option[:output], 'w') do |f|
-  wig.each_chunk do |chunk|
-    f.puts chunk.to_a.join("\n")
+File.open(options[:output], 'w') do |f|
+  wig.chromosomes.each do |chr|
+    start = wig.chr_start(chr)
+    stop = wig.chr_stop(chr)
+
+    bp = start
+    while bp < stop
+      query_start = bp
+      query_stop = [bp+CHUNK_SIZE-1, stop].min
+      data = wig.query(chr, query_start, query_stop)
+      data.each do |bp, value|
+        f.puts value
+      end
+    end
   end
 end
