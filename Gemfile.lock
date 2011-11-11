@@ -1,5 +1,6 @@
-PATH
-  remote: ~/Documents/Workspace/bioruby-genomic-file
+GIT
+  remote: git://github.com/timpalpant/bioruby-genomic-file.git
+  revision: c639a67fd846712709777380d73db745a938118e
   specs:
     bio-genomic-file (0.3.0)
       bio (>= 1.4.0)

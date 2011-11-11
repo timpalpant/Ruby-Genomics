@@ -3,7 +3,7 @@ gem 'pickled_optparse', '>= 0.1.1'
 gem 'bio', '>= 1.4.0'
 gem 'narray', '>= 0.5.9.9'
 gem 'fftw3', '>= 0.3.0'
-gem "bio-genomic-file", :path => '~/Documents/Workspace/bioruby-genomic-file'
+gem "bio-genomic-file", :git => 'git://github.com/timpalpant/bioruby-genomic-file.git'
 
 group :development do
   gem 'rake', '>= 0.9.0'
