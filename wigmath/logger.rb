@@ -48,7 +48,7 @@ ARGV.options do |opts|
   options[:threads] = 2
   opts.on( '-g', '--genome ASSEMBLY', :required, "Genome assembly" ) { |g| options[:genome] = g }
   opts.on( '-p', '--threads N', "Number of processes (default: 2)" ) { |n| options[:threads] = n.to_i }
-  opts.on( '-o', '--output FILE', "Output Wig file (log-transformed)" ) { |f| options[:output] = f }
+  opts.on( '-o', '--output FILE', :required, "Output Wig file (log-transformed)" ) { |f| options[:output] = f }
   
   # Parse the command-line arguments
   opts.parse!
@@ -58,12 +58,6 @@ ARGV.options do |opts|
     puts opts.missing_switches
     puts opts
     exit
-  end
-  
-  # Construct default output filename if not specified
-  if options[:output].nil?
-    ext = File.extname(options[:input])
-    options[:output] = File.basename(options[:input], ext) + ".log#{options[:base]}.wig"
   end
 end
 
@@ -76,7 +70,7 @@ assembly = ReferenceAssembly.load(options[:genome])
 # Run the subtraction on all chromosomes in parallel
 wig.transform(options[:output], assembly, :in_processes => options[:threads]) do |chr, chunk_start, chunk_stop|
   chunk = wig.query(chr, chunk_start, chunk_stop)
-  chunk.each do |bp,value| 
+  chunk.each do |bp,value|
     chunk.set(bp, Math.log(value, options[:base]))
   end
   chunk

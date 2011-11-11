@@ -24,6 +24,7 @@ require 'bio-genomic-file'
 require 'pickled_optparse'
 require 'reference_assembly'
 require 'wig_transform'
+require 'utils/parallelizer'
 require 'fileutils'
 require 'rbconfig'
 include Bio
@@ -32,7 +33,7 @@ RUBY_INTERPRETER = File.join(Config::CONFIG["bindir"],
                              Config::CONFIG["RUBY_INSTALL_NAME"] +
                              Config::CONFIG["EXEEXT"])
 DIFFERENCE_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/difference.rb')
-DIFFERENCE_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/divide.rb')
+DIVIDE_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/divide.rb')
 LOGGER_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/logger.rb')
 ZSCORER_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/zscorer.rb')
 AVERAGER_SCRIPT = File.expand_path(File.dirname(__FILE__) + '/averager.rb')
@@ -79,23 +80,26 @@ end
 NormalizedPair = Struct.new(:absolute, :relative)
 tmp_files = Array.new
 begin
-  processed = replicates.map do |pair|
+  i = 0
+  processed = replicates.p_map(:in_threads => options[:threads])  do |pair|
+    i += 1    
+
     # Compute the absolute difference and Z-score
-    tmp_difference = File.basename(pair.signal) + '-minus-' + File.basename(pair.input) + '.tmp.wig'
+    tmp_difference = "replicate#{i}.diff.wig"
     tmp_files << tmp_difference
     %x[ #{RUBY_INTERPRETER} #{DIFFERENCE_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -m #{pair.signal} -s #{pair.input} -o #{tmp_difference}]
-    absolute = File.basename(pair.signal) + '-minus-' + File.basename(pair.input) + '.zscored.wig'
+    absolute = "replicate#{i}.diff.zscored.wig"
     tmp_files << absolute
     %x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_difference} -o #{absolute} ]
   
     # Compute the relative difference, log-transform and Z-score
-    tmp_divide = File.basename(pair.signal) + '-over-' + File.basename(pair.input) + '.tmp.wig'
+    tmp_divide = "replicate#{i}.div.wig"
     tmp_files << tmp_divide
     %x[ #{RUBY_INTERPRETER} #{DIVIDE_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -1 #{pair.signal} -2 #{pair.input} -o #{tmp_divide}]
-    tmp_log = File.basename(pair.signal) + '-over-' + File.basename(pair.input) + '.log.tmp.wig'
+    tmp_log = "replicate#{i}.div.log.wig"
     tmp_files << tmp_log
     %x[ #{RUBY_INTERPRETER} #{LOGGER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -b #{options[:base]} -i #{tmp_divide} -o #{tmp_log}]
-    relative = File.basename(pair.signal) + '-over-' + File.basename(pair.input) + '.zscored.wig'
+    relative = "replicate#{i}.div.log.zscored.wig"
     tmp_files << relative
     %x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_log} -o #{relative} ]
     

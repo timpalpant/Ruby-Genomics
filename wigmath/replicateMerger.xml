@@ -1,4 +1,4 @@
-<tool id="WigAvg" name="Normalize to input" version="1.0.0">
+<tool id="ReplicateMerger" name="Normalize to input" version="1.0.0">
   <description>and merge replicates</description>
   <command interpreter="ruby1.9">
     replicateMerger.rb -g $dbkey -p 1 -r $relative -a $absolute
@@ -23,16 +23,6 @@
 
 
 <help>
-This tool produces 2 output files, one that is the normalized absolute difference between the signal and input:
-
-Z(signal-input)
-
-and one that is the normalize relative difference:
-
-Z(Log2(signal/input))
-
-If multiple replicates are provided, they are averaged after computing the absolute and relative differences for each replicate as above.
-  
 .. class:: warningmark
 
 This tool was contributed by Timothy Palpant.

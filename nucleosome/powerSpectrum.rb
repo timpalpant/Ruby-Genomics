@@ -80,6 +80,13 @@ File.open(options[:output], 'w') do |f|
     
     # Compute the power spectrum
     p = FFTW3.fft(data).abs**2
+    # fftshift
+    h = p.length / 2
+    for i in 0...h
+      tmp = p[i]
+      p[i] = p[h+i]
+      p[h+i] = tmp
+    end
     # Normalize
     p /= p.sum
     
@@ -92,7 +99,7 @@ File.open(options[:output], 'w') do |f|
     period = num_nukes.collect { |n| spot.length / n }
     ratio = sorted[0] / sorted[1]
     mean_period = (period[0]+period[1]) / 2
-    last_freq = [100, p.length-1].min
+    last_freq = [80, p.length-1].min
     if sorted[0] > 0.5 and ratio > 3 and period[0] > 125 and period[0] < 210
       crystal += 1
       spot.value = "Crystal"
