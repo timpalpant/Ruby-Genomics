@@ -6,7 +6,7 @@
 #
 # What it installs:
 #   - Homebrew (package manager): http://mxcl.github.com/homebrew/
-#     - Git (SCM): http://www.fftw.org/
+#     - Git (SCM): http://www.git-scm.com/
 #     - FFTW3 library: http://www.fftw.org/
 #   - Samtools
 #   - Tabix
@@ -32,14 +32,16 @@ hash git 2>&- || { brew install git; }
 
 # Install RVM (Ruby Version Manager)
 hash rvm 2>&- || {
-  bash < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer )
+  curl -O https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer
+  sh rvm-installer
+  rm rvm-installer
   echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # Load RVM function' >> ~/.bash_profile
   source ~/.bash_profile
 }
 
-# Install Ruby 1.9.3
-rvm install 1.9.3
-rvm use 1.9.3 --default
+# Install Ruby 1.9.2
+rvm install 1.9.2
+rvm use 1.9.2 --default
 
 # Check out Ruby-Genomics scripts from GitHub
 git clone git://github.com/timpalpant/Ruby-Genomics.git
@@ -87,5 +89,6 @@ gem install fftw3 -- --with-fftw-dir=/usr/local/Cellar/fftw/3.3
 bundle install
 
 # Run the tests
+source ~/.bash_profile
 bundle exec rake unit_test
 bundle exec rake test
