@@ -1,6 +1,6 @@
 <tool id="PowerSpectrum" name="Compute spectral density" version="1.0.0">
   <description>of windows</description>
-  <command interpreter="ruby1.9">powerSpectrum.rb -i $input -l $loci -o $output</command>
+  <command interpreter="ruby">powerSpectrum.rb -i $input -l $loci -o $output</command>
   <inputs>
     <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
     <param format="bed" name="loci" type="data" label="List of intervals to compute power spectrum on" />

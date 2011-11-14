@@ -1,6 +1,6 @@
 <tool id="WigCorrelate" name="Correlate" version="1.0.0">
   <description>multiple Wiggle files</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     wigCorrelate.rb -o $output
       #for $input in $inputs
         ${input.file}

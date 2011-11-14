@@ -1,7 +1,7 @@
 <tool id="MEMEMarkov" name="Generate background model" version="1.0.0">
   <description>from sequences</description>
   <requirement type='package'>meme</requirement>
-  <command interpreter="ruby1.9">memeMarkovWrapper.rb -i $input -m $order -o $output</command>
+  <command interpreter="ruby">memeMarkovWrapper.rb -i $input -m $order -o $output</command>
   <inputs>
     <param name="input" type="data" format="fasta" label="Input sequences" />
     <param name="order" type="integer" value="1" label="Markov model order" />

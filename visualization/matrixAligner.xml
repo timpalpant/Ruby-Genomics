@@ -1,6 +1,6 @@
 <tool id="MatrixAligner" name="Align values in a matrix" version="1.0.0">
   <description>for a heatmap</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     matrixAligner.rb -i $input -l $loci -m $M -o $output
     #if str( $ladder.draw ) == "true"
       -s $ladder.spacing

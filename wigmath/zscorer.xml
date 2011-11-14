@@ -1,6 +1,6 @@
 <tool id="ZScorer" name="Z-Score" version="1.0.0">
   <description>a (Big)Wig file</description>
-  <command interpreter="ruby1.9">zscorer.rb -i $input -g $dbkey -p 1 -o $output</command>
+  <command interpreter="ruby">zscorer.rb -i $input -g $dbkey -p 1 -o $output</command>
   <inputs>
       <param format="bigwig,wig" name="input" type="data" label="Z-score the data in" />
   </inputs>

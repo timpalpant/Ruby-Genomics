@@ -1,6 +1,6 @@
 <tool id="abi-dump" name="Abi-dump" version="1.1.0" force_history_refresh="True">
   <description>of SRA</description>
-  <command interpreter="ruby1.9">abiDumpWrapper.rb -i $input -o $output1 -n $output1.id -d $__new_file_path__</command>
+  <command interpreter="ruby">abiDumpWrapper.rb -i $input -o $output1 -n $output1.id -d $__new_file_path__</command>
   <inputs>
     <param name="input" type="data" format="sra" label="Short read archive" />
   </inputs>

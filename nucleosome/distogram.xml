@@ -1,6 +1,6 @@
 <tool id="Distogram" name="Make distogram" version="1.0.0">
   <description>of paired-end sequencing reads</description>
-  <command interpreter="ruby1.9">distogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
+  <command interpreter="ruby">distogram.rb -i $input -r $low:$high -g $dbkey -p 6 -o $output</command>
   <inputs>
     <param name="input" type="data" format="bam" label="Sequencing reads" />
     <param name="low" type="integer" value="100" label="Low end of read length range" />

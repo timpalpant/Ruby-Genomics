@@ -1,6 +1,6 @@
 <tool id="bar2wig" name="BAR-to-Wig" version="1.0">
   <description>converter</description>
-  <command interpreter="ruby1.9">barToWigWrapper.rb -i $input -t $threshold -s $step -o $output</command>
+  <command interpreter="ruby">barToWigWrapper.rb -i $input -t $threshold -s $step -o $output</command>
   <inputs>
     <param name="input" type="data" label="Affymetrix BAR file" />
     <param name="threshold" type="float" value="0" label="Threshold" />

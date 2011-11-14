@@ -1,6 +1,6 @@
 <tool id="BigWigToWig" name="BigWig-to-Wig" version="1.0.2">
   <description></description>
-  <command interpreter="ruby1.9">bigWigToWig.rb -i $input -o $output</command>
+  <command interpreter="ruby">bigWigToWig.rb -i $input -o $output</command>
   <inputs>
     <param name="input" type="data" format="bigwig" label="Input BigWig file" />
   </inputs>

@@ -1,6 +1,6 @@
 <tool id="ReadSelector" name="Randomly Select Reads" version="1.0.0">
   <description>from a sequencing run</description>
-  <command interpreter="ruby1.9">readSelector.rb -i $input -n $N -o $output</command>
+  <command interpreter="ruby">readSelector.rb -i $input -n $N -o $output</command>
   <inputs>
       <param name="input" type="data" format="tabular" label="Reads" />
       <param name="N" type="integer" value="1" label="Number of reads to select" />

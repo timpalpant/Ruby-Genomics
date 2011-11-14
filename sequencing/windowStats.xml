@@ -1,6 +1,6 @@
 <tool id="WindowAverager" name="Compute window statistics" version="1.0.0">
   <description>on data in a Wiggle file</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     windowStats.rb -w $windows -s $stat -o $output
       #for $input in $inputs
         ${input.file}

@@ -1,6 +1,6 @@
 <tool id="WigStats" name="Compute basic statistics" version="1.0.0">
   <description>on a (Big)Wig file</description>
-  <command interpreter="ruby1.9">wigstats.rb -i $input -o $output</command>
+  <command interpreter="ruby">wigstats.rb -i $input -o $output</command>
   <inputs>
       <param format="bigwig,wig" name="input" type="data" label="(Big)Wig file" />
   </inputs>

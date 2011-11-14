@@ -1,6 +1,6 @@
 <tool id="StripMatrix" name="Strip headers" version="1.0.0">
   <description>from an aligned matrix</description>
-  <command interpreter="ruby1.9">stripMatrix.rb -i $input -o $output</command>
+  <command interpreter="ruby">stripMatrix.rb -i $input -o $output</command>
   <inputs>
     <param format="tabular" name="input" type="data" label="Aligned matrix" />
   </inputs>

@@ -1,6 +1,6 @@
 <tool id="RomanNumeralize" name="Convert Arabic to Roman numerals" version="1.0.0">
   <description>on any file</description>
-  <command interpreter="ruby1.9">romanNumeralize.rb -i $input -o $output</command>
+  <command interpreter="ruby">romanNumeralize.rb -i $input -o $output</command>
   <inputs>
       <param name="input" type="data" label="Convert Arabic integer chromosome coordinates in" />
   </inputs>

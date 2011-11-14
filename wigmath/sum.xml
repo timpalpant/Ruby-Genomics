@@ -1,6 +1,6 @@
 <tool id="WigSum" name="Add" version="1.0.0">
   <description>multiple (Big)Wig files</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     sum.rb -g $dbkey -p 1 -o $output
       #for $input in $inputs
         ${input.file}

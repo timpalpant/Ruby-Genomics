@@ -1,6 +1,6 @@
 <tool id="MapDyads" name="Map dyads" version="1.0.0">
   <description>from sequencing reads</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     mapDyads.rb -i $input -g $dbkey -o $output -p 6
     #if $type.read == 'single'
       -l $type.offset

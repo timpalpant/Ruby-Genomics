@@ -1,6 +1,6 @@
 <tool id="AffyToBedGraph" name="Affy-to-BedGraph" version="1.0.0">
   <description>converter</description>
-  <command interpreter="ruby1.9">affyToBedGraph.rb -i $input -o $output</command>
+  <command interpreter="ruby">affyToBedGraph.rb -i $input -o $output</command>
   <inputs>
       <param name="input" type="data" format="tabular" label="Input Affymetrix file" />
   </inputs>

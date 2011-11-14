@@ -1,6 +1,6 @@
 <tool id="ConditionalPositioning" name="Compute conditional positioning" version="1.0.0">
   <description>for an MNase experiment</description>
-  <command interpreter="ruby1.9">conditionalPositioning.rb -i $input -o $output</command>
+  <command interpreter="ruby">conditionalPositioning.rb -i $input -o $output</command>
   <inputs>
       <param name="input" type="data" format="wig" label="Dyad counts" />
   </inputs>

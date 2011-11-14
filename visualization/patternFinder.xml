@@ -1,6 +1,6 @@
 <tool id="PatternFinder" name="Find patterns" version="1.0.0">
   <description>in (Big)Wig files</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     patternFinder.rb -l $loci -o $output
       #for $input in $inputs
         ${input.file}

@@ -1,6 +1,6 @@
 <tool id="DumpBigWig" name="Dump (Big)Wig file" version="1.0.0">
   <description>to column</description>
-  <command interpreter="ruby1.9">dumpBigWig.rb -i $input -o $output</command>
+  <command interpreter="ruby">dumpBigWig.rb -i $input -o $output</command>
   <inputs>
     <param name="input" type="data" format="bigwig,wig" label="BigWig data" />
   </inputs>

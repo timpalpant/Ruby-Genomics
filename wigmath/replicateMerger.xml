@@ -1,6 +1,6 @@
 <tool id="ReplicateMerger" name="Normalize to input" version="1.0.0">
   <description>and merge replicates</description>
-  <command interpreter="ruby1.9">
+  <command interpreter="ruby">
     replicateMerger.rb -g $dbkey -p 1 -r $relative -a $absolute
       #for $input in $inputs
         ${input.signal},${input.input}

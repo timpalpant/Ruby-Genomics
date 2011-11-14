@@ -1,6 +1,6 @@
 <tool id="SpectralDensity" name="Compute spectral density" version="1.0.0">
   <description>of sequencing data</description>
-  <command interpreter="ruby1.9">spectralDensity.rb -i $input -w $window -s $step -p $padding -o $output</command>
+  <command interpreter="ruby">spectralDensity.rb -i $input -w $window -s $step -p $padding -o $output</command>
   <inputs>
     <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
     <param name="window" type="integer" value="1000" label="Window size in base pairs" />

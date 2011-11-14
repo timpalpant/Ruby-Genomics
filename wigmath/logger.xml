@@ -1,6 +1,6 @@
 <tool id="Logger" name="Log transform" version="1.0.0">
   <description>a (Big)Wig file</description>
-  <command interpreter="ruby1.9">logger.rb -i $input -b $base -g $dbkey -p 1 -o $output</command>
+  <command interpreter="ruby">logger.rb -i $input -b $base -g $dbkey -p 1 -o $output</command>
   <inputs>
     <param format="bigwig,wig" name="input" type="data" label="(Big)Wig file" />
     <param name="base" type="integer" value="2" label="Logarithm base" />
