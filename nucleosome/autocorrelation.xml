@@ -1,0 +1,17 @@
+<tool id="Autocorrelation" name="Compute autocorrelation" version="1.0.0">
+  <description>of windows</description>
+  <command interpreter="ruby">autocorrelation.rb -i $input -l $loci -o $output</command>
+  <inputs>
+    <param format="bigwig,wig" name="input" type="data" label="Sequencing data" />
+    <param format="bed" name="loci" type="data" label="List of intervals to compute autocorrelation on" />
+  </inputs>
+  <outputs>
+    <data format="tabular" name="output" />
+  </outputs>
+  
+  <help>
+    .. class:: warningmark
+    
+    This tool was contributed by Timothy Palpant.
+  </help>
+</tool>
