@@ -7,9 +7,9 @@
 #   Take sequencing data in nukes.wig and compute the autocorrelation on
 #   the list of windows specified in orfs.bed
 #
-#   powerSpectrum.rb -i nukes.wig -l orfs.bed -o fft.txt
+#   autoCorrelation.rb -i nukes.wig -l orfs.bed -o fft.txt
 #
-#   For help use: powerSpectrum.rb -h
+#   For help use: autoCorrelation.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
@@ -77,9 +77,18 @@ File.open(options[:output], 'w') do |f|
       next
     end
     
-    # Compute the autocorrelation, using the Wiener–Khinchin theorem
-    autocorrelation = FFTW3.ifft(FFTW3.fft(data).abs**2)
-    
-    f.puts "#{spot.id}\t#{spot.chr}\t#{spot.start}\t#{spot.stop}\t#{(spot.start-spot.stop).abs}\t#{autocorrelation.join("\t")}"
+    # Compute the autocorrelation, using the Wiener-Khinchin theorem
+    autocorrelation = FFTW3.ifft(FFTW3.fft(data).abs**2).real
+    options[:limit] = 200
+    #autocorrelation = Array.new(options[:limit])
+    #for i in 1..options[:limit]
+    #  sum = 0
+    #  for j in 0...data.length
+    #    sum += data[j] * data[j-i]
+    #  end
+    #  autocorrelation[i-1] = sum
+    #end
+
+    f.puts "#{spot.id}\t#{spot.chr}\t#{spot.start}\t#{spot.stop}\t#{spot.length}\t#{autocorrelation[0...options[:limit]].to_a.join("\t")}"
   end
 end

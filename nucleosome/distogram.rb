@@ -29,6 +29,7 @@ require 'bundler/setup'
 require 'pickled_optparse'
 require 'utils/parallelizer'
 require 'bio-genomic-file'
+require 'reference_assembly'
 require 'stats'
 include Bio
 
@@ -71,12 +72,12 @@ raise "Invalid range given. Range should be of the format LOW:HIGH" if low >= hi
 num_bins = high - low + 1
 
 # Load the genome assembly
-assembly = Genomics::Assembly.load(options[:genome])
+assembly = ReferenceAssembly.load(options[:genome])
 
 # Process each chromosome in parallel
 # Each chromosome in a different parallel process
 histograms = nil
-BAMFile.open(options[:input]) do |bam|
+EntryFile.autodetect(options[:input]) do |bam|
   histograms = assembly.p_map(:in_processes => options[:threads]) do |chr, chr_length|
     puts "\nProcessing chromosome #{chr}" if ENV['DEBUG']
     chr_hist = Array.new(num_bins, 0)

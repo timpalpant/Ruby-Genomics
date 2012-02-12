@@ -87,11 +87,10 @@ begin
     # Compute the absolute difference and Z-score
     tmp_difference = "replicate#{i}.diff.wig"
     tmp_files << tmp_difference
-    %x[ #{RUBY_INTERPRETER} #{DIFFERENCE_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -m #{pair.signal} -s #{pair.input} -o #{tmp_difference}]
-    absolute = tmp_difference
-    #absolute = "replicate#{i}.diff.zscored.wig"
-    #tmp_files << absolute
-    #%x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_difference} -o #{absolute} ]
+    %x[ #{RUBY_INTERPRETER} #{DIFFERENCE_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -m #{pair.signal} -s #{pair.input} -o #{tmp_difference}
+    absolute = "replicate#{i}.diff.zscored.wig"
+    tmp_files << absolute
+    %x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_difference} -o #{absolute} ]
   
     # Compute the relative difference, log-transform and Z-score
     tmp_divide = "replicate#{i}.div.wig"
@@ -100,10 +99,9 @@ begin
     tmp_log = "replicate#{i}.div.log.wig"
     tmp_files << tmp_log
     %x[ #{RUBY_INTERPRETER} #{LOGGER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -b #{options[:base]} -i #{tmp_divide} -o #{tmp_log}]
-    relative = tmp_log
-    #relative = "replicate#{i}.div.log.zscored.wig"
-    #tmp_files << relative
-    #{}%x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_log} -o #{relative} ]
+    relative = "replicate#{i}.div.log.zscored.wig"
+    tmp_files << relative
+    %x[ #{RUBY_INTERPRETER} #{ZSCORER_SCRIPT} -p #{options[:threads]} -g #{options[:genome]} -i #{tmp_log} -o #{relative} ]
     
     NormalizedPair.new(absolute, relative)
   end
